@@ -19,6 +19,7 @@ public class NotificationService(HttpClient httpClient) : INotificationService
 
     public async Task SendMaintenanceAlertAsync(
         Guid userId,
+        Guid tenantId,
         string userName,
         string userEmail,
         string vehicleName,
@@ -42,12 +43,12 @@ public class NotificationService(HttpClient httpClient) : INotificationService
             }
         );
 
-        var response = await httpClient.PostAsJsonAsync("api/Notification", message, JsonOptions, cancellationToken);
-        response.EnsureSuccessStatusCode();
+        await SendAsync(message, tenantId, cancellationToken);
     }
 
     public async Task SendTrafficFineAlertAsync(
         Guid userId,
+        Guid tenantId,
         string userName,
         string userEmail,
         string vehicleName,
@@ -71,12 +72,12 @@ public class NotificationService(HttpClient httpClient) : INotificationService
             }
         );
 
-        var response = await httpClient.PostAsJsonAsync("api/Notification", message, JsonOptions, cancellationToken);
-        response.EnsureSuccessStatusCode();
+        await SendAsync(message, tenantId, cancellationToken);
     }
 
     public async Task SendDocumentAlertAsync(
         Guid userId,
+        Guid tenantId,
         string userName,
         string userEmail,
         string vehicleName,
@@ -102,7 +103,20 @@ public class NotificationService(HttpClient httpClient) : INotificationService
             }
         );
 
-        var response = await httpClient.PostAsJsonAsync("api/Notification", message, JsonOptions, cancellationToken);
+        await SendAsync(message, tenantId, cancellationToken);
+    }
+
+    private async Task SendAsync(CreateNotificationMessage message, Guid tenantId, CancellationToken cancellationToken)
+    {
+        using var request = new HttpRequestMessage(HttpMethod.Post, "api/Notification")
+        {
+            Content = JsonContent.Create(message, options: JsonOptions)
+        };
+
+        if (tenantId != Guid.Empty)
+            request.Headers.Add("X-Tenant-ID", tenantId.ToString());
+
+        var response = await httpClient.SendAsync(request, cancellationToken);
         response.EnsureSuccessStatusCode();
     }
 }

@@ -16,11 +16,16 @@ public class AuthServiceClient(HttpClient httpClient) : IAuthServiceClient
         Converters = { new JsonStringEnumConverter() }
     };
 
-    public async Task<UserResponseDto?> GetUserByIdAsync(Guid userId, CancellationToken cancellationToken)
+    public async Task<UserResponseDto?> GetUserByIdAsync(Guid userId, Guid tenantId, CancellationToken cancellationToken)
     {
         try
         {
-            var response = await httpClient.GetAsync($"api/users/{userId}", cancellationToken);
+            using var request = new HttpRequestMessage(HttpMethod.Get, $"api/users/{userId}");
+
+            if (tenantId != Guid.Empty)
+                request.Headers.Add("X-Tenant-ID", tenantId.ToString());
+
+            var response = await httpClient.SendAsync(request, cancellationToken);
             if (response.StatusCode == HttpStatusCode.NotFound)
                 return null;
 

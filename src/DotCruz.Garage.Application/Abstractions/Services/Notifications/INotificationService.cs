@@ -4,6 +4,7 @@ public interface INotificationService
 {
     Task SendMaintenanceAlertAsync(
         Guid userId,
+        Guid tenantId,
         string userName,
         string userEmail,
         string vehicleName,
@@ -14,6 +15,7 @@ public interface INotificationService
 
     Task SendTrafficFineAlertAsync(
         Guid userId,
+        Guid tenantId,
         string userName,
         string userEmail,
         string vehicleName,
@@ -24,6 +26,7 @@ public interface INotificationService
 
     Task SendDocumentAlertAsync(
         Guid userId,
+        Guid tenantId,
         string userName,
         string userEmail,
         string vehicleName,

@@ -4,5 +4,5 @@ namespace DotCruz.Garage.Application.Abstractions.Services.Auth;
 
 public interface IAuthServiceClient
 {
-    Task<UserResponseDto?> GetUserByIdAsync(Guid userId, CancellationToken cancellationToken);
+    Task<UserResponseDto?> GetUserByIdAsync(Guid userId, Guid tenantId, CancellationToken cancellationToken);
 }

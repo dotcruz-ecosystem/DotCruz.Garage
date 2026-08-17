@@ -77,7 +77,8 @@ public static class DependencyInjection
         {
             var baseUrl = configuration["Settings:NotificationApiUrl"];
             client.BaseAddress = new Uri(baseUrl);
-        });
+        })
+        .AddServiceApiKeyPropagation();
 
         services.AddHttpClient<IAuthServiceClient, AuthServiceClient>(client =>
         {
