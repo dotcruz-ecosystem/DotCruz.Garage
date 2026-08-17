@@ -1,0 +1,9 @@
+<Solution>
+  <Folder Name="/src/">
+    <Project Path="src/DotCruz.Garage.Api/DotCruz.Garage.Api.csproj" />
+    <Project Path="src/DotCruz.Garage.Application/DotCruz.Garage.Application.csproj" />
+    <Project Path="src/DotCruz.Garage.CrossCutting/DotCruz.Garage.CrossCutting.csproj" />
+    <Project Path="src/DotCruz.Garage.Domain/DotCruz.Garage.Domain.csproj" />
+    <Project Path="src/DotCruz.Garage.Infrastructure/DotCruz.Garage.Infrastructure.csproj" />
+  </Folder>
+</Solution>

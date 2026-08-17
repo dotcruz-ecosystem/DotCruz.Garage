@@ -1,0 +1,30 @@
+services:
+  garage-api:
+    image: ${DOCKER_IMAGE_TAG}
+    container_name: dotcruz-garage-api
+    restart: unless-stopped
+    ports:
+      - "127.0.0.1:5053:8080"
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Production
+      - ConnectionStrings__DefaultConnection=${GARAGE_CONNECTION_STRING}
+      - Settings__NotificationApiUrl=${NOTIFICATION_BASE_URL}
+      - Settings__AuthApiUrl=${CORE_AUTH_BASE_ADDRESS}
+      - Settings__ServiceAuth__Self__Name=Garage
+      - Settings__ServiceAuth__Self__Key=${GARAGE_SERVICE_KEY}
+      - Settings__ServiceAuth__Keys__CoreAuth=${COREAUTH_SERVICE_KEY}
+      - Settings__ServiceAuth__Keys__Notifications=${NOTIFICATIONS_SERVICE_KEY}
+      - Settings__Jwt__Issuer=${JWT_ISSUER}
+      - Settings__Jwt__Audience=${JWT_AUDIENCE}
+      - Settings__Jwt__JwksUrl=${JWT_JWKS_URL}
+    networks:
+      - dotcruz_net
+    deploy:
+      resources:
+        limits:
+          memory: 256M
+
+networks:
+  dotcruz_net:
+    name: dotcruz_net
+    external: true

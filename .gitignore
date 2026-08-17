@@ -1,0 +1,59 @@
+## Build and Output
+bin/
+obj/
+[Dd]ebug/
+[Rr]elease/
+x64/
+x86/
+bld/
+
+## User-specific files
+*.rsuser
+*.suo
+*.user
+*.userfile
+*.userprefs
+*.log
+
+## Visual Studio cache and settings
+.vs/
+.vs-*
+[Dd]ebugPS/
+[Rr]eleasePS/
+*.vsp
+*.vspx
+*.sap
+*.csproj.user
+*.sqlproj.user
+*.sln.docstates
+
+## Rider / JetBrains
+.idea/
+*.sln.iml
+
+## Visual Studio Code
+.vscode/
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/launch.json
+!.vscode/extensions.json
+*.code-workspace
+
+## NuGet Packages
+*.nupkg
+**/packages/
+project.lock.json
+project.fragment.lock.json
+
+## OS generated files
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+$RECYCLE.BIN/
+.DS_Store
+
+# Credentials
+appsettings.json
+appsettings.*.json
+!appsettings.Example.json
+.env

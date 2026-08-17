@@ -1,0 +1,128 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
+    <xsd:import namespace="http://www.w3.org/XML/1998/namespace" />
+    <xsd:element name="root" msdata:IsDataSet="true">
+      <xsd:complexType>
+        <xsd:choice maxOccurs="unbounded">
+          <xsd:element name="metadata">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" />
+              </xsd:sequence>
+              <xsd:attribute name="name" use="required" type="xsd:string" />
+              <xsd:attribute name="type" type="xsd:string" />
+              <xsd:attribute name="mimetype" type="xsd:string" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="assembly">
+            <xsd:complexType>
+              <xsd:attribute name="alias" type="xsd:string" />
+              <xsd:attribute name="name" type="xsd:string" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="data">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="0" />
+                <xsd:element name="comment" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" msdata:Ordinal="1" />
+              <xsd:attribute name="type" type="xsd:string" msdata:Ordinal="3" />
+              <xsd:attribute name="mimetype" type="xsd:string" msdata:Ordinal="4" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="resheader">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="0" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" />
+            </xsd:complexType>
+          </xsd:element>
+        </xsd:choice>
+      </xsd:complexType>
+    </xsd:element>
+  </xsd:schema>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  
+  <data name="VEHICLE_NOT_FOUND" xml:space="preserve">
+    <value>Vehicle not found.</value>
+  </data>
+  <data name="MAINTENANCE_SCHEDULE_NOT_FOUND" xml:space="preserve">
+    <value>Maintenance schedule not found.</value>
+  </data>
+  <data name="MAINTENANCE_LOG_NOT_FOUND" xml:space="preserve">
+    <value>Maintenance log not found.</value>
+  </data>
+  <data name="ODOMETER_VALUE_INVALID" xml:space="preserve">
+    <value>The new odometer reading cannot be less than the current mileage.</value>
+  </data>
+  <data name="DAILY_MILEAGE_INVALID" xml:space="preserve">
+    <value>The daily mileage average cannot be negative.</value>
+  </data>
+  <data name="UNKNOWN_ERROR" xml:space="preserve">
+    <value>An unexpected internal error occurred. Please try again later.</value>
+  </data>
+  <data name="NAME_EMPTY" xml:space="preserve">
+    <value>The vehicle name cannot be empty.</value>
+  </data>
+  <data name="NAME_INVALID_LENGTH" xml:space="preserve">
+    <value>The vehicle name must be between 2 and 100 characters.</value>
+  </data>
+  <data name="BRAND_EMPTY" xml:space="preserve">
+    <value>The brand cannot be empty.</value>
+  </data>
+  <data name="MODEL_EMPTY" xml:space="preserve">
+    <value>The model cannot be empty.</value>
+  </data>
+  <data name="YEAR_INVALID" xml:space="preserve">
+    <value>The year is invalid.</value>
+  </data>
+  <data name="ODOMETER_NEGATIVE" xml:space="preserve">
+    <value>The odometer reading cannot be negative.</value>
+  </data>
+  <data name="DAILY_MILEAGE_NEGATIVE" xml:space="preserve">
+    <value>The daily mileage average cannot be negative.</value>
+  </data>
+  <data name="PAGE_NUMBER_INVALID" xml:space="preserve">
+    <value>Page number must be greater than or equal to 1.</value>
+  </data>
+  <data name="PAGE_SIZE_INVALID" xml:space="preserve">
+    <value>Page size must be between 1 and 100.</value>
+  </data>
+  <data name="INTERVAL_REQUIRED" xml:space="preserve">
+    <value>At least one interval (mileage or months) must be specified.</value>
+  </data>
+  <data name="ID_EMPTY" xml:space="preserve">
+    <value>The ID cannot be empty.</value>
+  </data>
+  <data name="FINE_NOT_FOUND" xml:space="preserve">
+    <value>Traffic fine not found.</value>
+  </data>
+  <data name="PAYMENT_RECEIPT_REQUIRED" xml:space="preserve">
+    <value>Payment receipt URL is required.</value>
+  </data>
+  <data name="DOCUMENT_NOT_FOUND" xml:space="preserve">
+    <value>Vehicle document not found.</value>
+  </data>
+  <data name="DOCUMENT_FILE_REQUIRED" xml:space="preserve">
+    <value>Document file URL is required.</value>
+  </data>
+  <data name="ACCESSORY_NOT_FOUND" xml:space="preserve">
+    <value>Vehicle accessory not found.</value>
+  </data>
+</root>

@@ -1,0 +1,6 @@
+@DotCruz.Garage.Api_HostAddress = http://localhost:5194
+
+GET {{DotCruz.Garage.Api_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
