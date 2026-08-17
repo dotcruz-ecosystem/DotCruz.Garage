@@ -13,6 +13,8 @@ public class VehicleDocumentWriteRepository(GarageDbContext context)
     {
         var now = DateTimeOffset.UtcNow;
         return await _dbSet
+            .IgnoreQueryFilters()
+            .Where(d => d.DeletedAt == null && d.Vehicle.DeletedAt == null)
             .Include(d => d.Vehicle)
             .Where(d => 
                 (d.Status == DocumentStatus.Pending && d.DueDate <= now.AddDays(d.WarningThresholdDays ?? VehicleDocument.DefaultWarningThresholdDays) && (d.LastNotifiedStatus != DocumentStatus.Pending || d.LastNotifiedAt == null))

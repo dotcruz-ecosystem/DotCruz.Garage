@@ -19,6 +19,8 @@ public class MaintenanceScheduleWriteRepository(GarageDbContext context)
     public async Task<IReadOnlyCollection<MaintenanceSchedule>> GetSchedulesWithVehicleDetailsToUpdateAsync(CancellationToken cancellationToken)
     {
         return await _dbSet
+            .IgnoreQueryFilters()
+            .Where(ms => ms.DeletedAt == null && ms.Vehicle.DeletedAt == null)
             .Include(ms => ms.Vehicle)
             .Where(ms =>
                 (ms.NextDueOdometer.HasValue && (ms.NextDueOdometer.Value - ms.Vehicle.CurrentOdometer) <= (ms.WarningThresholdOdometer ?? MaintenanceSchedule.DefaultWarningThresholdOdometer)) ||

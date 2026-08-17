@@ -13,6 +13,8 @@ public class TrafficFineWriteRepository(GarageDbContext context)
     {
         var now = DateTimeOffset.UtcNow;
         return await _dbSet
+            .IgnoreQueryFilters()
+            .Where(tf => tf.DeletedAt == null && tf.Vehicle.DeletedAt == null)
             .Include(tf => tf.Vehicle)
             .Where(tf => tf.Status == FineStatus.Pending 
                 && tf.LastNotifiedAt == null 
