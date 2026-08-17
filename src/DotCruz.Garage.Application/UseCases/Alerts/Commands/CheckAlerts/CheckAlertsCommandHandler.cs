@@ -9,7 +9,6 @@ using DotCruz.Garage.Domain.Entities.Fines;
 using DotCruz.Garage.Domain.Entities.Documents;
 using DotCruz.Garage.Domain.Enums;
 using MediatR;
-using System.Collections.Concurrent;
 using DotCruz.Garage.Application.Abstractions.Services.Auth.DTOs;
 
 namespace DotCruz.Garage.Application.UseCases.Alerts.Commands.CheckAlerts;
@@ -23,7 +22,7 @@ public class CheckAlertsCommandHandler : IRequestHandler<CheckAlertsCommand>
     private readonly INotificationService _notificationService;
     private readonly IUnitOfWork _unitOfWork;
 
-    private readonly ConcurrentDictionary<Guid, UserResponseDto> _usersDictionary = new();
+    private readonly Dictionary<(Guid UserId, Guid TenantId), UserResponseDto> _usersCache = [];
 
     public CheckAlertsCommandHandler(
         IMaintenanceScheduleWriteRepository scheduleWriteRepository,
@@ -53,7 +52,6 @@ public class CheckAlertsCommandHandler : IRequestHandler<CheckAlertsCommand>
     private async Task ProcessMaintenanceAlertsAsync(CancellationToken cancellationToken)
     {
         var maintenancesSchedule = await _scheduleWriteRepository.GetSchedulesWithVehicleDetailsToUpdateAsync(cancellationToken);
-        var tasks = new List<Task>();
 
         foreach (var maintenance in maintenancesSchedule)
         {
@@ -63,20 +61,19 @@ public class CheckAlertsCommandHandler : IRequestHandler<CheckAlertsCommand>
             if (maintenance.Status == ScheduleStatus.Active || maintenance.Status == ScheduleStatus.Inactive || maintenance.LastNotifiedStatus == maintenance.Status)
                 continue;
 
-            tasks.Add(NotifyMaintenanceAsync(maintenance, status, cancellationToken));
+            await NotifyMaintenanceAsync(maintenance, status, cancellationToken);
         }
-
-        await Task.WhenAll(tasks);
     }
 
     private async Task NotifyMaintenanceAsync(MaintenanceSchedule maintenance, ScheduleStatus status, CancellationToken cancellationToken)
     {
-        var user = await GetOrCreateUserAsync(maintenance.UserId, cancellationToken);
+        var user = await GetUserAsync(maintenance.UserId, maintenance.TenantId, cancellationToken);
         if (user == null)
             return;
 
         await _notificationService.SendMaintenanceAlertAsync(
             userId: maintenance.UserId,
+            tenantId: maintenance.TenantId,
             userName: user.Name,
             userEmail: user.Email,
             vehicleName: maintenance.Vehicle.Name,
@@ -92,24 +89,22 @@ public class CheckAlertsCommandHandler : IRequestHandler<CheckAlertsCommand>
     private async Task ProcessTrafficFineAlertsAsync(CancellationToken cancellationToken)
     {
         var fines = await _fineWriteRepository.GetPendingFinesToNotifyAsync(cancellationToken);
-        var tasks = new List<Task>();
 
         foreach (var fine in fines)
         {
-            tasks.Add(NotifyTrafficFineAsync(fine, cancellationToken));
+            await NotifyTrafficFineAsync(fine, cancellationToken);
         }
-
-        await Task.WhenAll(tasks);
     }
 
     private async Task NotifyTrafficFineAsync(TrafficFine fine, CancellationToken cancellationToken)
     {
-        var user = await GetOrCreateUserAsync(fine.UserId, cancellationToken);
+        var user = await GetUserAsync(fine.UserId, fine.TenantId, cancellationToken);
         if (user == null)
             return;
 
         await _notificationService.SendTrafficFineAlertAsync(
             userId: fine.UserId,
+            tenantId: fine.TenantId,
             userName: user.Name,
             userEmail: user.Email,
             vehicleName: fine.Vehicle.Name,
@@ -125,19 +120,16 @@ public class CheckAlertsCommandHandler : IRequestHandler<CheckAlertsCommand>
     private async Task ProcessDocumentAlertsAsync(CancellationToken cancellationToken)
     {
         var documents = await _documentWriteRepository.GetDocumentsToNotifyAsync(cancellationToken);
-        var tasks = new List<Task>();
 
         foreach (var doc in documents)
         {
-            tasks.Add(NotifyDocumentAsync(doc, cancellationToken));
+            await NotifyDocumentAsync(doc, cancellationToken);
         }
-
-        await Task.WhenAll(tasks);
     }
 
     private async Task NotifyDocumentAsync(VehicleDocument doc, CancellationToken cancellationToken)
     {
-        var user = await GetOrCreateUserAsync(doc.UserId, cancellationToken);
+        var user = await GetUserAsync(doc.UserId, doc.TenantId, cancellationToken);
         if (user == null)
             return;
 
@@ -146,6 +138,7 @@ public class CheckAlertsCommandHandler : IRequestHandler<CheckAlertsCommand>
 
         await _notificationService.SendDocumentAlertAsync(
             userId: doc.UserId,
+            tenantId: doc.TenantId,
             userName: user.Name,
             userEmail: user.Email,
             vehicleName: doc.Vehicle.Name,
@@ -159,14 +152,17 @@ public class CheckAlertsCommandHandler : IRequestHandler<CheckAlertsCommand>
         doc.Notify(statusToNotify);
     }
 
-    private async Task<UserResponseDto?> GetOrCreateUserAsync(Guid userId, CancellationToken cancellationToken)
+    private async Task<UserResponseDto?> GetUserAsync(Guid userId, Guid tenantId, CancellationToken cancellationToken)
     {
-        if (_usersDictionary.TryGetValue(userId, out var user))
-            return user;
+        var key = (userId, tenantId);
 
-        user = await _authServiceClient.GetUserByIdAsync(userId, cancellationToken);
+        if (_usersCache.TryGetValue(key, out var cached))
+            return cached;
+
+        var user = await _authServiceClient.GetUserByIdAsync(userId, tenantId, cancellationToken);
+
         if (user != null)
-            _usersDictionary.TryAdd(userId, user);
+            _usersCache[key] = user;
 
         return user;
     }
