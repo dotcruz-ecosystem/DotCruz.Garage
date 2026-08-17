@@ -1,0 +1,29 @@
+using Bogus;
+using DotCruz.Garage.Domain.Entities.Vehicles;
+
+namespace CommonTestUtilities.Entities;
+
+public class VehicleBuilder
+{
+    public static Vehicle Build(
+        Guid? tenantId = null,
+        Guid? userId = null,
+        string? name = null,
+        int initialOdometer = 50_000)
+    {
+        var faker = new Faker();
+
+        return Vehicle.Create(
+            tenantId: tenantId ?? Guid.NewGuid(),
+            userId: userId ?? Guid.NewGuid(),
+            name: name ?? faker.Vehicle.Model(),
+            brand: faker.Vehicle.Manufacturer(),
+            model: faker.Vehicle.Model(),
+            year: 2020,
+            plate: faker.Random.Replace("???####"),
+            vin: faker.Vehicle.Vin(),
+            initialOdometer: initialOdometer,
+            initialDailyMileageAverage: 30
+        );
+    }
+}

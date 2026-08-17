@@ -6,4 +6,9 @@
     <Project Path="src/DotCruz.Garage.Domain/DotCruz.Garage.Domain.csproj" />
     <Project Path="src/DotCruz.Garage.Infrastructure/DotCruz.Garage.Infrastructure.csproj" />
   </Folder>
+  <Folder Name="/tests/">
+    <Project Path="tests/CommonTestUtilities/CommonTestUtilities.csproj" />
+    <Project Path="tests/Infrastructure.Test/Infrastructure.Test.csproj" />
+    <Project Path="tests/UseCases.Test/UseCases.Test.csproj" />
+  </Folder>
 </Solution>
