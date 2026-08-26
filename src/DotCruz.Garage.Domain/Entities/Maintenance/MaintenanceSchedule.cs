@@ -138,6 +138,25 @@ public class MaintenanceSchedule : BaseEntity, ITenantEntity
         RecalculateNextDue(odometerAtService, dailyMileageAverage);
     }
 
+    public void Update(
+        string description,
+        MaintenanceCategory category,
+        int? intervalOdometer,
+        int? intervalTimeMonths,
+        int? warningThresholdOdometer,
+        int? warningThresholdDays,
+        int currentOdometer,
+        double dailyMileageAverage)
+    {
+        Description = description;
+        Category = category;
+        IntervalOdometer = intervalOdometer;
+        IntervalTimeMonths = intervalTimeMonths;
+        WarningThresholdOdometer = warningThresholdOdometer;
+        WarningThresholdDays = warningThresholdDays;
+        RecalculateNextDue(currentOdometer, dailyMileageAverage);
+    }
+
     public void Notify(ScheduleStatus status)
     {
         LastNotifiedAt = DateTimeOffset.UtcNow;

@@ -152,4 +152,7 @@
   <data name="TOKEN_REQUIRED" xml:space="preserve">
     <value>Check-in token is required.</value>
   </data>
+  <data name="COST_NEGATIVE" xml:space="preserve">
+    <value>Cost cannot be negative.</value>
+  </data>
 </root>

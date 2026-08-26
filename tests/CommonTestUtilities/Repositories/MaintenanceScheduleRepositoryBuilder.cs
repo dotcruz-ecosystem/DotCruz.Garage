@@ -12,6 +12,46 @@ public class MaintenanceScheduleRepositoryBuilder
     public Mock<IMaintenanceScheduleReadRepository> ReadMock => _readMock;
     public Mock<IMaintenanceScheduleWriteRepository> WriteMock => _writeMock;
 
+    public MaintenanceScheduleRepositoryBuilder SetupGetById(MaintenanceSchedule? schedule)
+    {
+        _readMock.Setup(r => r.GetByIdAsync(
+            It.IsAny<Guid>(),
+            It.IsAny<CancellationToken>()))
+            .ReturnsAsync(schedule);
+
+        return this;
+    }
+
+    public MaintenanceScheduleRepositoryBuilder SetupGetByIdToUpdate(MaintenanceSchedule? schedule)
+    {
+        _writeMock.Setup(w => w.GetByIdToUpdateAsync(
+            It.IsAny<Guid>(),
+            It.IsAny<CancellationToken>()))
+            .ReturnsAsync(schedule);
+
+        return this;
+    }
+
+    public MaintenanceScheduleRepositoryBuilder SetupGetByVehicleId(IReadOnlyCollection<MaintenanceSchedule> schedules)
+    {
+        _readMock.Setup(r => r.GetByVehicleIdAsync(
+            It.IsAny<Guid>(),
+            It.IsAny<CancellationToken>()))
+            .ReturnsAsync(schedules);
+
+        return this;
+    }
+
+    public MaintenanceScheduleRepositoryBuilder SetupGetByVehicleIdToUpdate(IReadOnlyCollection<MaintenanceSchedule> schedules)
+    {
+        _writeMock.Setup(w => w.GetByVehicleIdToUpdateAsync(
+            It.IsAny<Guid>(),
+            It.IsAny<CancellationToken>()))
+            .ReturnsAsync(schedules);
+
+        return this;
+    }
+
     public MaintenanceScheduleRepositoryBuilder SetupGetByVehicleIdToUpdateUnscoped(IReadOnlyCollection<MaintenanceSchedule> schedules)
     {
         _writeMock.Setup(w => w.GetByVehicleIdToUpdateUnscopedAsync(

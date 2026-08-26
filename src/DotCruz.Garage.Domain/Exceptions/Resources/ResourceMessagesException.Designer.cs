@@ -245,5 +245,11 @@ namespace DotCruz.Garage.Domain.Exceptions.Resources {
                 return ResourceManager.GetString("TOKEN_REQUIRED", resourceCulture);
             }
         }
+
+        public static string COST_NEGATIVE {
+            get {
+                return ResourceManager.GetString("COST_NEGATIVE", resourceCulture);
+            }
+        }
     }
 }
