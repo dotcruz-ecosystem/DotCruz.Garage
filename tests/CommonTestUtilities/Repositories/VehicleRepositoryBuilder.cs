@@ -12,6 +12,15 @@ public class VehicleRepositoryBuilder
     public Mock<IVehicleReadRepository> ReadMock => _readMock;
     public Mock<IVehicleWriteRepository> WriteMock => _writeMock;
 
+    public VehicleRepositoryBuilder SetupGetAll(IReadOnlyCollection<Vehicle> vehicles)
+    {
+        _readMock.Setup(r => r.GetAllAsync(
+            It.IsAny<CancellationToken>()))
+            .ReturnsAsync(vehicles);
+
+        return this;
+    }
+
     public VehicleRepositoryBuilder SetupGetById(Vehicle? vehicle)
     {
         _readMock.Setup(r => r.GetByIdAsync(

@@ -9,6 +9,7 @@ public class VehicleBuilder
         Guid? tenantId = null,
         Guid? userId = null,
         string? name = null,
+        string? plate = null,
         int initialOdometer = 50_000)
     {
         var faker = new Faker();
@@ -20,7 +21,7 @@ public class VehicleBuilder
             brand: faker.Vehicle.Manufacturer(),
             model: faker.Vehicle.Model(),
             year: 2020,
-            plate: faker.Random.Replace("???####"),
+            plate: plate ?? faker.Random.Replace("???####"),
             vin: faker.Vehicle.Vin(),
             initialOdometer: initialOdometer,
             initialDailyMileageAverage: 30

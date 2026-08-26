@@ -17,4 +17,9 @@ public class BaseReadRepository<TEntity>(GarageDbContext context) : IBaseReadRep
     {
         return await _dbSet.AsNoTracking().FirstOrDefaultAsync(e => e.Id == id, cancellationToken);
     }
+
+    public async Task<IReadOnlyCollection<TEntity>> GetAllAsync(CancellationToken cancellationToken)
+    {
+        return await _dbSet.AsNoTracking().ToListAsync(cancellationToken);
+    }
 }

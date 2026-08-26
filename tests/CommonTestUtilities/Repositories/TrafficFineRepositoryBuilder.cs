@@ -1,4 +1,4 @@
-﻿using DotCruz.Garage.Application.Abstractions.Data.Repositories.Fines;
+using DotCruz.Garage.Application.Abstractions.Data.Repositories.Fines;
 using DotCruz.Garage.Domain.Entities.Fines;
 using Moq;
 
@@ -11,6 +11,25 @@ public class TrafficFineRepositoryBuilder
 
     public Mock<ITrafficFineReadRepository> ReadMock => _readMock;
     public Mock<ITrafficFineWriteRepository> WriteMock => _writeMock;
+
+    public TrafficFineRepositoryBuilder SetupGetAll(IReadOnlyCollection<TrafficFine> fines)
+    {
+        _readMock.Setup(r => r.GetAllAsync(
+            It.IsAny<CancellationToken>()))
+            .ReturnsAsync(fines);
+
+        return this;
+    }
+
+    public TrafficFineRepositoryBuilder SetupGetByVehicleId(IReadOnlyCollection<TrafficFine> fines)
+    {
+        _readMock.Setup(r => r.GetByVehicleIdAsync(
+            It.IsAny<Guid>(),
+            It.IsAny<CancellationToken>()))
+            .ReturnsAsync(fines);
+
+        return this;
+    }
 
     public TrafficFineRepositoryBuilder SetupGetById(TrafficFine? fine)
     {
