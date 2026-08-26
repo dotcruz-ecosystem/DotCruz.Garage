@@ -125,4 +125,19 @@
   <data name="ACCESSORY_NOT_FOUND" xml:space="preserve">
     <value>Vehicle accessory not found.</value>
   </data>
+  <data name="BLUEPRINT_NOT_FOUND" xml:space="preserve">
+    <value>Vehicle blueprint not found.</value>
+  </data>
+  <data name="MANUAL_FILE_REQUIRED" xml:space="preserve">
+    <value>Manual file is required.</value>
+  </data>
+  <data name="MANUAL_FILE_EMPTY" xml:space="preserve">
+    <value>Manual file cannot be empty.</value>
+  </data>
+  <data name="MANUAL_FILE_INVALID_FORMAT" xml:space="preserve">
+    <value>Only PDF files are supported for manual extraction.</value>
+  </data>
+  <data name="MANUAL_EXTRACTION_FAILED" xml:space="preserve">
+    <value>Failed to extract maintenance plans from the provided manual.</value>
+  </data>
 </root>

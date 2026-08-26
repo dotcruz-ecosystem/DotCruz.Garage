@@ -6,6 +6,7 @@ using DotCruz.Garage.Domain.Entities.Maintenance;
 using DotCruz.Garage.Domain.Entities.Fines;
 using DotCruz.Garage.Domain.Entities.Documents;
 using DotCruz.Garage.Domain.Entities.Accessories;
+using DotCruz.Garage.Domain.Entities.Catalog;
 using Microsoft.EntityFrameworkCore;
 
 namespace DotCruz.Garage.Infrastructure.Data;
@@ -27,6 +28,8 @@ public class GarageDbContext : DbContext
     public DbSet<TrafficFine> TrafficFines { get; set; }
     public DbSet<VehicleDocument> VehicleDocuments { get; set; }
     public DbSet<VehicleAccessory> VehicleAccessories { get; set; }
+    public DbSet<VehicleBlueprint> VehicleBlueprints { get; set; }
+    public DbSet<MaintenancePlanTemplate> MaintenancePlanTemplates { get; set; }
 
     public Guid CurrentTenantId => _tenantProvider.TenantId ?? Guid.Empty;
     public Guid CurrentUserId => _tenantProvider.UserId ?? Guid.Empty;

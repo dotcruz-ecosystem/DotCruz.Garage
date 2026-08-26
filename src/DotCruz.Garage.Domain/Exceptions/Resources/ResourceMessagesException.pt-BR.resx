@@ -125,4 +125,19 @@
   <data name="ACCESSORY_NOT_FOUND" xml:space="preserve">
     <value>Acessório do veículo não encontrado.</value>
   </data>
+  <data name="BLUEPRINT_NOT_FOUND" xml:space="preserve">
+    <value>Catálogo do veículo não encontrado.</value>
+  </data>
+  <data name="MANUAL_FILE_REQUIRED" xml:space="preserve">
+    <value>O arquivo do manual é obrigatório.</value>
+  </data>
+  <data name="MANUAL_FILE_EMPTY" xml:space="preserve">
+    <value>O arquivo do manual não pode estar vazio.</value>
+  </data>
+  <data name="MANUAL_FILE_INVALID_FORMAT" xml:space="preserve">
+    <value>Apenas arquivos PDF são suportados para extração de manual.</value>
+  </data>
+  <data name="MANUAL_EXTRACTION_FAILED" xml:space="preserve">
+    <value>Falha ao extrair planos de manutenção do manual fornecido.</value>
+  </data>
 </root>

@@ -191,5 +191,35 @@ namespace DotCruz.Garage.Domain.Exceptions.Resources {
                 return ResourceManager.GetString("ACCESSORY_NOT_FOUND", resourceCulture);
             }
         }
+
+        public static string BLUEPRINT_NOT_FOUND {
+            get {
+                return ResourceManager.GetString("BLUEPRINT_NOT_FOUND", resourceCulture);
+            }
+        }
+
+        public static string MANUAL_FILE_REQUIRED {
+            get {
+                return ResourceManager.GetString("MANUAL_FILE_REQUIRED", resourceCulture);
+            }
+        }
+
+        public static string MANUAL_FILE_EMPTY {
+            get {
+                return ResourceManager.GetString("MANUAL_FILE_EMPTY", resourceCulture);
+            }
+        }
+
+        public static string MANUAL_FILE_INVALID_FORMAT {
+            get {
+                return ResourceManager.GetString("MANUAL_FILE_INVALID_FORMAT", resourceCulture);
+            }
+        }
+
+        public static string MANUAL_EXTRACTION_FAILED {
+            get {
+                return ResourceManager.GetString("MANUAL_EXTRACTION_FAILED", resourceCulture);
+            }
+        }
     }
 }

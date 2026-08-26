@@ -4,18 +4,22 @@ using DotCruz.Garage.Application.Abstractions.Data.Repositories.Maintenance;
 using DotCruz.Garage.Application.Abstractions.Data.Repositories.Fines;
 using DotCruz.Garage.Application.Abstractions.Data.Repositories.Documents;
 using DotCruz.Garage.Application.Abstractions.Data.Repositories.Accessories;
+using DotCruz.Garage.Application.Abstractions.Data.Repositories.Catalog;
 using DotCruz.Shared.Security.Context;
 using DotCruz.Garage.Application.Abstractions.Services.Auth;
 using DotCruz.Garage.Application.Abstractions.Services.Notifications;
+using DotCruz.Garage.Application.Abstractions.Services.Ai;
 using DotCruz.Garage.Infrastructure.Data;
 using DotCruz.Garage.Infrastructure.Data.Repositories.Vehicles;
 using DotCruz.Garage.Infrastructure.Data.Repositories.Maintenance;
 using DotCruz.Garage.Infrastructure.Data.Repositories.Fines;
 using DotCruz.Garage.Infrastructure.Data.Repositories.Documents;
 using DotCruz.Garage.Infrastructure.Data.Repositories.Accessories;
+using DotCruz.Garage.Infrastructure.Data.Repositories.Catalog;
 using DotCruz.Garage.Infrastructure.Services;
 using DotCruz.Garage.Infrastructure.Services.Auth;
 using DotCruz.Garage.Infrastructure.Services.Notifications;
+using DotCruz.Garage.Infrastructure.Services.Ai;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -64,6 +68,9 @@ public static class DependencyInjection
 
         services.AddScoped<IVehicleAccessoryReadRepository, VehicleAccessoryReadRepository>();
         services.AddScoped<IVehicleAccessoryWriteRepository, VehicleAccessoryWriteRepository>();
+
+        services.AddScoped<IVehicleBlueprintReadRepository, VehicleBlueprintReadRepository>();
+        services.AddScoped<IVehicleBlueprintWriteRepository, VehicleBlueprintWriteRepository>();
     }
 
     private static void AddUnitOfWork(IServiceCollection services)
@@ -73,17 +80,25 @@ public static class DependencyInjection
 
     private static void AddServices(IServiceCollection services, IConfiguration configuration)
     {
+        services.AddHttpClient<IAiManualParserService, GeminiAiManualParserService>();
+
         services.AddHttpClient<INotificationService, NotificationService>(client =>
         {
             var baseUrl = configuration["Settings:NotificationApiUrl"];
-            client.BaseAddress = new Uri(baseUrl);
+            if (!string.IsNullOrWhiteSpace(baseUrl))
+            {
+                client.BaseAddress = new Uri(baseUrl);
+            }
         })
         .AddServiceApiKeyPropagation();
 
         services.AddHttpClient<IAuthServiceClient, AuthServiceClient>(client =>
         {
             var baseUrl = configuration["Settings:AuthApiUrl"];
-            client.BaseAddress = new Uri(baseUrl);
+            if (!string.IsNullOrWhiteSpace(baseUrl))
+            {
+                client.BaseAddress = new Uri(baseUrl);
+            }
         })
         .AddServiceApiKeyPropagation();
     }

@@ -94,6 +94,125 @@ namespace DotCruz.Garage.Infrastructure.Migrations
                     b.ToTable("vehicle_accessories", (string)null);
                 });
 
+            modelBuilder.Entity("DotCruz.Garage.Domain.Entities.Catalog.MaintenancePlanTemplate", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<string>("Category")
+                        .IsRequired()
+                        .HasMaxLength(30)
+                        .HasColumnType("character varying(30)")
+                        .HasColumnName("category");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("created_at");
+
+                    b.Property<DateTimeOffset?>("DeletedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("deleted_at");
+
+                    b.Property<string>("Description")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)")
+                        .HasColumnName("description");
+
+                    b.Property<int?>("IntervalOdometer")
+                        .HasColumnType("integer")
+                        .HasColumnName("interval_odometer");
+
+                    b.Property<int?>("IntervalTimeMonths")
+                        .HasColumnType("integer")
+                        .HasColumnName("interval_time_months");
+
+                    b.Property<bool>("IsRecurring")
+                        .HasColumnType("boolean")
+                        .HasColumnName("is_recurring");
+
+                    b.Property<string>("Items")
+                        .IsRequired()
+                        .HasColumnType("jsonb")
+                        .HasColumnName("items");
+
+                    b.Property<DateTimeOffset>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("updated_at");
+
+                    b.Property<Guid>("VehicleBlueprintId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("vehicle_blueprint_id");
+
+                    b.HasKey("Id")
+                        .HasName("pk_maintenance_plan_templates");
+
+                    b.HasIndex("VehicleBlueprintId")
+                        .HasDatabaseName("ix_maintenance_plan_templates_vehicle_blueprint_id");
+
+                    b.ToTable("maintenance_plan_templates", (string)null);
+                });
+
+            modelBuilder.Entity("DotCruz.Garage.Domain.Entities.Catalog.VehicleBlueprint", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<string>("Brand")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)")
+                        .HasColumnName("brand");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("created_at");
+
+                    b.Property<DateTimeOffset?>("DeletedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("deleted_at");
+
+                    b.Property<string>("Engine")
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)")
+                        .HasColumnName("engine");
+
+                    b.Property<string>("Model")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)")
+                        .HasColumnName("model");
+
+                    b.Property<string>("Source")
+                        .IsRequired()
+                        .HasMaxLength(30)
+                        .HasColumnType("character varying(30)")
+                        .HasColumnName("source");
+
+                    b.Property<DateTimeOffset>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("updated_at");
+
+                    b.Property<string>("Version")
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)")
+                        .HasColumnName("version");
+
+                    b.Property<int>("Year")
+                        .HasColumnType("integer")
+                        .HasColumnName("year");
+
+                    b.HasKey("Id")
+                        .HasName("pk_vehicle_blueprints");
+
+                    b.HasIndex("Brand", "Model", "Year", "Engine")
+                        .HasDatabaseName("ix_vehicle_blueprints_brand_model_year_engine");
+
+                    b.ToTable("vehicle_blueprints", (string)null);
+                });
+
             modelBuilder.Entity("DotCruz.Garage.Domain.Entities.Documents.VehicleDocument", b =>
                 {
                     b.Property<Guid>("Id")
@@ -571,6 +690,18 @@ namespace DotCruz.Garage.Infrastructure.Migrations
                     b.ToTable("vehicles", (string)null);
                 });
 
+            modelBuilder.Entity("DotCruz.Garage.Domain.Entities.Catalog.MaintenancePlanTemplate", b =>
+                {
+                    b.HasOne("DotCruz.Garage.Domain.Entities.Catalog.VehicleBlueprint", "VehicleBlueprint")
+                        .WithMany("PlanTemplates")
+                        .HasForeignKey("VehicleBlueprintId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("fk_maintenance_plan_templates_vehicle_blueprints_vehicle_bluep");
+
+                    b.Navigation("VehicleBlueprint");
+                });
+
             modelBuilder.Entity("DotCruz.Garage.Domain.Entities.Documents.VehicleDocument", b =>
                 {
                     b.HasOne("DotCruz.Garage.Domain.Entities.Vehicles.Vehicle", "Vehicle")
@@ -615,6 +746,11 @@ namespace DotCruz.Garage.Infrastructure.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired()
                         .HasConstraintName("fk_odometer_histories_vehicles_vehicle_id");
+                });
+
+            modelBuilder.Entity("DotCruz.Garage.Domain.Entities.Catalog.VehicleBlueprint", b =>
+                {
+                    b.Navigation("PlanTemplates");
                 });
 
             modelBuilder.Entity("DotCruz.Garage.Domain.Entities.Vehicles.Vehicle", b =>
