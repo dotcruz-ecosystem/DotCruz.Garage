@@ -24,7 +24,11 @@ public static class TrafficFineMapper
             command.RequestDto.DiscountAmount,
             command.RequestDto.Status,
             command.RequestDto.ReceiptUrl,
-            command.RequestDto.WarningThresholdDays
+            command.RequestDto.WarningThresholdDays,
+            command.RequestDto.DriverId,
+            command.RequestDto.IssuingAuthority,
+            command.RequestDto.Points,
+            command.RequestDto.IndicationDeadline
         );
     }
 
@@ -33,16 +37,24 @@ public static class TrafficFineMapper
         return new TrafficFineDto(
             fine.Id,
             fine.VehicleId,
+            fine.DriverId,
             fine.InfractionCode,
+            fine.IssuingAuthority,
             fine.Description,
+            fine.Points,
             fine.InfractionDate,
             fine.NotificationDate,
             fine.DueDate,
+            fine.IndicationDeadline,
+            fine.IndicatedAt,
+            fine.IndicationProtocol,
             fine.Amount,
             fine.DiscountAmount,
             fine.Status.ToString(),
             fine.ReceiptUrl,
-            fine.WarningThresholdDays
+            fine.WarningThresholdDays,
+            fine.IsNICRisk(),
+            fine.DaysUntilIndicationDeadline()
         );
     }
 }

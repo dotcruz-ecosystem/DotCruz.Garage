@@ -12,5 +12,9 @@ public sealed record CreateTrafficFineRequestDto(
     decimal? DiscountAmount,
     FineStatus Status,
     string? ReceiptUrl,
-    int? WarningThresholdDays
+    int? WarningThresholdDays,
+    Guid? DriverId = null,
+    string? IssuingAuthority = null,
+    int Points = 0,
+    DateTimeOffset? IndicationDeadline = null
 );

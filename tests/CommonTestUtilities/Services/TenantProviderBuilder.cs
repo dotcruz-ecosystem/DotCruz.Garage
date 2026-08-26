@@ -16,6 +16,15 @@ public class TenantProviderBuilder
         return this;
     }
 
+    public TenantProviderBuilder AsTenant(Guid tenantId, Guid? userId = null, bool filterByUserId = false)
+    {
+        _provider.Setup(p => p.TenantId).Returns(tenantId);
+        _provider.Setup(p => p.UserId).Returns(userId ?? Guid.NewGuid());
+        _provider.Setup(p => p.FilterByUserId).Returns(filterByUserId);
+
+        return this;
+    }
+
     public TenantProviderBuilder AsUser(Guid tenantId, Guid userId, bool filterByUserId = true)
     {
         _provider.Setup(p => p.TenantId).Returns(tenantId);

@@ -302,6 +302,156 @@ namespace DotCruz.Garage.Infrastructure.Migrations
                     b.ToTable("vehicle_documents", (string)null);
                 });
 
+            modelBuilder.Entity("DotCruz.Garage.Domain.Entities.Drivers.Driver", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<string>("Cnh")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)")
+                        .HasColumnName("cnh");
+
+                    b.Property<string>("CnhCategory")
+                        .IsRequired()
+                        .HasMaxLength(5)
+                        .HasColumnType("character varying(5)")
+                        .HasColumnName("cnh_category");
+
+                    b.Property<DateTimeOffset>("CnhExpirationDate")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("cnh_expiration_date");
+
+                    b.Property<string>("Cpf")
+                        .IsRequired()
+                        .HasMaxLength(14)
+                        .HasColumnType("character varying(14)")
+                        .HasColumnName("cpf");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("created_at");
+
+                    b.Property<DateTimeOffset?>("DeletedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("deleted_at");
+
+                    b.Property<string>("Email")
+                        .IsRequired()
+                        .HasMaxLength(150)
+                        .HasColumnType("character varying(150)")
+                        .HasColumnName("email");
+
+                    b.Property<bool>("IsActive")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("boolean")
+                        .HasDefaultValue(true)
+                        .HasColumnName("is_active");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(150)
+                        .HasColumnType("character varying(150)")
+                        .HasColumnName("name");
+
+                    b.Property<string>("Phone")
+                        .IsRequired()
+                        .HasMaxLength(30)
+                        .HasColumnType("character varying(30)")
+                        .HasColumnName("phone");
+
+                    b.Property<Guid>("TenantId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("tenant_id");
+
+                    b.Property<DateTimeOffset>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("updated_at");
+
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("user_id");
+
+                    b.HasKey("Id")
+                        .HasName("pk_drivers");
+
+                    b.HasIndex("TenantId", "Cnh")
+                        .HasDatabaseName("ix_drivers_tenant_id_cnh");
+
+                    b.HasIndex("TenantId", "Cpf")
+                        .IsUnique()
+                        .HasDatabaseName("ix_drivers_tenant_id_cpf");
+
+                    b.HasIndex("TenantId", "UserId")
+                        .HasDatabaseName("ix_drivers_tenant_id_user_id");
+
+                    b.ToTable("drivers", (string)null);
+                });
+
+            modelBuilder.Entity("DotCruz.Garage.Domain.Entities.Drivers.VehicleDriverAssignment", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("created_at");
+
+                    b.Property<DateTimeOffset?>("DeletedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("deleted_at");
+
+                    b.Property<Guid>("DriverId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("driver_id");
+
+                    b.Property<DateTimeOffset?>("EndedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("ended_at");
+
+                    b.Property<string>("Notes")
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)")
+                        .HasColumnName("notes");
+
+                    b.Property<DateTimeOffset>("StartedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("started_at");
+
+                    b.Property<Guid>("TenantId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("tenant_id");
+
+                    b.Property<DateTimeOffset>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("updated_at");
+
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("user_id");
+
+                    b.Property<Guid>("VehicleId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("vehicle_id");
+
+                    b.HasKey("Id")
+                        .HasName("pk_vehicle_driver_assignments");
+
+                    b.HasIndex("DriverId")
+                        .HasDatabaseName("ix_vehicle_driver_assignments_driver_id");
+
+                    b.HasIndex("VehicleId")
+                        .HasDatabaseName("ix_vehicle_driver_assignments_vehicle_id");
+
+                    b.HasIndex("TenantId", "VehicleId", "EndedAt")
+                        .HasDatabaseName("ix_vehicle_driver_assignments_tenant_id_vehicle_id_ended_at");
+
+                    b.ToTable("vehicle_driver_assignments", (string)null);
+                });
+
             modelBuilder.Entity("DotCruz.Garage.Domain.Entities.Fines.TrafficFine", b =>
                 {
                     b.Property<Guid>("Id")
@@ -332,9 +482,26 @@ namespace DotCruz.Garage.Infrastructure.Migrations
                         .HasColumnType("numeric(18,2)")
                         .HasColumnName("discount_amount");
 
+                    b.Property<Guid?>("DriverId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("driver_id");
+
                     b.Property<DateTimeOffset>("DueDate")
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("due_date");
+
+                    b.Property<DateTimeOffset?>("IndicatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("indicated_at");
+
+                    b.Property<DateTimeOffset?>("IndicationDeadline")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("indication_deadline");
+
+                    b.Property<string>("IndicationProtocol")
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)")
+                        .HasColumnName("indication_protocol");
 
                     b.Property<string>("InfractionCode")
                         .HasMaxLength(50)
@@ -345,6 +512,11 @@ namespace DotCruz.Garage.Infrastructure.Migrations
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("infraction_date");
 
+                    b.Property<string>("IssuingAuthority")
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)")
+                        .HasColumnName("issuing_authority");
+
                     b.Property<DateTimeOffset?>("LastNotifiedAt")
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("last_notified_at");
@@ -352,6 +524,12 @@ namespace DotCruz.Garage.Infrastructure.Migrations
                     b.Property<DateTimeOffset?>("NotificationDate")
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("notification_date");
+
+                    b.Property<int>("Points")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer")
+                        .HasDefaultValue(0)
+                        .HasColumnName("points");
 
                     b.Property<string>("ReceiptUrl")
                         .HasMaxLength(1000)
@@ -386,6 +564,12 @@ namespace DotCruz.Garage.Infrastructure.Migrations
 
                     b.HasKey("Id")
                         .HasName("pk_traffic_fines");
+
+                    b.HasIndex("DriverId")
+                        .HasDatabaseName("ix_traffic_fines_driver_id");
+
+                    b.HasIndex("IndicationDeadline")
+                        .HasDatabaseName("ix_traffic_fines_indication_deadline");
 
                     b.HasIndex("VehicleId")
                         .HasDatabaseName("ix_traffic_fines_vehicle_id");
@@ -714,14 +898,43 @@ namespace DotCruz.Garage.Infrastructure.Migrations
                     b.Navigation("Vehicle");
                 });
 
+            modelBuilder.Entity("DotCruz.Garage.Domain.Entities.Drivers.VehicleDriverAssignment", b =>
+                {
+                    b.HasOne("DotCruz.Garage.Domain.Entities.Drivers.Driver", "Driver")
+                        .WithMany("Assignments")
+                        .HasForeignKey("DriverId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("fk_vehicle_driver_assignments_drivers_driver_id");
+
+                    b.HasOne("DotCruz.Garage.Domain.Entities.Vehicles.Vehicle", "Vehicle")
+                        .WithMany()
+                        .HasForeignKey("VehicleId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("fk_vehicle_driver_assignments_vehicles_vehicle_id");
+
+                    b.Navigation("Driver");
+
+                    b.Navigation("Vehicle");
+                });
+
             modelBuilder.Entity("DotCruz.Garage.Domain.Entities.Fines.TrafficFine", b =>
                 {
+                    b.HasOne("DotCruz.Garage.Domain.Entities.Drivers.Driver", "Driver")
+                        .WithMany("Fines")
+                        .HasForeignKey("DriverId")
+                        .OnDelete(DeleteBehavior.SetNull)
+                        .HasConstraintName("fk_traffic_fines_drivers_driver_id");
+
                     b.HasOne("DotCruz.Garage.Domain.Entities.Vehicles.Vehicle", "Vehicle")
                         .WithMany()
                         .HasForeignKey("VehicleId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired()
                         .HasConstraintName("fk_traffic_fines_vehicles_vehicle_id");
+
+                    b.Navigation("Driver");
 
                     b.Navigation("Vehicle");
                 });
@@ -751,6 +964,13 @@ namespace DotCruz.Garage.Infrastructure.Migrations
             modelBuilder.Entity("DotCruz.Garage.Domain.Entities.Catalog.VehicleBlueprint", b =>
                 {
                     b.Navigation("PlanTemplates");
+                });
+
+            modelBuilder.Entity("DotCruz.Garage.Domain.Entities.Drivers.Driver", b =>
+                {
+                    b.Navigation("Assignments");
+
+                    b.Navigation("Fines");
                 });
 
             modelBuilder.Entity("DotCruz.Garage.Domain.Entities.Vehicles.Vehicle", b =>

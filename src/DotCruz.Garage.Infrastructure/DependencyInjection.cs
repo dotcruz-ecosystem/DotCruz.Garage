@@ -1,5 +1,6 @@
 using DotCruz.Garage.Application.Abstractions.Data;
 using DotCruz.Garage.Application.Abstractions.Data.Repositories.Vehicles;
+using DotCruz.Garage.Application.Abstractions.Data.Repositories.Drivers;
 using DotCruz.Garage.Application.Abstractions.Data.Repositories.Maintenance;
 using DotCruz.Garage.Application.Abstractions.Data.Repositories.Fines;
 using DotCruz.Garage.Application.Abstractions.Data.Repositories.Documents;
@@ -12,6 +13,7 @@ using DotCruz.Garage.Application.Abstractions.Services.Ai;
 using DotCruz.Garage.Application.Abstractions.Services.Security;
 using DotCruz.Garage.Infrastructure.Data;
 using DotCruz.Garage.Infrastructure.Data.Repositories.Vehicles;
+using DotCruz.Garage.Infrastructure.Data.Repositories.Drivers;
 using DotCruz.Garage.Infrastructure.Data.Repositories.Maintenance;
 using DotCruz.Garage.Infrastructure.Data.Repositories.Fines;
 using DotCruz.Garage.Infrastructure.Data.Repositories.Documents;
@@ -55,6 +57,12 @@ public static class DependencyInjection
     {
         services.AddScoped<IVehicleReadRepository, VehicleReadRepository>();
         services.AddScoped<IVehicleWriteRepository, VehicleWriteRepository>();
+
+        services.AddScoped<IDriverReadRepository, DriverReadRepository>();
+        services.AddScoped<IDriverWriteRepository, DriverWriteRepository>();
+
+        services.AddScoped<IVehicleDriverAssignmentReadRepository, VehicleDriverAssignmentReadRepository>();
+        services.AddScoped<IVehicleDriverAssignmentWriteRepository, VehicleDriverAssignmentWriteRepository>();
 
         services.AddScoped<IMaintenanceScheduleReadRepository, MaintenanceScheduleReadRepository>();
         services.AddScoped<IMaintenanceScheduleWriteRepository, MaintenanceScheduleWriteRepository>();

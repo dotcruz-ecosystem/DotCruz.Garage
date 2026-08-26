@@ -16,6 +16,23 @@ public class TrafficFineReadRepository(GarageDbContext context)
             .ToListAsync(cancellationToken);
     }
 
+    public async Task<IReadOnlyCollection<TrafficFine>> GetByDriverIdAsync(Guid driverId, CancellationToken cancellationToken)
+    {
+        return await _dbSet.AsNoTracking()
+            .Where(f => f.DriverId == driverId)
+            .OrderByDescending(f => f.InfractionDate)
+            .ToListAsync(cancellationToken);
+    }
+
+    public async Task<IReadOnlyCollection<TrafficFine>> GetPendingNICFinesAsync(CancellationToken cancellationToken)
+    {
+        return await _dbSet.AsNoTracking()
+            .Include(f => f.Vehicle)
+            .Where(f => f.Status != Domain.Enums.FineStatus.Paid && f.Status != Domain.Enums.FineStatus.Indicated && f.IndicatedAt == null && f.IndicationDeadline != null)
+            .OrderBy(f => f.IndicationDeadline)
+            .ToListAsync(cancellationToken);
+    }
+
     public async Task<(IReadOnlyCollection<TrafficFine> Items, int TotalCount)> SearchAsync(
         int pageNumber,
         int pageSize,

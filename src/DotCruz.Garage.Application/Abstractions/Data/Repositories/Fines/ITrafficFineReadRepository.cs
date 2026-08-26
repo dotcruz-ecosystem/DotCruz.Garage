@@ -6,6 +6,8 @@ namespace DotCruz.Garage.Application.Abstractions.Data.Repositories.Fines;
 public interface ITrafficFineReadRepository : IBaseReadRepository<TrafficFine>
 {
     Task<IReadOnlyCollection<TrafficFine>> GetByVehicleIdAsync(Guid vehicleId, CancellationToken cancellationToken);
+    Task<IReadOnlyCollection<TrafficFine>> GetByDriverIdAsync(Guid driverId, CancellationToken cancellationToken);
+    Task<IReadOnlyCollection<TrafficFine>> GetPendingNICFinesAsync(CancellationToken cancellationToken);
     Task<(IReadOnlyCollection<TrafficFine> Items, int TotalCount)> SearchAsync(
         int pageNumber,
         int pageSize,

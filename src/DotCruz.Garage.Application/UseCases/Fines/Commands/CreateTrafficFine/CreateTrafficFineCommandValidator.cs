@@ -28,5 +28,8 @@ public class CreateTrafficFineCommandValidator : AbstractValidator<CreateTraffic
 
         RuleFor(x => x.RequestDto.WarningThresholdDays)
             .GreaterThan(0).When(x => x.RequestDto.WarningThresholdDays.HasValue);
+
+        RuleFor(x => x.RequestDto.Points)
+            .GreaterThanOrEqualTo(0);
     }
 }

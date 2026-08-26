@@ -155,4 +155,22 @@
   <data name="COST_NEGATIVE" xml:space="preserve">
     <value>Cost cannot be negative.</value>
   </data>
+  <data name="DRIVER_NOT_FOUND" xml:space="preserve">
+    <value>Driver not found.</value>
+  </data>
+  <data name="DRIVER_CPF_INVALID" xml:space="preserve">
+    <value>Invalid driver CPF.</value>
+  </data>
+  <data name="DRIVER_CNH_INVALID" xml:space="preserve">
+    <value>Invalid driver license number or category.</value>
+  </data>
+  <data name="DRIVER_INACTIVE" xml:space="preserve">
+    <value>Driver is inactive.</value>
+  </data>
+  <data name="DRIVER_ALREADY_ASSIGNED" xml:space="preserve">
+    <value>Driver is already assigned to this vehicle.</value>
+  </data>
+  <data name="INDICATION_DEADLINE_PASSED" xml:space="preserve">
+    <value>The driver indication deadline has passed.</value>
+  </data>
 </root>

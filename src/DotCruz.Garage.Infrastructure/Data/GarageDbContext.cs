@@ -1,6 +1,7 @@
 using System.Linq.Expressions;
 using DotCruz.Shared.Security.Context;
 using DotCruz.Garage.Domain.Entities.Base;
+using DotCruz.Garage.Domain.Entities.Drivers;
 using DotCruz.Garage.Domain.Entities.Vehicles;
 using DotCruz.Garage.Domain.Entities.Maintenance;
 using DotCruz.Garage.Domain.Entities.Fines;
@@ -26,6 +27,8 @@ public class GarageDbContext : DbContext
     public DbSet<MaintenanceSchedule> MaintenanceSchedules { get; set; }
     public DbSet<MaintenanceLog> MaintenanceLogs { get; set; }
     public DbSet<TrafficFine> TrafficFines { get; set; }
+    public DbSet<Driver> Drivers { get; set; }
+    public DbSet<VehicleDriverAssignment> VehicleDriverAssignments { get; set; }
     public DbSet<VehicleDocument> VehicleDocuments { get; set; }
     public DbSet<VehicleAccessory> VehicleAccessories { get; set; }
     public DbSet<VehicleBlueprint> VehicleBlueprints { get; set; }

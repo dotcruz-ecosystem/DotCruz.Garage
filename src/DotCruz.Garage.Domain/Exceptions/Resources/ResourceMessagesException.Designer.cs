@@ -251,5 +251,41 @@ namespace DotCruz.Garage.Domain.Exceptions.Resources {
                 return ResourceManager.GetString("COST_NEGATIVE", resourceCulture);
             }
         }
+
+        public static string DRIVER_NOT_FOUND {
+            get {
+                return ResourceManager.GetString("DRIVER_NOT_FOUND", resourceCulture);
+            }
+        }
+
+        public static string DRIVER_CPF_INVALID {
+            get {
+                return ResourceManager.GetString("DRIVER_CPF_INVALID", resourceCulture);
+            }
+        }
+
+        public static string DRIVER_CNH_INVALID {
+            get {
+                return ResourceManager.GetString("DRIVER_CNH_INVALID", resourceCulture);
+            }
+        }
+
+        public static string DRIVER_INACTIVE {
+            get {
+                return ResourceManager.GetString("DRIVER_INACTIVE", resourceCulture);
+            }
+        }
+
+        public static string DRIVER_ALREADY_ASSIGNED {
+            get {
+                return ResourceManager.GetString("DRIVER_ALREADY_ASSIGNED", resourceCulture);
+            }
+        }
+
+        public static string INDICATION_DEADLINE_PASSED {
+            get {
+                return ResourceManager.GetString("INDICATION_DEADLINE_PASSED", resourceCulture);
+            }
+        }
     }
 }

@@ -155,4 +155,22 @@
   <data name="COST_NEGATIVE" xml:space="preserve">
     <value>O custo não pode ser negativo.</value>
   </data>
+  <data name="DRIVER_NOT_FOUND" xml:space="preserve">
+    <value>Motorista não encontrado.</value>
+  </data>
+  <data name="DRIVER_CPF_INVALID" xml:space="preserve">
+    <value>CPF do motorista inválido.</value>
+  </data>
+  <data name="DRIVER_CNH_INVALID" xml:space="preserve">
+    <value>Número ou categoria da CNH inválida.</value>
+  </data>
+  <data name="DRIVER_INACTIVE" xml:space="preserve">
+    <value>O motorista está inativo.</value>
+  </data>
+  <data name="DRIVER_ALREADY_ASSIGNED" xml:space="preserve">
+    <value>O motorista já está vinculado a este veículo.</value>
+  </data>
+  <data name="INDICATION_DEADLINE_PASSED" xml:space="preserve">
+    <value>O prazo limite para indicação do condutor já expirou.</value>
+  </data>
 </root>
