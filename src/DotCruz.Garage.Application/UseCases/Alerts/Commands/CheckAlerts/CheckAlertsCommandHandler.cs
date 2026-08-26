@@ -2,13 +2,17 @@ using DotCruz.Garage.Application.Abstractions.Data;
 using DotCruz.Garage.Application.Abstractions.Data.Repositories.Maintenance;
 using DotCruz.Garage.Application.Abstractions.Data.Repositories.Fines;
 using DotCruz.Garage.Application.Abstractions.Data.Repositories.Documents;
+using DotCruz.Garage.Application.Abstractions.Data.Repositories.Vehicles;
 using DotCruz.Garage.Application.Abstractions.Services.Auth;
 using DotCruz.Garage.Application.Abstractions.Services.Notifications;
+using DotCruz.Garage.Application.Abstractions.Services.Security;
 using DotCruz.Garage.Domain.Entities.Maintenance;
 using DotCruz.Garage.Domain.Entities.Fines;
 using DotCruz.Garage.Domain.Entities.Documents;
+using DotCruz.Garage.Domain.Entities.Vehicles;
 using DotCruz.Garage.Domain.Enums;
 using MediatR;
+using Microsoft.Extensions.Configuration;
 using DotCruz.Garage.Application.Abstractions.Services.Auth.DTOs;
 
 namespace DotCruz.Garage.Application.UseCases.Alerts.Commands.CheckAlerts;
@@ -18,6 +22,9 @@ public class CheckAlertsCommandHandler : IRequestHandler<CheckAlertsCommand>
     private readonly IMaintenanceScheduleWriteRepository _scheduleWriteRepository;
     private readonly ITrafficFineWriteRepository _fineWriteRepository;
     private readonly IVehicleDocumentWriteRepository _documentWriteRepository;
+    private readonly IVehicleWriteRepository? _vehicleWriteRepository;
+    private readonly ICheckinTokenService? _tokenService;
+    private readonly IConfiguration? _configuration;
     private readonly IAuthServiceClient _authServiceClient;
     private readonly INotificationService _notificationService;
     private readonly IUnitOfWork _unitOfWork;
@@ -30,7 +37,10 @@ public class CheckAlertsCommandHandler : IRequestHandler<CheckAlertsCommand>
         IVehicleDocumentWriteRepository documentWriteRepository,
         IAuthServiceClient authServiceClient,
         INotificationService notificationService,
-        IUnitOfWork unitOfWork)
+        IUnitOfWork unitOfWork,
+        IVehicleWriteRepository? vehicleWriteRepository = null,
+        ICheckinTokenService? tokenService = null,
+        IConfiguration? configuration = null)
     {
         _scheduleWriteRepository = scheduleWriteRepository;
         _fineWriteRepository = fineWriteRepository;
@@ -38,6 +48,9 @@ public class CheckAlertsCommandHandler : IRequestHandler<CheckAlertsCommand>
         _authServiceClient = authServiceClient;
         _notificationService = notificationService;
         _unitOfWork = unitOfWork;
+        _vehicleWriteRepository = vehicleWriteRepository;
+        _tokenService = tokenService;
+        _configuration = configuration;
     }
 
     public async Task Handle(CheckAlertsCommand request, CancellationToken cancellationToken)
@@ -45,8 +58,40 @@ public class CheckAlertsCommandHandler : IRequestHandler<CheckAlertsCommand>
         await ProcessMaintenanceAlertsAsync(cancellationToken);
         await ProcessTrafficFineAlertsAsync(cancellationToken);
         await ProcessDocumentAlertsAsync(cancellationToken);
+        await ProcessOdometerCheckinAlertsAsync(cancellationToken);
 
         await _unitOfWork.CommitAsync(cancellationToken);
+    }
+
+    private async Task ProcessOdometerCheckinAlertsAsync(CancellationToken cancellationToken)
+    {
+        if (_vehicleWriteRepository is null || _tokenService is null)
+            return;
+
+        var staleVehicles = await _vehicleWriteRepository.GetVehiclesWithStaleOdometerAsync(15, cancellationToken);
+
+        foreach (var vehicle in staleVehicles)
+        {
+            var user = await GetUserAsync(vehicle.UserId, vehicle.TenantId, cancellationToken);
+            if (user is null)
+                continue;
+
+            var validity = TimeSpan.FromHours(48);
+            var token = _tokenService.GenerateToken(vehicle.Id, vehicle.TenantId, validity);
+            var baseUrl = _configuration?["Settings:FrontendUrl"] ?? "https://garage.dotcruz.com";
+            var magicLinkUrl = $"{baseUrl.TrimEnd('/')}/checkin/odometer?token={token}";
+
+            await _notificationService.SendOdometerCheckinRequestAsync(
+                userId: vehicle.UserId,
+                tenantId: vehicle.TenantId,
+                userName: user.Name,
+                userEmail: user.Email,
+                vehicleName: vehicle.Name,
+                currentOdometer: vehicle.CurrentOdometer,
+                magicLinkUrl: magicLinkUrl,
+                expiresAt: DateTimeOffset.UtcNow.Add(validity),
+                cancellationToken: cancellationToken);
+        }
     }
 
     private async Task ProcessMaintenanceAlertsAsync(CancellationToken cancellationToken)

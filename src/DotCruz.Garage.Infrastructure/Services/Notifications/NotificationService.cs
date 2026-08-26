@@ -106,6 +106,35 @@ public class NotificationService(HttpClient httpClient) : INotificationService
         await SendAsync(message, tenantId, cancellationToken);
     }
 
+    public async Task SendOdometerCheckinRequestAsync(
+        Guid userId,
+        Guid tenantId,
+        string userName,
+        string userEmail,
+        string vehicleName,
+        int currentOdometer,
+        string magicLinkUrl,
+        DateTimeOffset expiresAt,
+        CancellationToken cancellationToken)
+    {
+        var message = new CreateNotificationMessage(
+            Type: IntegrationNotificationType.Email,
+            Recipient: userEmail,
+            Culture: CultureInfo.CurrentUICulture.Name,
+            TemplateCode: "OdometerCheckinAlert",
+            TemplateData: new Dictionary<string, object>
+            {
+                { "name", userName },
+                { "vehicle_name", vehicleName },
+                { "current_odometer", currentOdometer },
+                { "magic_link_url", magicLinkUrl },
+                { "expires_at", expiresAt.ToString("yyyy-MM-dd HH:mm") }
+            }
+        );
+
+        await SendAsync(message, tenantId, cancellationToken);
+    }
+
     private async Task SendAsync(CreateNotificationMessage message, Guid tenantId, CancellationToken cancellationToken)
     {
         using var request = new HttpRequestMessage(HttpMethod.Post, "api/Notification")

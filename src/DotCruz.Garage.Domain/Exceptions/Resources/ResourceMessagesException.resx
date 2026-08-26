@@ -140,4 +140,16 @@
   <data name="MANUAL_EXTRACTION_FAILED" xml:space="preserve">
     <value>Failed to extract maintenance plans from the provided manual.</value>
   </data>
+  <data name="TOKEN_EXPIRED" xml:space="preserve">
+    <value>The check-in token has expired.</value>
+  </data>
+  <data name="TOKEN_INVALID" xml:space="preserve">
+    <value>Invalid or tampered check-in token.</value>
+  </data>
+  <data name="ODOMETER_UNREALISTIC_JUMP" xml:space="preserve">
+    <value>The odometer value has an unrealistic jump and requires confirmation.</value>
+  </data>
+  <data name="TOKEN_REQUIRED" xml:space="preserve">
+    <value>Check-in token is required.</value>
+  </data>
 </root>

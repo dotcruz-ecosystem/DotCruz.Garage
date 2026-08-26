@@ -2,6 +2,7 @@ using DotCruz.Garage.Api.Controllers.Base;
 using DotCruz.Garage.Application.DTOs.Base;
 using DotCruz.Garage.Application.DTOs.Vehicles;
 using DotCruz.Garage.Application.UseCases.Vehicles.Commands.CreateVehicle;
+using DotCruz.Garage.Application.UseCases.Vehicles.Commands.GenerateOdometerCheckinToken;
 using DotCruz.Garage.Application.UseCases.Vehicles.Commands.UpdateOdometer;
 using DotCruz.Garage.Application.UseCases.Vehicles.Queries.GetVehicleById;
 using DotCruz.Garage.Application.UseCases.Vehicles.Queries.SearchVehicles;
@@ -53,5 +54,18 @@ public class VehiclesController(IMediator mediator) : GarageBaseController
         var command = new UpdateOdometerCommand(Id, request);
         await mediator.Send(command, cancellationToken);
         return NoContent();
+    }
+
+    [HttpPost]
+    [Route("{Id:guid}/checkin-token")]
+    [ProducesResponseType(typeof(GenerateOdometerCheckinTokenResponseDto), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ErrorResponseDto), StatusCodes.Status404NotFound)]
+    public async Task<IActionResult> GenerateCheckinToken(
+        [FromRoute] Guid Id,
+        CancellationToken cancellationToken)
+    {
+        var command = new GenerateOdometerCheckinTokenCommand(Id);
+        var result = await mediator.Send(command, cancellationToken);
+        return Ok(result);
     }
 }

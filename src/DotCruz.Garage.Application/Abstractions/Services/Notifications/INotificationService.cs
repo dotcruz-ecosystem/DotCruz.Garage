@@ -35,4 +35,15 @@ public interface INotificationService
         DateTimeOffset? dueDate,
         DateTimeOffset? expirationDate,
         CancellationToken cancellationToken);
+
+    Task SendOdometerCheckinRequestAsync(
+        Guid userId,
+        Guid tenantId,
+        string userName,
+        string userEmail,
+        string vehicleName,
+        int currentOdometer,
+        string magicLinkUrl,
+        DateTimeOffset expiresAt,
+        CancellationToken cancellationToken);
 }

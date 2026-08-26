@@ -221,5 +221,29 @@ namespace DotCruz.Garage.Domain.Exceptions.Resources {
                 return ResourceManager.GetString("MANUAL_EXTRACTION_FAILED", resourceCulture);
             }
         }
+
+        public static string TOKEN_EXPIRED {
+            get {
+                return ResourceManager.GetString("TOKEN_EXPIRED", resourceCulture);
+            }
+        }
+
+        public static string TOKEN_INVALID {
+            get {
+                return ResourceManager.GetString("TOKEN_INVALID", resourceCulture);
+            }
+        }
+
+        public static string ODOMETER_UNREALISTIC_JUMP {
+            get {
+                return ResourceManager.GetString("ODOMETER_UNREALISTIC_JUMP", resourceCulture);
+            }
+        }
+
+        public static string TOKEN_REQUIRED {
+            get {
+                return ResourceManager.GetString("TOKEN_REQUIRED", resourceCulture);
+            }
+        }
     }
 }

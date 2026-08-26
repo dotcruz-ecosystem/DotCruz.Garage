@@ -140,4 +140,16 @@
   <data name="MANUAL_EXTRACTION_FAILED" xml:space="preserve">
     <value>Falha ao extrair planos de manutenção do manual fornecido.</value>
   </data>
+  <data name="TOKEN_EXPIRED" xml:space="preserve">
+    <value>O token de check-in expirou.</value>
+  </data>
+  <data name="TOKEN_INVALID" xml:space="preserve">
+    <value>Token de check-in inválido ou adulterado.</value>
+  </data>
+  <data name="ODOMETER_UNREALISTIC_JUMP" xml:space="preserve">
+    <value>A quilometragem informada apresenta um salto inconsistente e precisa de confirmação.</value>
+  </data>
+  <data name="TOKEN_REQUIRED" xml:space="preserve">
+    <value>O token de check-in é obrigatório.</value>
+  </data>
 </root>

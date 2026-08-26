@@ -1,4 +1,4 @@
-﻿using DotCruz.Garage.Application.Abstractions.Data.Repositories.Vehicles;
+using DotCruz.Garage.Application.Abstractions.Data.Repositories.Vehicles;
 using DotCruz.Garage.Domain.Entities.Vehicles;
 using Moq;
 
@@ -18,6 +18,27 @@ public class VehicleRepositoryBuilder
             It.IsAny<Guid>(),
             It.IsAny<CancellationToken>()))
             .ReturnsAsync(vehicle);
+
+        return this;
+    }
+
+    public VehicleRepositoryBuilder SetupGetByIdWithHistoriesToUpdateUnscoped(Vehicle? vehicle)
+    {
+        _writeMock.Setup(w => w.GetByIdWithHistoriesToUpdateUnscopedAsync(
+            It.IsAny<Guid>(),
+            It.IsAny<Guid>(),
+            It.IsAny<CancellationToken>()))
+            .ReturnsAsync(vehicle);
+
+        return this;
+    }
+
+    public VehicleRepositoryBuilder SetupGetVehiclesWithStaleOdometer(IReadOnlyCollection<Vehicle> vehicles)
+    {
+        _writeMock.Setup(w => w.GetVehiclesWithStaleOdometerAsync(
+            It.IsAny<int>(),
+            It.IsAny<CancellationToken>()))
+            .ReturnsAsync(vehicles);
 
         return this;
     }

@@ -9,6 +9,7 @@ using DotCruz.Shared.Security.Context;
 using DotCruz.Garage.Application.Abstractions.Services.Auth;
 using DotCruz.Garage.Application.Abstractions.Services.Notifications;
 using DotCruz.Garage.Application.Abstractions.Services.Ai;
+using DotCruz.Garage.Application.Abstractions.Services.Security;
 using DotCruz.Garage.Infrastructure.Data;
 using DotCruz.Garage.Infrastructure.Data.Repositories.Vehicles;
 using DotCruz.Garage.Infrastructure.Data.Repositories.Maintenance;
@@ -20,6 +21,7 @@ using DotCruz.Garage.Infrastructure.Services;
 using DotCruz.Garage.Infrastructure.Services.Auth;
 using DotCruz.Garage.Infrastructure.Services.Notifications;
 using DotCruz.Garage.Infrastructure.Services.Ai;
+using DotCruz.Garage.Infrastructure.Services.Security;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -80,6 +82,7 @@ public static class DependencyInjection
 
     private static void AddServices(IServiceCollection services, IConfiguration configuration)
     {
+        services.AddSingleton<ICheckinTokenService, HmacCheckinTokenService>();
         services.AddHttpClient<IAiManualParserService, GeminiAiManualParserService>();
 
         services.AddHttpClient<INotificationService, NotificationService>(client =>
