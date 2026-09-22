@@ -7,9 +7,11 @@ public class CreateVehicleCommandValidator : AbstractValidator<CreateVehicleComm
 {
     public CreateVehicleCommandValidator()
     {
-        RuleFor(x => x.Name)
-            .NotEmpty().WithMessage(ResourceMessagesException.NAME_EMPTY)
-            .Length(2, 100).WithMessage(ResourceMessagesException.NAME_INVALID_LENGTH);
+        When(x => !string.IsNullOrWhiteSpace(x.Name), () =>
+        {
+            RuleFor(x => x.Name!)
+                .Length(2, 100).WithMessage(ResourceMessagesException.NAME_INVALID_LENGTH);
+        });
 
         RuleFor(x => x.Brand)
             .NotEmpty().WithMessage(ResourceMessagesException.BRAND_EMPTY)
@@ -21,6 +23,18 @@ public class CreateVehicleCommandValidator : AbstractValidator<CreateVehicleComm
 
         RuleFor(x => x.Year)
             .InclusiveBetween(1900, DateTime.UtcNow.Year + 1).WithMessage(ResourceMessagesException.YEAR_INVALID);
+
+        When(x => !string.IsNullOrWhiteSpace(x.Plate), () =>
+        {
+            RuleFor(x => x.Plate!)
+                .MaximumLength(10);
+        });
+
+        When(x => !string.IsNullOrWhiteSpace(x.Vin), () =>
+        {
+            RuleFor(x => x.Vin!)
+                .MaximumLength(17);
+        });
 
         RuleFor(x => x.InitialOdometer)
             .GreaterThanOrEqualTo(0).WithMessage(ResourceMessagesException.ODOMETER_NEGATIVE);

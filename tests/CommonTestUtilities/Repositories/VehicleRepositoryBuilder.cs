@@ -62,6 +62,20 @@ public class VehicleRepositoryBuilder
         return this;
     }
 
+    public VehicleRepositoryBuilder SetupAdd(Action<Vehicle>? callback = null)
+    {
+        var setup = _writeMock.Setup(w => w.AddAsync(
+            It.IsAny<Vehicle>(),
+            It.IsAny<CancellationToken>()));
+
+        if (callback != null)
+        {
+            setup.Callback<Vehicle, CancellationToken>((v, _) => callback(v));
+        }
+
+        return this;
+    }
+
     public (IVehicleReadRepository Read, IVehicleWriteRepository Write) Build() =>
         (_readMock.Object, _writeMock.Object);
 }

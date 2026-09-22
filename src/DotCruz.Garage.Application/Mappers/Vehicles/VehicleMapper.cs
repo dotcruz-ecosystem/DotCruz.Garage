@@ -8,15 +8,19 @@ public static class VehicleMapper
 {
     public static Vehicle ToDomain(this CreateVehicleCommand command, Guid tenantId, Guid userId)
     {
+        var resolvedName = string.IsNullOrWhiteSpace(command.Name)
+            ? $"{command.Model.Trim()} - {command.Brand.Trim()} - {command.Year}"
+            : command.Name.Trim();
+
         return Vehicle.Create(
             tenantId,
             userId,
-            command.Name,
-            command.Brand,
-            command.Model,
+            resolvedName,
+            command.Brand.Trim(),
+            command.Model.Trim(),
             command.Year,
-            command.Plate,
-            command.Vin,
+            command.Plate?.Trim().ToUpper(),
+            command.Vin?.Trim().ToUpper(),
             command.InitialOdometer,
             command.InitialDailyMileageAverage
         );
