@@ -1,4 +1,4 @@
-﻿using DotCruz.Garage.Infrastructure.Services.Security;
+using DotCruz.Garage.Infrastructure.Services.Security;
 using Microsoft.Extensions.Configuration;
 
 namespace UseCases.Test.Vehicles;
@@ -68,5 +68,44 @@ public class HmacCheckinTokenServiceTest
         Assert.True(isValid);
         Assert.NotNull(tokenVo);
         Assert.True(tokenVo.IsExpired());
+    }
+
+    [Fact]
+    public void Generated_Post_Sale_Token_Can_Be_Validated_Successfully()
+    {
+        var vehicleId = Guid.NewGuid();
+        var saleId = Guid.NewGuid();
+        var tenantId = Guid.NewGuid();
+
+        var token = _service.GeneratePostSaleToken(vehicleId, saleId, tenantId, TimeSpan.FromDays(180));
+
+        Assert.NotNull(token);
+        Assert.Contains(".", token);
+
+        var isValid = _service.TryValidatePostSaleToken(token, out var tokenVo);
+
+        Assert.True(isValid);
+        Assert.NotNull(tokenVo);
+        Assert.Equal(vehicleId, tokenVo.VehicleId);
+        Assert.Equal(saleId, tokenVo.SaleId);
+        Assert.Equal(tenantId, tokenVo.TenantId);
+        Assert.False(tokenVo.IsExpired());
+    }
+
+    [Fact]
+    public void Tampered_Post_Sale_Token_Fails_Validation()
+    {
+        var vehicleId = Guid.NewGuid();
+        var saleId = Guid.NewGuid();
+        var tenantId = Guid.NewGuid();
+
+        var token = _service.GeneratePostSaleToken(vehicleId, saleId, tenantId, TimeSpan.FromDays(180));
+        var parts = token.Split('.');
+        var tamperedToken = $"{parts[0]}xyz.{parts[1]}";
+
+        var isValid = _service.TryValidatePostSaleToken(tamperedToken, out var tokenVo);
+
+        Assert.False(isValid);
+        Assert.Null(tokenVo);
     }
 }

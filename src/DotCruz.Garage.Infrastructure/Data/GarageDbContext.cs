@@ -33,6 +33,7 @@ public class GarageDbContext : DbContext
     public DbSet<VehicleAccessory> VehicleAccessories { get; set; }
     public DbSet<VehicleBlueprint> VehicleBlueprints { get; set; }
     public DbSet<MaintenancePlanTemplate> MaintenancePlanTemplates { get; set; }
+    public DbSet<VehicleSale> VehicleSales { get; set; }
 
     public Guid CurrentTenantId => _tenantProvider.TenantId ?? Guid.Empty;
     public Guid CurrentUserId => _tenantProvider.UserId ?? Guid.Empty;

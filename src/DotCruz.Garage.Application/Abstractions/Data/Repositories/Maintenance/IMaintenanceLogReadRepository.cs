@@ -10,4 +10,9 @@ public interface IMaintenanceLogReadRepository : IBaseReadRepository<Maintenance
         int pageNumber,
         int pageSize,
         CancellationToken cancellationToken);
+
+    Task<IReadOnlyCollection<MaintenanceLog>> GetByVehicleIdUnscopedAsync(
+        Guid vehicleId,
+        Guid tenantId,
+        CancellationToken cancellationToken);
 }

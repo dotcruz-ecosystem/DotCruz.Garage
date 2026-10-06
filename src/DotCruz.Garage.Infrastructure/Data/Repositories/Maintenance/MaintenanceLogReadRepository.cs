@@ -28,4 +28,17 @@ public class MaintenanceLogReadRepository(GarageDbContext context)
 
         return (items, totalCount);
     }
+
+    public async Task<IReadOnlyCollection<MaintenanceLog>> GetByVehicleIdUnscopedAsync(
+        Guid vehicleId,
+        Guid tenantId,
+        CancellationToken cancellationToken)
+    {
+        return await _dbSet
+            .AsNoTracking()
+            .IgnoreQueryFilters()
+            .Where(l => l.VehicleId == vehicleId && l.TenantId == tenantId && l.DeletedAt == null)
+            .OrderByDescending(l => l.PerformedAt)
+            .ToListAsync(cancellationToken);
+    }
 }

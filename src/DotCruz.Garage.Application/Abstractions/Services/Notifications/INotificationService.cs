@@ -46,4 +46,15 @@ public interface INotificationService
         string magicLinkUrl,
         DateTimeOffset expiresAt,
         CancellationToken cancellationToken);
+
+    Task SendPostSaleWelcomeAsync(
+        Guid userId,
+        Guid tenantId,
+        string customerName,
+        string customerEmail,
+        string vehicleName,
+        string portalUrl,
+        DateTimeOffset? warrantyUntil,
+        int? warrantyKm,
+        CancellationToken cancellationToken);
 }

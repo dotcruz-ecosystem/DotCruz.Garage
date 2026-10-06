@@ -33,5 +33,28 @@ public class CheckinTokenServiceBuilder
         return this;
     }
 
+    public CheckinTokenServiceBuilder SetupGeneratePostSaleToken(string token = "valid.postsale.token")
+    {
+        _mock.Setup(s => s.GeneratePostSaleToken(It.IsAny<Guid>(), It.IsAny<Guid>(), It.IsAny<Guid>(), It.IsAny<TimeSpan?>()))
+            .Returns(token);
+        return this;
+    }
+
+    public CheckinTokenServiceBuilder SetupValidPostSaleToken(string tokenString, PostSalePortalToken token)
+    {
+        PostSalePortalToken? outToken = token;
+        _mock.Setup(s => s.TryValidatePostSaleToken(tokenString, out outToken))
+            .Returns(true);
+        return this;
+    }
+
+    public CheckinTokenServiceBuilder SetupInvalidPostSaleToken(string tokenString)
+    {
+        PostSalePortalToken? nullToken = null;
+        _mock.Setup(s => s.TryValidatePostSaleToken(tokenString, out nullToken))
+            .Returns(false);
+        return this;
+    }
+
     public ICheckinTokenService Build() => _mock.Object;
 }

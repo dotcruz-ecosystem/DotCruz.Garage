@@ -81,6 +81,9 @@ public static class DependencyInjection
 
         services.AddScoped<IVehicleBlueprintReadRepository, VehicleBlueprintReadRepository>();
         services.AddScoped<IVehicleBlueprintWriteRepository, VehicleBlueprintWriteRepository>();
+
+        services.AddScoped<IVehicleSaleReadRepository, VehicleSaleReadRepository>();
+        services.AddScoped<IVehicleSaleWriteRepository, VehicleSaleWriteRepository>();
     }
 
     private static void AddUnitOfWork(IServiceCollection services)

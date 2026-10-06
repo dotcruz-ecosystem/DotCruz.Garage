@@ -17,7 +17,7 @@ namespace DotCruz.Garage.Infrastructure.Migrations
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("ProductVersion", "10.0.10")
+                .HasAnnotation("ProductVersion", "10.0.12")
                 .HasAnnotation("Relational:MaxIdentifierLength", 63);
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
@@ -874,6 +874,113 @@ namespace DotCruz.Garage.Infrastructure.Migrations
                     b.ToTable("vehicles", (string)null);
                 });
 
+            modelBuilder.Entity("DotCruz.Garage.Domain.Entities.Vehicles.VehicleSale", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<DateTimeOffset?>("ClaimedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("claimed_at");
+
+                    b.Property<Guid?>("ClaimedByUserId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("claimed_by_user_id");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("created_at");
+
+                    b.Property<string>("CustomerDocument")
+                        .HasMaxLength(30)
+                        .HasColumnType("character varying(30)")
+                        .HasColumnName("customer_document");
+
+                    b.Property<string>("CustomerEmail")
+                        .IsRequired()
+                        .HasMaxLength(150)
+                        .HasColumnType("character varying(150)")
+                        .HasColumnName("customer_email");
+
+                    b.Property<string>("CustomerName")
+                        .IsRequired()
+                        .HasMaxLength(150)
+                        .HasColumnType("character varying(150)")
+                        .HasColumnName("customer_name");
+
+                    b.Property<string>("CustomerPhone")
+                        .HasMaxLength(30)
+                        .HasColumnType("character varying(30)")
+                        .HasColumnName("customer_phone");
+
+                    b.Property<DateTimeOffset?>("DeletedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("deleted_at");
+
+                    b.Property<bool>("IsActive")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("boolean")
+                        .HasDefaultValue(true)
+                        .HasColumnName("is_active");
+
+                    b.Property<string>("Notes")
+                        .HasMaxLength(1000)
+                        .HasColumnType("character varying(1000)")
+                        .HasColumnName("notes");
+
+                    b.Property<DateTimeOffset>("SoldAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("sold_at");
+
+                    b.Property<int>("SoldOdometer")
+                        .HasColumnType("integer")
+                        .HasColumnName("sold_odometer");
+
+                    b.Property<decimal?>("SoldPrice")
+                        .HasPrecision(18, 2)
+                        .HasColumnType("numeric(18,2)")
+                        .HasColumnName("sold_price");
+
+                    b.Property<Guid>("TenantId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("tenant_id");
+
+                    b.Property<DateTimeOffset>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("updated_at");
+
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("user_id");
+
+                    b.Property<Guid>("VehicleId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("vehicle_id");
+
+                    b.Property<DateTimeOffset?>("WarrantyExpiresAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("warranty_expires_at");
+
+                    b.Property<int?>("WarrantyKm")
+                        .HasColumnType("integer")
+                        .HasColumnName("warranty_km");
+
+                    b.HasKey("Id")
+                        .HasName("pk_vehicle_sales");
+
+                    b.HasIndex("CustomerEmail")
+                        .HasDatabaseName("ix_vehicle_sales_customer_email");
+
+                    b.HasIndex("VehicleId")
+                        .HasDatabaseName("ix_vehicle_sales_vehicle_id");
+
+                    b.HasIndex("TenantId", "VehicleId")
+                        .HasDatabaseName("ix_vehicle_sales_tenant_id_vehicle_id");
+
+                    b.ToTable("vehicle_sales", (string)null);
+                });
+
             modelBuilder.Entity("DotCruz.Garage.Domain.Entities.Catalog.MaintenancePlanTemplate", b =>
                 {
                     b.HasOne("DotCruz.Garage.Domain.Entities.Catalog.VehicleBlueprint", "VehicleBlueprint")
@@ -961,6 +1068,18 @@ namespace DotCruz.Garage.Infrastructure.Migrations
                         .HasConstraintName("fk_odometer_histories_vehicles_vehicle_id");
                 });
 
+            modelBuilder.Entity("DotCruz.Garage.Domain.Entities.Vehicles.VehicleSale", b =>
+                {
+                    b.HasOne("DotCruz.Garage.Domain.Entities.Vehicles.Vehicle", "Vehicle")
+                        .WithMany("Sales")
+                        .HasForeignKey("VehicleId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("fk_vehicle_sales_vehicles_vehicle_id");
+
+                    b.Navigation("Vehicle");
+                });
+
             modelBuilder.Entity("DotCruz.Garage.Domain.Entities.Catalog.VehicleBlueprint", b =>
                 {
                     b.Navigation("PlanTemplates");
@@ -976,6 +1095,8 @@ namespace DotCruz.Garage.Infrastructure.Migrations
             modelBuilder.Entity("DotCruz.Garage.Domain.Entities.Vehicles.Vehicle", b =>
                 {
                     b.Navigation("OdometerHistories");
+
+                    b.Navigation("Sales");
                 });
 #pragma warning restore 612, 618
         }

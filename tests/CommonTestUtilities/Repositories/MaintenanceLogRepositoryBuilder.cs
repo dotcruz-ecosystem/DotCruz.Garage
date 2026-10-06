@@ -33,6 +33,17 @@ public class MaintenanceLogRepositoryBuilder
         return this;
     }
 
+    public MaintenanceLogRepositoryBuilder SetupGetByVehicleIdUnscoped(IReadOnlyCollection<MaintenanceLog> logs)
+    {
+        _readMock.Setup(r => r.GetByVehicleIdUnscopedAsync(
+            It.IsAny<Guid>(),
+            It.IsAny<Guid>(),
+            It.IsAny<CancellationToken>()))
+            .ReturnsAsync(logs);
+
+        return this;
+    }
+
     public (IMaintenanceLogReadRepository Read, IMaintenanceLogWriteRepository Write) Build() =>
         (_readMock.Object, _writeMock.Object);
 }

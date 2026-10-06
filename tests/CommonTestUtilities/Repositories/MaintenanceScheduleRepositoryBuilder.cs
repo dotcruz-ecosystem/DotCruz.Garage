@@ -63,6 +63,20 @@ public class MaintenanceScheduleRepositoryBuilder
         return this;
     }
 
+    public MaintenanceScheduleRepositoryBuilder SetupAdd(Action<MaintenanceSchedule>? callback = null)
+    {
+        var setup = _writeMock.Setup(w => w.AddAsync(
+            It.IsAny<MaintenanceSchedule>(),
+            It.IsAny<CancellationToken>()));
+
+        if (callback != null)
+        {
+            setup.Callback<MaintenanceSchedule, CancellationToken>((s, _) => callback(s));
+        }
+
+        return this;
+    }
+
     public (IMaintenanceScheduleReadRepository Read, IMaintenanceScheduleWriteRepository Write) Build() =>
         (_readMock.Object, _writeMock.Object);
 }

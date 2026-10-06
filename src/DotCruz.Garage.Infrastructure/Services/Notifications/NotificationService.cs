@@ -135,6 +135,35 @@ public class NotificationService(HttpClient httpClient) : INotificationService
         await SendAsync(message, tenantId, cancellationToken);
     }
 
+    public async Task SendPostSaleWelcomeAsync(
+        Guid userId,
+        Guid tenantId,
+        string customerName,
+        string customerEmail,
+        string vehicleName,
+        string portalUrl,
+        DateTimeOffset? warrantyUntil,
+        int? warrantyKm,
+        CancellationToken cancellationToken)
+    {
+        var message = new CreateNotificationMessage(
+            Type: IntegrationNotificationType.Email,
+            Recipient: customerEmail,
+            Culture: CultureInfo.CurrentUICulture.Name,
+            TemplateCode: "VehiclePostSaleWelcome",
+            TemplateData: new Dictionary<string, object>
+            {
+                { "name", customerName },
+                { "vehicle_name", vehicleName },
+                { "portal_url", portalUrl },
+                { "warranty_until", warrantyUntil?.ToString("yyyy-MM-dd") ?? string.Empty },
+                { "warranty_km", warrantyKm ?? 0 }
+            }
+        );
+
+        await SendAsync(message, tenantId, cancellationToken);
+    }
+
     private async Task SendAsync(CreateNotificationMessage message, Guid tenantId, CancellationToken cancellationToken)
     {
         using var request = new HttpRequestMessage(HttpMethod.Post, "api/Notification")
