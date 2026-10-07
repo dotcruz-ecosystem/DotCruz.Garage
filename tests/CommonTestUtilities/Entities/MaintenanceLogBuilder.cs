@@ -1,4 +1,4 @@
-﻿using Bogus;
+using Bogus;
 using DotCruz.Garage.Domain.Entities.Maintenance;
 
 namespace CommonTestUtilities.Entities;
@@ -6,7 +6,7 @@ namespace CommonTestUtilities.Entities;
 public class MaintenanceLogBuilder
 {
     public static MaintenanceLog Build(
-        Guid? tenantId = null,
+        Guid? workspaceId = null,
         Guid? userId = null,
         Guid? vehicleId = null,
         Guid? scheduleId = null,
@@ -17,7 +17,7 @@ public class MaintenanceLogBuilder
         var faker = new Faker();
 
         return MaintenanceLog.Create(
-            tenantId: tenantId ?? Guid.NewGuid(),
+            workspaceId: workspaceId ?? Guid.NewGuid(),
             userId: userId ?? Guid.NewGuid(),
             vehicleId: vehicleId ?? Guid.NewGuid(),
             maintenanceScheduleId: scheduleId ?? Guid.NewGuid(),

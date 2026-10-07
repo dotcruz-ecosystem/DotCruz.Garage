@@ -1,4 +1,4 @@
-﻿using DotCruz.Garage.Application.Abstractions.Data.Repositories.Vehicles;
+using DotCruz.Garage.Application.Abstractions.Data.Repositories.Vehicles;
 using DotCruz.Garage.Application.Abstractions.Services.Security;
 using DotCruz.Garage.Application.DTOs.Vehicles;
 using DotCruz.Garage.Domain.Exceptions.BaseExceptions;
@@ -13,18 +13,18 @@ public class GenerateOdometerCheckinTokenCommandHandler : IRequestHandler<Genera
 {
     private readonly IVehicleReadRepository _vehicleReadRepository;
     private readonly ICheckinTokenService _tokenService;
-    private readonly ITenantProvider _tenantProvider;
+    private readonly IWorkspaceProvider _workspaceProvider;
     private readonly IConfiguration _configuration;
 
     public GenerateOdometerCheckinTokenCommandHandler(
         IVehicleReadRepository vehicleReadRepository,
         ICheckinTokenService tokenService,
-        ITenantProvider tenantProvider,
+        IWorkspaceProvider workspaceProvider,
         IConfiguration configuration)
     {
         _vehicleReadRepository = vehicleReadRepository;
         _tokenService = tokenService;
-        _tenantProvider = tenantProvider;
+        _workspaceProvider = workspaceProvider;
         _configuration = configuration;
     }
 
@@ -33,9 +33,9 @@ public class GenerateOdometerCheckinTokenCommandHandler : IRequestHandler<Genera
         var vehicle = await _vehicleReadRepository.GetByIdAsync(request.VehicleId, cancellationToken)
             ?? throw new NotFoundException(ResourceMessagesException.VEHICLE_NOT_FOUND);
 
-        var tenantId = _tenantProvider.TenantId ?? vehicle.TenantId;
+        var workspaceId = _workspaceProvider.WorkspaceId ?? vehicle.WorkspaceId;
         var validity = request.Validity ?? TimeSpan.FromHours(48);
-        var token = _tokenService.GenerateToken(vehicle.Id, tenantId, validity);
+        var token = _tokenService.GenerateToken(vehicle.Id, workspaceId, validity);
 
         var baseUrl = _configuration["Settings:FrontendUrl"] ?? "https://garage.dotcruz.com";
         var magicLinkUrl = $"{baseUrl.TrimEnd('/')}/checkin/odometer?token={token}";

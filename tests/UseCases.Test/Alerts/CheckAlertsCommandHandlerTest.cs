@@ -1,5 +1,6 @@
 using CommonTestUtilities.Data;
 using CommonTestUtilities.Entities;
+using CommonTestUtilities.Repositories;
 using CommonTestUtilities.Services;
 using DotCruz.Garage.Application.Abstractions.Data.Repositories.Documents;
 using DotCruz.Garage.Application.Abstractions.Data.Repositories.Fines;
@@ -16,13 +17,13 @@ namespace UseCases.Test.Alerts;
 public class CheckAlertsCommandHandlerTest
 {
     [Fact]
-    public async Task Notifies_Each_Tenant_With_Its_Own_Tenant_Id()
+    public async Task Notifies_Each_Workspace_With_Its_Own_Workspace_Id()
     {
-        var tenantA = Guid.NewGuid();
-        var tenantB = Guid.NewGuid();
+        var workspaceA = Guid.NewGuid();
+        var workspaceB = Guid.NewGuid();
 
-        var scheduleA = DueSchedule(tenantA);
-        var scheduleB = DueSchedule(tenantB);
+        var scheduleA = DueSchedule(workspaceA);
+        var scheduleB = DueSchedule(workspaceB);
 
         var authClient = new AuthServiceClientBuilder()
             .SetupAnyUser(new UserResponseDto(Guid.NewGuid(), "Tester", "tester@dotcruz.com"))
@@ -34,21 +35,21 @@ public class CheckAlertsCommandHandlerTest
         await handler.Handle(new CheckAlertsCommand(), TestContext.Current.CancellationToken);
 
         notifications.Mock.Verify(n => n.SendMaintenanceAlertAsync(
-            scheduleA.UserId, tenantA, It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(),
+            scheduleA.UserId, workspaceA, It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(),
             It.IsAny<string>(), It.IsAny<int?>(), It.IsAny<DateTimeOffset?>(), It.IsAny<CancellationToken>()),
             Times.Once);
 
         notifications.Mock.Verify(n => n.SendMaintenanceAlertAsync(
-            scheduleB.UserId, tenantB, It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(),
+            scheduleB.UserId, workspaceB, It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(),
             It.IsAny<string>(), It.IsAny<int?>(), It.IsAny<DateTimeOffset?>(), It.IsAny<CancellationToken>()),
             Times.Once);
     }
 
     [Fact]
-    public async Task Resolves_The_User_Within_The_Record_Tenant()
+    public async Task Resolves_The_User_Within_The_Record_Workspace()
     {
-        var tenantId = Guid.NewGuid();
-        var schedule = DueSchedule(tenantId);
+        var workspaceId = Guid.NewGuid();
+        var schedule = DueSchedule(workspaceId);
 
         var authClient = new AuthServiceClientBuilder()
             .SetupAnyUser(new UserResponseDto(Guid.NewGuid(), "Tester", "tester@dotcruz.com"));
@@ -58,7 +59,7 @@ public class CheckAlertsCommandHandlerTest
         await handler.Handle(new CheckAlertsCommand(), TestContext.Current.CancellationToken);
 
         authClient.Mock.Verify(
-            c => c.GetUserByIdAsync(schedule.UserId, tenantId, It.IsAny<CancellationToken>()),
+            c => c.GetUserByIdAsync(schedule.UserId, workspaceId, It.IsAny<CancellationToken>()),
             Times.Once);
     }
 
@@ -68,7 +69,7 @@ public class CheckAlertsCommandHandlerTest
         var schedule = DueSchedule(Guid.NewGuid());
 
         var authClient = new AuthServiceClientBuilder()
-            .SetupGetUserById(schedule.UserId, schedule.TenantId, null)
+            .SetupGetUserById(schedule.UserId, schedule.WorkspaceId, null)
             .Build();
         var notifications = new NotificationServiceBuilder();
 
@@ -100,11 +101,11 @@ public class CheckAlertsCommandHandlerTest
     [Fact]
     public async Task Resolves_Each_User_Once_Even_Across_Records()
     {
-        var tenantId = Guid.NewGuid();
+        var workspaceId = Guid.NewGuid();
         var userId = Guid.NewGuid();
 
-        var first = DueSchedule(tenantId, userId);
-        var second = DueSchedule(tenantId, userId);
+        var first = DueSchedule(workspaceId, userId);
+        var second = DueSchedule(workspaceId, userId);
 
         var authClient = new AuthServiceClientBuilder()
             .SetupAnyUser(new UserResponseDto(userId, "Tester", "tester@dotcruz.com"));
@@ -114,15 +115,15 @@ public class CheckAlertsCommandHandlerTest
         await handler.Handle(new CheckAlertsCommand(), TestContext.Current.CancellationToken);
 
         authClient.Mock.Verify(
-            c => c.GetUserByIdAsync(userId, tenantId, It.IsAny<CancellationToken>()),
+            c => c.GetUserByIdAsync(userId, workspaceId, It.IsAny<CancellationToken>()),
             Times.Once);
     }
 
     [Fact]
     public async Task Processes_One_Record_At_A_Time()
     {
-        var tenantId = Guid.NewGuid();
-        var schedules = Enumerable.Range(0, 5).Select(_ => DueSchedule(tenantId)).ToList();
+        var workspaceId = Guid.NewGuid();
+        var schedules = Enumerable.Range(0, 5).Select(_ => DueSchedule(workspaceId)).ToList();
 
         var inFlight = 0;
         var peak = 0;
@@ -153,12 +154,12 @@ public class CheckAlertsCommandHandlerTest
         Assert.Equal(1, peak);
     }
 
-    private static MaintenanceSchedule DueSchedule(Guid tenantId, Guid? userId = null)
+    private static MaintenanceSchedule DueSchedule(Guid workspaceId, Guid? userId = null)
     {
-        var vehicle = VehicleBuilder.Build(tenantId: tenantId, userId: userId, initialOdometer: 50_000);
+        var vehicle = VehicleBuilder.Build(workspaceId: workspaceId, userId: userId, initialOdometer: 50_000);
 
         var schedule = MaintenanceScheduleBuilder.Build(
-            tenantId: tenantId,
+            workspaceId: workspaceId,
             userId: userId ?? vehicle.UserId,
             vehicleId: vehicle.Id,
             currentOdometer: 50_000);
@@ -175,25 +176,22 @@ public class CheckAlertsCommandHandlerTest
         DotCruz.Garage.Application.Abstractions.Services.Auth.IAuthServiceClient authClient,
         NotificationServiceBuilder notifications)
     {
-        var scheduleRepository = new Mock<IMaintenanceScheduleWriteRepository>();
-        scheduleRepository
-            .Setup(r => r.GetSchedulesWithVehicleDetailsToUpdateAsync(It.IsAny<CancellationToken>()))
-            .ReturnsAsync(schedules);
+        var (_, scheduleRepository) = new MaintenanceScheduleRepositoryBuilder()
+            .SetupGetSchedulesWithVehicleDetailsToUpdate(schedules)
+            .Build();
 
-        var fineRepository = new Mock<ITrafficFineWriteRepository>();
-        fineRepository
-            .Setup(r => r.GetPendingFinesToNotifyAsync(It.IsAny<CancellationToken>()))
-            .ReturnsAsync([]);
+        var (_, fineRepository) = new TrafficFineRepositoryBuilder()
+            .SetupGetPendingFinesToNotify([])
+            .Build();
 
-        var documentRepository = new Mock<IVehicleDocumentWriteRepository>();
-        documentRepository
-            .Setup(r => r.GetDocumentsToNotifyAsync(It.IsAny<CancellationToken>()))
-            .ReturnsAsync([]);
+        var (_, documentRepository) = new VehicleDocumentRepositoryBuilder()
+            .SetupGetDocumentsToNotify([])
+            .Build();
 
         return new CheckAlertsCommandHandler(
-            scheduleRepository.Object,
-            fineRepository.Object,
-            documentRepository.Object,
+            scheduleRepository,
+            fineRepository,
+            documentRepository,
             authClient,
             notifications.Build(),
             UnitOfWorkBuilder.Build());

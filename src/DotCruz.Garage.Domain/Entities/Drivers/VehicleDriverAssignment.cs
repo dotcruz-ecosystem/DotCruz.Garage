@@ -3,9 +3,9 @@ using DotCruz.Garage.Domain.Entities.Vehicles;
 
 namespace DotCruz.Garage.Domain.Entities.Drivers;
 
-public class VehicleDriverAssignment : BaseEntity, ITenantEntity
+public class VehicleDriverAssignment : BaseEntity, IWorkspaceEntity
 {
-    public Guid TenantId { get; private set; }
+    public Guid WorkspaceId { get; private set; }
     public Guid UserId { get; private set; }
     public Guid VehicleId { get; private set; }
     public Guid DriverId { get; private set; }
@@ -21,7 +21,7 @@ public class VehicleDriverAssignment : BaseEntity, ITenantEntity
     private VehicleDriverAssignment() { }
 
     public static VehicleDriverAssignment Create(
-        Guid tenantId,
+        Guid workspaceId,
         Guid userId,
         Guid vehicleId,
         Guid driverId,
@@ -30,7 +30,7 @@ public class VehicleDriverAssignment : BaseEntity, ITenantEntity
     {
         return new VehicleDriverAssignment
         {
-            TenantId = tenantId,
+            WorkspaceId = workspaceId,
             UserId = userId,
             VehicleId = vehicleId,
             DriverId = driverId,

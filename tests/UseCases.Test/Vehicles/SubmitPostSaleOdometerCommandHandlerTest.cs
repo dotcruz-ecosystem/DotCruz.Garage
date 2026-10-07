@@ -14,12 +14,12 @@ public class SubmitPostSaleOdometerCommandHandlerTest
     [Fact]
     public async Task Successfully_Submits_Odometer_And_Recalculates_Schedules()
     {
-        var tenantId = Guid.NewGuid();
-        var vehicle = VehicleBuilder.Build(tenantId: tenantId, initialOdometer: 50_000);
+        var workspaceId = Guid.NewGuid();
+        var vehicle = VehicleBuilder.Build(workspaceId: workspaceId, initialOdometer: 50_000);
         var saleId = Guid.NewGuid();
 
         var tokenString = "valid.postsale.portal.token";
-        var portalToken = new PostSalePortalToken(vehicle.Id, saleId, tenantId, DateTimeOffset.UtcNow.AddDays(10));
+        var portalToken = new PostSalePortalToken(vehicle.Id, saleId, workspaceId, DateTimeOffset.UtcNow.AddDays(10));
 
         var tokenService = new CheckinTokenServiceBuilder()
             .SetupValidPostSaleToken(tokenString, portalToken)
@@ -30,7 +30,7 @@ public class SubmitPostSaleOdometerCommandHandlerTest
             .Build();
 
         var schedule = MaintenanceScheduleBuilder.Build(
-            tenantId: tenantId,
+            workspaceId: workspaceId,
             vehicleId: vehicle.Id,
             intervalOdometer: 10_000,
             lastPerformedOdometer: 50_000
@@ -62,12 +62,12 @@ public class SubmitPostSaleOdometerCommandHandlerTest
     [Fact]
     public async Task Throws_ErrorOnValidationException_When_Odometer_Is_Lower_Than_Current()
     {
-        var tenantId = Guid.NewGuid();
-        var vehicle = VehicleBuilder.Build(tenantId: tenantId, initialOdometer: 50_000);
+        var workspaceId = Guid.NewGuid();
+        var vehicle = VehicleBuilder.Build(workspaceId: workspaceId, initialOdometer: 50_000);
         var saleId = Guid.NewGuid();
 
         var tokenString = "valid.postsale.portal.token";
-        var portalToken = new PostSalePortalToken(vehicle.Id, saleId, tenantId, DateTimeOffset.UtcNow.AddDays(10));
+        var portalToken = new PostSalePortalToken(vehicle.Id, saleId, workspaceId, DateTimeOffset.UtcNow.AddDays(10));
 
         var tokenService = new CheckinTokenServiceBuilder()
             .SetupValidPostSaleToken(tokenString, portalToken)
@@ -96,12 +96,12 @@ public class SubmitPostSaleOdometerCommandHandlerTest
     [Fact]
     public async Task Throws_ErrorOnValidationException_When_Odometer_Jump_Is_Unrealistic()
     {
-        var tenantId = Guid.NewGuid();
-        var vehicle = VehicleBuilder.Build(tenantId: tenantId, initialOdometer: 50_000);
+        var workspaceId = Guid.NewGuid();
+        var vehicle = VehicleBuilder.Build(workspaceId: workspaceId, initialOdometer: 50_000);
         var saleId = Guid.NewGuid();
 
         var tokenString = "valid.postsale.portal.token";
-        var portalToken = new PostSalePortalToken(vehicle.Id, saleId, tenantId, DateTimeOffset.UtcNow.AddDays(10));
+        var portalToken = new PostSalePortalToken(vehicle.Id, saleId, workspaceId, DateTimeOffset.UtcNow.AddDays(10));
 
         var tokenService = new CheckinTokenServiceBuilder()
             .SetupValidPostSaleToken(tokenString, portalToken)

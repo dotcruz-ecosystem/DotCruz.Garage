@@ -13,18 +13,18 @@ public class CreateVehicleDocumentCommandHandler : IRequestHandler<CreateVehicle
 {
     private readonly IVehicleReadRepository _vehicleReadRepository;
     private readonly IVehicleDocumentWriteRepository _vehicleDocumentWriteRepository;
-    private readonly ITenantProvider _tenantProvider;
+    private readonly IWorkspaceProvider _workspaceProvider;
     private readonly IUnitOfWork _unitOfWork;
 
     public CreateVehicleDocumentCommandHandler(
         IVehicleReadRepository vehicleReadRepository,
         IVehicleDocumentWriteRepository vehicleDocumentWriteRepository,
-        ITenantProvider tenantProvider,
+        IWorkspaceProvider workspaceProvider,
         IUnitOfWork unitOfWork)
     {
         _vehicleReadRepository = vehicleReadRepository;
         _vehicleDocumentWriteRepository = vehicleDocumentWriteRepository;
-        _tenantProvider = tenantProvider;
+        _workspaceProvider = workspaceProvider;
         _unitOfWork = unitOfWork;
     }
 
@@ -34,10 +34,10 @@ public class CreateVehicleDocumentCommandHandler : IRequestHandler<CreateVehicle
         if (!vehicleExists)
             throw new NotFoundException(ResourceMessagesException.VEHICLE_NOT_FOUND);
 
-        var tenantId = _tenantProvider.TenantId;
-        var userId = _tenantProvider.UserId;
+        var workspaceId = _workspaceProvider.WorkspaceId;
+        var userId = _workspaceProvider.UserId;
 
-        var doc = request.ToDomain(tenantId!.Value, userId!.Value);
+        var doc = request.ToDomain(workspaceId!.Value, userId!.Value);
 
         await _vehicleDocumentWriteRepository.AddAsync(doc, cancellationToken);
 

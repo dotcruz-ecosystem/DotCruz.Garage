@@ -8,5 +8,5 @@ public interface IVehicleSaleReadRepository : IBaseReadRepository<VehicleSale>
     Task<IReadOnlyCollection<VehicleSale>> GetActiveSalesWithVehicleAsync(CancellationToken cancellationToken);
     Task<VehicleSale?> GetByIdWithVehicleAsync(Guid id, CancellationToken cancellationToken);
     Task<VehicleSale?> GetByVehicleIdWithVehicleAsync(Guid vehicleId, CancellationToken cancellationToken);
-    Task<VehicleSale?> GetSaleUnscopedAsync(Guid saleId, Guid tenantId, CancellationToken cancellationToken);
+    Task<VehicleSale?> GetSaleUnscopedAsync(Guid saleId, Guid workspaceId, CancellationToken cancellationToken);
 }

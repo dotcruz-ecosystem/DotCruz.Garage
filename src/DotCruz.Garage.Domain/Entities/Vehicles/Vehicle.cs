@@ -2,9 +2,9 @@ using DotCruz.Garage.Domain.Entities.Base;
 
 namespace DotCruz.Garage.Domain.Entities.Vehicles;
 
-public class Vehicle : BaseEntity, ITenantEntity
+public class Vehicle : BaseEntity, IWorkspaceEntity
 {
-    public Guid TenantId { get; private set; }
+    public Guid WorkspaceId { get; private set; }
     public Guid UserId { get; private set; }
     public string Name { get; private set; } = null!;
     public string Brand { get; private set; } = null!;
@@ -25,7 +25,7 @@ public class Vehicle : BaseEntity, ITenantEntity
     private Vehicle() { }
 
     public static Vehicle Create(
-        Guid tenantId,
+        Guid workspaceId,
         Guid userId,
         string name,
         string brand,
@@ -38,7 +38,7 @@ public class Vehicle : BaseEntity, ITenantEntity
     {
         var vehicle = new Vehicle
         {
-            TenantId = tenantId,
+            WorkspaceId = workspaceId,
             UserId = userId,
             Name = name,
             Brand = brand,
@@ -94,7 +94,7 @@ public class Vehicle : BaseEntity, ITenantEntity
         existingActive?.Deactivate();
 
         var sale = VehicleSale.Create(
-            TenantId,
+            WorkspaceId,
             userId,
             Id,
             customerName,

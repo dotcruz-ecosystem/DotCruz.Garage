@@ -8,11 +8,11 @@ public static class MaintenanceLogMapper
 {
     public static MaintenanceLog ToDomain(
         this LogMaintenanceCommand command,
-        Guid tenantId,
+        Guid workspaceId,
         Guid userId)
     {
         return MaintenanceLog.Create(
-            tenantId,
+            workspaceId,
             userId,
             command.VehicleId,
             command.RequestDto.MaintenanceScheduleId,

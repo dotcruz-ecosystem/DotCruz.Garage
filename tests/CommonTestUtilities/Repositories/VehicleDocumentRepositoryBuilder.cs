@@ -1,4 +1,4 @@
-﻿using DotCruz.Garage.Application.Abstractions.Data.Repositories.Documents;
+using DotCruz.Garage.Application.Abstractions.Data.Repositories.Documents;
 using DotCruz.Garage.Domain.Entities.Documents;
 using Moq;
 
@@ -23,6 +23,14 @@ public class VehicleDocumentRepositoryBuilder
     public VehicleDocumentRepositoryBuilder SetupGetByVehicleId(IReadOnlyCollection<VehicleDocument> documents)
     {
         _readMock.Setup(r => r.GetByVehicleIdAsync(It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(documents);
+
+        return this;
+    }
+
+    public VehicleDocumentRepositoryBuilder SetupGetDocumentsToNotify(IReadOnlyCollection<VehicleDocument> documents)
+    {
+        _writeMock.Setup(w => w.GetDocumentsToNotifyAsync(It.IsAny<CancellationToken>()))
             .ReturnsAsync(documents);
 
         return this;

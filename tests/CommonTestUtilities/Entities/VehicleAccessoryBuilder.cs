@@ -1,4 +1,4 @@
-﻿using Bogus;
+using Bogus;
 using DotCruz.Garage.Domain.Entities.Accessories;
 
 namespace CommonTestUtilities.Entities;
@@ -6,7 +6,7 @@ namespace CommonTestUtilities.Entities;
 public class VehicleAccessoryBuilder
 {
     public static VehicleAccessory Build(
-        Guid? tenantId = null,
+        Guid? workspaceId = null,
         Guid? userId = null,
         Guid? vehicleId = null,
         string name = "Rastreador GPS",
@@ -16,7 +16,7 @@ public class VehicleAccessoryBuilder
         var faker = new Faker();
 
         return VehicleAccessory.Create(
-            tenantId: tenantId ?? Guid.NewGuid(),
+            workspaceId: workspaceId ?? Guid.NewGuid(),
             userId: userId ?? Guid.NewGuid(),
             vehicleId: vehicleId ?? Guid.NewGuid(),
             name: name,

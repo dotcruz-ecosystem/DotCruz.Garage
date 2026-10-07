@@ -13,7 +13,7 @@ public class VehicleSaleConfiguration : IEntityTypeConfiguration<VehicleSale>
         builder.HasKey(s => s.Id);
         builder.Property(s => s.Id).ValueGeneratedNever();
 
-        builder.Property(s => s.TenantId)
+        builder.Property(s => s.WorkspaceId)
             .IsRequired();
 
         builder.Property(s => s.UserId)
@@ -68,7 +68,7 @@ public class VehicleSaleConfiguration : IEntityTypeConfiguration<VehicleSale>
             .IsRequired()
             .HasDefaultValue(true);
 
-        builder.HasIndex(s => new { s.TenantId, s.VehicleId });
+        builder.HasIndex(s => new { s.WorkspaceId, s.VehicleId });
         builder.HasIndex(s => s.VehicleId);
         builder.HasIndex(s => s.CustomerEmail);
     }

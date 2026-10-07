@@ -9,25 +9,25 @@ namespace DotCruz.Garage.Application.UseCases.Vehicles.Commands.CreateVehicle;
 public class CreateVehicleCommandHandler : IRequestHandler<CreateVehicleCommand, Guid>
 {
     private readonly IVehicleWriteRepository _vehicleWriteRepository;
-    private readonly ITenantProvider _tenantProvider;
+    private readonly IWorkspaceProvider _workspaceProvider;
     private readonly IUnitOfWork _unitOfWork;
 
     public CreateVehicleCommandHandler(
         IVehicleWriteRepository vehicleWriteRepository,
-        ITenantProvider tenantProvider,
+        IWorkspaceProvider workspaceProvider,
         IUnitOfWork unitOfWork)
     {
         _vehicleWriteRepository = vehicleWriteRepository;
-        _tenantProvider = tenantProvider;
+        _workspaceProvider = workspaceProvider;
         _unitOfWork = unitOfWork;
     }
 
     public async Task<Guid> Handle(CreateVehicleCommand request, CancellationToken cancellationToken)
     {
-        var tenantId = _tenantProvider.TenantId;
-        var userId = _tenantProvider.UserId;
+        var workspaceId = _workspaceProvider.WorkspaceId;
+        var userId = _workspaceProvider.UserId;
 
-        var vehicle = request.ToDomain(tenantId!.Value, userId!.Value);
+        var vehicle = request.ToDomain(workspaceId!.Value, userId!.Value);
 
         await _vehicleWriteRepository.AddAsync(vehicle, cancellationToken);
 

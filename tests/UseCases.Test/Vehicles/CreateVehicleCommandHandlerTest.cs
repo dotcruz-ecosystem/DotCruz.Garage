@@ -12,7 +12,7 @@ public class CreateVehicleCommandHandlerTest
     [Fact]
     public async Task Successfully_Creates_Vehicle_With_Explicit_Name()
     {
-        var tenantId = Guid.NewGuid();
+        var workspaceId = Guid.NewGuid();
         var userId = Guid.NewGuid();
         Vehicle? savedVehicle = null;
 
@@ -20,15 +20,15 @@ public class CreateVehicleCommandHandlerTest
             .SetupAdd(v => savedVehicle = v)
             .Build();
 
-        var tenantProvider = new TenantProviderBuilder()
-            .AsUser(tenantId, userId)
+        var workspaceProvider = new WorkspaceProviderBuilder()
+            .AsUser(workspaceId, userId)
             .Build();
 
         var unitOfWork = UnitOfWorkBuilder.Build();
 
         var handler = new CreateVehicleCommandHandler(
             vehicleWrite,
-            tenantProvider,
+            workspaceProvider,
             unitOfWork);
 
         var command = CreateVehicleCommandBuilder.Build(
@@ -61,7 +61,7 @@ public class CreateVehicleCommandHandlerTest
     [Fact]
     public async Task Successfully_Creates_Vehicle_With_Default_Name_When_Name_Is_Null_Or_Whitespace()
     {
-        var tenantId = Guid.NewGuid();
+        var workspaceId = Guid.NewGuid();
         var userId = Guid.NewGuid();
         Vehicle? savedVehicle = null;
 
@@ -69,15 +69,15 @@ public class CreateVehicleCommandHandlerTest
             .SetupAdd(v => savedVehicle = v)
             .Build();
 
-        var tenantProvider = new TenantProviderBuilder()
-            .AsUser(tenantId, userId)
+        var workspaceProvider = new WorkspaceProviderBuilder()
+            .AsUser(workspaceId, userId)
             .Build();
 
         var unitOfWork = UnitOfWorkBuilder.Build();
 
         var handler = new CreateVehicleCommandHandler(
             vehicleWrite,
-            tenantProvider,
+            workspaceProvider,
             unitOfWork);
 
         var command = CreateVehicleCommandBuilder.Build(

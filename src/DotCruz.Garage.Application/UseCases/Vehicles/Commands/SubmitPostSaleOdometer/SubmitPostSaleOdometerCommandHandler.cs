@@ -45,7 +45,7 @@ public class SubmitPostSaleOdometerCommandHandler : IRequestHandler<SubmitPostSa
 
         var vehicle = await _vehicleWriteRepository.GetByIdWithHistoriesToUpdateUnscopedAsync(
             portalToken.VehicleId,
-            portalToken.TenantId,
+            portalToken.WorkspaceId,
             cancellationToken)
             ?? throw new NotFoundException(ResourceMessagesException.VEHICLE_NOT_FOUND);
 
@@ -73,7 +73,7 @@ public class SubmitPostSaleOdometerCommandHandler : IRequestHandler<SubmitPostSa
 
         var schedules = await _maintenanceScheduleWriteRepository.GetByVehicleIdToUpdateUnscopedAsync(
             vehicle.Id,
-            portalToken.TenantId,
+            portalToken.WorkspaceId,
             cancellationToken);
 
         foreach (var schedule in schedules)

@@ -12,18 +12,18 @@ public class RegisterDriverCommandHandler : IRequestHandler<RegisterDriverComman
 {
     private readonly IDriverWriteRepository _driverWriteRepository;
     private readonly IDriverReadRepository _driverReadRepository;
-    private readonly ITenantProvider _tenantProvider;
+    private readonly IWorkspaceProvider _workspaceProvider;
     private readonly IUnitOfWork _unitOfWork;
 
     public RegisterDriverCommandHandler(
         IDriverWriteRepository driverWriteRepository,
         IDriverReadRepository driverReadRepository,
-        ITenantProvider tenantProvider,
+        IWorkspaceProvider workspaceProvider,
         IUnitOfWork unitOfWork)
     {
         _driverWriteRepository = driverWriteRepository;
         _driverReadRepository = driverReadRepository;
-        _tenantProvider = tenantProvider;
+        _workspaceProvider = workspaceProvider;
         _unitOfWork = unitOfWork;
     }
 
@@ -35,9 +35,9 @@ public class RegisterDriverCommandHandler : IRequestHandler<RegisterDriverComman
             throw new ErrorOnValidationException(ResourceMessagesException.DRIVER_CPF_INVALID);
         }
 
-        var tenantId = _tenantProvider.TenantId ?? Guid.Empty;
-        var userId = _tenantProvider.UserId ?? Guid.Empty;
-        var driver = request.ToDomain(tenantId, userId);
+        var workspaceId = _workspaceProvider.WorkspaceId ?? Guid.Empty;
+        var userId = _workspaceProvider.UserId ?? Guid.Empty;
+        var driver = request.ToDomain(workspaceId, userId);
 
         await _driverWriteRepository.AddAsync(driver, cancellationToken);
         await _unitOfWork.CommitAsync(cancellationToken);

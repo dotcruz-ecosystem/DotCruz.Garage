@@ -42,21 +42,21 @@ public class GetPostSalePortalQueryHandler : IRequestHandler<GetPostSalePortalQu
             throw new ErrorOnValidationException(ResourceMessagesException.TOKEN_EXPIRED);
         }
 
-        var sale = await _vehicleSaleReadRepository.GetSaleUnscopedAsync(portalToken.SaleId, portalToken.TenantId, cancellationToken)
+        var sale = await _vehicleSaleReadRepository.GetSaleUnscopedAsync(portalToken.SaleId, portalToken.WorkspaceId, cancellationToken)
             ?? throw new NotFoundException("Venda do veículo não encontrada.");
 
         var vehicle = sale.Vehicle 
-            ?? await _vehicleWriteRepository.GetByIdWithHistoriesToUpdateUnscopedAsync(portalToken.VehicleId, portalToken.TenantId, cancellationToken)
+            ?? await _vehicleWriteRepository.GetByIdWithHistoriesToUpdateUnscopedAsync(portalToken.VehicleId, portalToken.WorkspaceId, cancellationToken)
             ?? throw new NotFoundException(ResourceMessagesException.VEHICLE_NOT_FOUND);
 
         var schedules = await _maintenanceScheduleWriteRepository.GetByVehicleIdToUpdateUnscopedAsync(
             vehicle.Id,
-            portalToken.TenantId,
+            portalToken.WorkspaceId,
             cancellationToken);
 
         var logs = await _maintenanceLogReadRepository.GetByVehicleIdUnscopedAsync(
             vehicle.Id,
-            portalToken.TenantId,
+            portalToken.WorkspaceId,
             cancellationToken);
 
         var now = DateTimeOffset.UtcNow;

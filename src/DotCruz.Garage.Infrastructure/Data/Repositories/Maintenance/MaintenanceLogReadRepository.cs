@@ -31,13 +31,13 @@ public class MaintenanceLogReadRepository(GarageDbContext context)
 
     public async Task<IReadOnlyCollection<MaintenanceLog>> GetByVehicleIdUnscopedAsync(
         Guid vehicleId,
-        Guid tenantId,
+        Guid workspaceId,
         CancellationToken cancellationToken)
     {
         return await _dbSet
             .AsNoTracking()
             .IgnoreQueryFilters()
-            .Where(l => l.VehicleId == vehicleId && l.TenantId == tenantId && l.DeletedAt == null)
+            .Where(l => l.VehicleId == vehicleId && l.WorkspaceId == workspaceId && l.DeletedAt == null)
             .OrderByDescending(l => l.PerformedAt)
             .ToListAsync(cancellationToken);
     }

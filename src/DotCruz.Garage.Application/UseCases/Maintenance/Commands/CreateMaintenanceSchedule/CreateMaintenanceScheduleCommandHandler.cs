@@ -13,18 +13,18 @@ public class CreateMaintenanceScheduleCommandHandler : IRequestHandler<CreateMai
 {
     private readonly IVehicleReadRepository _vehicleReadRepository;
     private readonly IMaintenanceScheduleWriteRepository _maintenanceScheduleWriteRepository;
-    private readonly ITenantProvider _tenantProvider;
+    private readonly IWorkspaceProvider _workspaceProvider;
     private readonly IUnitOfWork _unitOfWork;
 
     public CreateMaintenanceScheduleCommandHandler(
         IVehicleReadRepository vehicleReadRepository,
         IMaintenanceScheduleWriteRepository maintenanceScheduleWriteRepository,
-        ITenantProvider tenantProvider,
+        IWorkspaceProvider workspaceProvider,
         IUnitOfWork unitOfWork)
     {
         _vehicleReadRepository = vehicleReadRepository;
         _maintenanceScheduleWriteRepository = maintenanceScheduleWriteRepository;
-        _tenantProvider = tenantProvider;
+        _workspaceProvider = workspaceProvider;
         _unitOfWork = unitOfWork;
     }
 
@@ -33,10 +33,10 @@ public class CreateMaintenanceScheduleCommandHandler : IRequestHandler<CreateMai
         var vehicle = await _vehicleReadRepository.GetByIdAsync(request.VehicleId, cancellationToken)
             ?? throw new NotFoundException(ResourceMessagesException.VEHICLE_NOT_FOUND);
         
-        var tenantId = _tenantProvider.TenantId;
-        var userId = _tenantProvider.UserId;
+        var workspaceId = _workspaceProvider.WorkspaceId;
+        var userId = _workspaceProvider.UserId;
 
-        var schedule = request.ToDomain(tenantId!.Value, userId!.Value, vehicle.CurrentOdometer, vehicle.DailyMileageAverage);
+        var schedule = request.ToDomain(workspaceId!.Value, userId!.Value, vehicle.CurrentOdometer, vehicle.DailyMileageAverage);
 
         await _maintenanceScheduleWriteRepository.AddAsync(schedule, cancellationToken);
 

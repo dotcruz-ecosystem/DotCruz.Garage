@@ -3,11 +3,11 @@ using DotCruz.Garage.Domain.Entities.Fines;
 
 namespace DotCruz.Garage.Domain.Entities.Drivers;
 
-public class Driver : BaseEntity, ITenantEntity
+public class Driver : BaseEntity, IWorkspaceEntity
 {
     public const int CnhSuspensionPointThreshold = 15;
 
-    public Guid TenantId { get; private set; }
+    public Guid WorkspaceId { get; private set; }
     public Guid UserId { get; private set; }
     public string Name { get; private set; } = null!;
     public string Cpf { get; private set; } = null!;
@@ -24,7 +24,7 @@ public class Driver : BaseEntity, ITenantEntity
     private Driver() { }
 
     public static Driver Create(
-        Guid tenantId,
+        Guid workspaceId,
         Guid userId,
         string name,
         string cpf,
@@ -36,7 +36,7 @@ public class Driver : BaseEntity, ITenantEntity
     {
         return new Driver
         {
-            TenantId = tenantId,
+            WorkspaceId = workspaceId,
             UserId = userId,
             Name = name,
             Cpf = cpf,

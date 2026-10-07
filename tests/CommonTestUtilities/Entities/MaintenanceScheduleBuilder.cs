@@ -7,7 +7,7 @@ namespace CommonTestUtilities.Entities;
 public class MaintenanceScheduleBuilder
 {
     public static MaintenanceSchedule Build(
-        Guid? tenantId = null,
+        Guid? workspaceId = null,
         Guid? userId = null,
         Guid? vehicleId = null,
         string? description = null,
@@ -19,7 +19,7 @@ public class MaintenanceScheduleBuilder
         var faker = new Faker();
 
         return MaintenanceSchedule.Create(
-            tenantId: tenantId ?? Guid.NewGuid(),
+            workspaceId: workspaceId ?? Guid.NewGuid(),
             userId: userId ?? Guid.NewGuid(),
             vehicleId: vehicleId ?? Guid.NewGuid(),
             description: description ?? faker.Lorem.Sentence(3),

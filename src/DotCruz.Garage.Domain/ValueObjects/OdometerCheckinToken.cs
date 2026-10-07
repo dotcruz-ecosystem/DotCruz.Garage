@@ -1,15 +1,15 @@
-﻿namespace DotCruz.Garage.Domain.ValueObjects;
+namespace DotCruz.Garage.Domain.ValueObjects;
 
 public sealed record OdometerCheckinToken
 {
     public Guid VehicleId { get; }
-    public Guid TenantId { get; }
+    public Guid WorkspaceId { get; }
     public DateTimeOffset ExpiresAt { get; }
 
-    public OdometerCheckinToken(Guid vehicleId, Guid tenantId, DateTimeOffset expiresAt)
+    public OdometerCheckinToken(Guid vehicleId, Guid workspaceId, DateTimeOffset expiresAt)
     {
         VehicleId = vehicleId;
-        TenantId = tenantId;
+        WorkspaceId = workspaceId;
         ExpiresAt = expiresAt;
     }
 

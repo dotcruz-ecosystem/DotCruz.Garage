@@ -28,9 +28,9 @@ public class RegisterVehicleSaleCommandHandlerTest
     [Fact]
     public async Task Successfully_Registers_Sale_And_Schedules_PostSale_Maintenance()
     {
-        var tenantId = Guid.NewGuid();
+        var workspaceId = Guid.NewGuid();
         var userId = Guid.NewGuid();
-        var vehicle = VehicleBuilder.Build(tenantId: tenantId, userId: userId, initialOdometer: 40_000);
+        var vehicle = VehicleBuilder.Build(workspaceId: workspaceId, userId: userId, initialOdometer: 40_000);
 
         var (_, vehicleWrite) = new VehicleRepositoryBuilder()
             .SetupGetByIdWithSalesToUpdate(vehicle)
@@ -47,8 +47,8 @@ public class RegisterVehicleSaleCommandHandlerTest
 
         var notificationService = new NotificationServiceBuilder().Build();
 
-        var tenantProvider = new TenantProviderBuilder()
-            .AsUser(tenantId, userId)
+        var workspaceProvider = new WorkspaceProviderBuilder()
+            .AsUser(workspaceId, userId)
             .Build();
 
         var unitOfWork = UnitOfWorkBuilder.Build();
@@ -58,7 +58,7 @@ public class RegisterVehicleSaleCommandHandlerTest
             scheduleWrite,
             tokenService,
             notificationService,
-            tenantProvider,
+            workspaceProvider,
             _configuration,
             unitOfWork,
             NullLogger<RegisterVehicleSaleCommandHandler>.Instance
@@ -104,7 +104,7 @@ public class RegisterVehicleSaleCommandHandlerTest
         var (_, scheduleWrite) = new MaintenanceScheduleRepositoryBuilder().Build();
         var tokenService = new CheckinTokenServiceBuilder().Build();
         var notificationService = new NotificationServiceBuilder().Build();
-        var tenantProvider = new TenantProviderBuilder().Build();
+        var workspaceProvider = new WorkspaceProviderBuilder().Build();
         var unitOfWork = UnitOfWorkBuilder.Build();
 
         var handler = new RegisterVehicleSaleCommandHandler(
@@ -112,7 +112,7 @@ public class RegisterVehicleSaleCommandHandlerTest
             scheduleWrite,
             tokenService,
             notificationService,
-            tenantProvider,
+            workspaceProvider,
             _configuration,
             unitOfWork,
             NullLogger<RegisterVehicleSaleCommandHandler>.Instance

@@ -8,11 +8,11 @@ public static class TrafficFineMapper
 {
     public static TrafficFine ToDomain(
         this CreateTrafficFineCommand command,
-        Guid tenantId,
+        Guid workspaceId,
         Guid userId)
     {
         return TrafficFine.Create(
-            tenantId,
+            workspaceId,
             userId,
             command.VehicleId,
             command.RequestDto.InfractionCode,

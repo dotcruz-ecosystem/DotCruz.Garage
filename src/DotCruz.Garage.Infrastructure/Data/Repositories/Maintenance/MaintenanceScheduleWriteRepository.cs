@@ -16,11 +16,11 @@ public class MaintenanceScheduleWriteRepository(GarageDbContext context)
             .ToListAsync(cancellationToken);
     }
 
-    public async Task<IReadOnlyCollection<MaintenanceSchedule>> GetByVehicleIdToUpdateUnscopedAsync(Guid vehicleId, Guid tenantId, CancellationToken cancellationToken)
+    public async Task<IReadOnlyCollection<MaintenanceSchedule>> GetByVehicleIdToUpdateUnscopedAsync(Guid vehicleId, Guid workspaceId, CancellationToken cancellationToken)
     {
         return await _dbSet
             .IgnoreQueryFilters()
-            .Where(s => s.VehicleId == vehicleId && s.TenantId == tenantId && s.DeletedAt == null)
+            .Where(s => s.VehicleId == vehicleId && s.WorkspaceId == workspaceId && s.DeletedAt == null)
             .ToListAsync(cancellationToken);
     }
 

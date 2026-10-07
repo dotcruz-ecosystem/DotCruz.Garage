@@ -5,12 +5,12 @@ using DotCruz.Garage.Domain.Enums;
 
 namespace DotCruz.Garage.Domain.Entities.Fines;
 
-public class TrafficFine : BaseEntity, ITenantEntity
+public class TrafficFine : BaseEntity, IWorkspaceEntity
 {
     public const int DefaultWarningThresholdDays = 10;
     public const int NICRiskWarningThresholdDays = 15;
 
-    public Guid TenantId { get; private set; }
+    public Guid WorkspaceId { get; private set; }
     public Guid UserId { get; private set; }
     public Guid VehicleId { get; private set; }
     public Guid? DriverId { get; private set; }
@@ -37,7 +37,7 @@ public class TrafficFine : BaseEntity, ITenantEntity
     private TrafficFine() { }
 
     public static TrafficFine Create(
-        Guid tenantId,
+        Guid workspaceId,
         Guid userId,
         Guid vehicleId,
         string? infractionCode,
@@ -58,7 +58,7 @@ public class TrafficFine : BaseEntity, ITenantEntity
     {
         return new TrafficFine
         {
-            TenantId = tenantId,
+            WorkspaceId = workspaceId,
             UserId = userId,
             VehicleId = vehicleId,
             DriverId = driverId,

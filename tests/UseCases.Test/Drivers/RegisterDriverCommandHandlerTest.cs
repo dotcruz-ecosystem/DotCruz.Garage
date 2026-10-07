@@ -1,4 +1,4 @@
-﻿using CommonTestUtilities.Data;
+using CommonTestUtilities.Data;
 using CommonTestUtilities.Entities;
 using CommonTestUtilities.Repositories;
 using CommonTestUtilities.Services;
@@ -13,17 +13,17 @@ public class RegisterDriverCommandHandlerTest
     [Fact]
     public async Task Successfully_Registers_Driver()
     {
-        var tenantId = Guid.NewGuid();
+        var workspaceId = Guid.NewGuid();
         var (driverRead, driverWrite) = new DriverRepositoryBuilder()
             .SetupGetByCpf(null)
             .Build();
 
-        var tenantProvider = new TenantProviderBuilder().AsTenant(tenantId).Build();
+        var workspaceProvider = new WorkspaceProviderBuilder().AsWorkspace(workspaceId).Build();
 
         var handler = new RegisterDriverCommandHandler(
             driverWrite,
             driverRead,
-            tenantProvider,
+            workspaceProvider,
             UnitOfWorkBuilder.Build());
 
         var reqDto = new RegisterDriverRequestDto(
@@ -49,12 +49,12 @@ public class RegisterDriverCommandHandlerTest
             .SetupGetByCpf(existingDriver)
             .Build();
 
-        var tenantProvider = new TenantProviderBuilder().Build();
+        var workspaceProvider = new WorkspaceProviderBuilder().Build();
 
         var handler = new RegisterDriverCommandHandler(
             driverWrite,
             driverRead,
-            tenantProvider,
+            workspaceProvider,
             UnitOfWorkBuilder.Build());
 
         var reqDto = new RegisterDriverRequestDto(

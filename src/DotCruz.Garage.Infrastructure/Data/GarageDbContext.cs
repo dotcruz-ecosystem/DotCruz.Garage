@@ -14,12 +14,12 @@ namespace DotCruz.Garage.Infrastructure.Data;
 
 public class GarageDbContext : DbContext
 {
-    private readonly ITenantProvider _tenantProvider;
+    private readonly IWorkspaceProvider _workspaceProvider;
 
-    public GarageDbContext(DbContextOptions<GarageDbContext> options, ITenantProvider tenantProvider) 
+    public GarageDbContext(DbContextOptions<GarageDbContext> options, IWorkspaceProvider workspaceProvider) 
         : base(options)
     {
-        _tenantProvider = tenantProvider;
+        _workspaceProvider = workspaceProvider;
     }
 
     public DbSet<Vehicle> Vehicles { get; set; }
@@ -35,9 +35,9 @@ public class GarageDbContext : DbContext
     public DbSet<MaintenancePlanTemplate> MaintenancePlanTemplates { get; set; }
     public DbSet<VehicleSale> VehicleSales { get; set; }
 
-    public Guid CurrentTenantId => _tenantProvider.TenantId ?? Guid.Empty;
-    public Guid CurrentUserId => _tenantProvider.UserId ?? Guid.Empty;
-    public bool ShouldFilterByUserId => _tenantProvider.FilterByUserId;
+    public Guid CurrentWorkspaceId => _workspaceProvider.WorkspaceId ?? Guid.Empty;
+    public Guid CurrentUserId => _workspaceProvider.UserId ?? Guid.Empty;
+    public bool ShouldFilterByUserId => _workspaceProvider.FilterByUserId;
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -58,13 +58,13 @@ public class GarageDbContext : DbContext
                 combinedExpr = softDeleteExpr;
             }
 
-            if (typeof(ITenantEntity).IsAssignableFrom(entityType.ClrType))
+            if (typeof(IWorkspaceEntity).IsAssignableFrom(entityType.ClrType))
             {
-                var propertyTenantId = Expression.Property(parameter, nameof(ITenantEntity.TenantId));
-                var currentTenantIdProp = Expression.Property(Expression.Constant(this), nameof(CurrentTenantId));
-                var tenantExpr = Expression.Equal(propertyTenantId, currentTenantIdProp);
+                var propertyWorkspaceId = Expression.Property(parameter, nameof(IWorkspaceEntity.WorkspaceId));
+                var currentWorkspaceIdProp = Expression.Property(Expression.Constant(this), nameof(CurrentWorkspaceId));
+                var workspaceExpr = Expression.Equal(propertyWorkspaceId, currentWorkspaceIdProp);
 
-                var propertyUserId = Expression.Property(parameter, nameof(ITenantEntity.UserId));
+                var propertyUserId = Expression.Property(parameter, nameof(IWorkspaceEntity.UserId));
                 var currentUserIdProp = Expression.Property(Expression.Constant(this), nameof(CurrentUserId));
                 var userExpr = Expression.Equal(propertyUserId, currentUserIdProp);
 
@@ -73,11 +73,11 @@ public class GarageDbContext : DbContext
 
                 var userFilterExpr = Expression.OrElse(notShouldFilterByUserId, userExpr);
 
-                var tenantAndUserExpr = Expression.AndAlso(tenantExpr, userFilterExpr);
+                var workspaceAndUserExpr = Expression.AndAlso(workspaceExpr, userFilterExpr);
 
                 combinedExpr = combinedExpr != null 
-                    ? Expression.AndAlso(combinedExpr, tenantAndUserExpr) 
-                    : tenantAndUserExpr;
+                    ? Expression.AndAlso(combinedExpr, workspaceAndUserExpr) 
+                    : workspaceAndUserExpr;
             }
 
             if (combinedExpr != null)

@@ -35,13 +35,13 @@ public class MaintenanceLogConfiguration : IEntityTypeConfiguration<MaintenanceL
             .HasMaxLength(1000)
             .IsRequired(false);
 
-        builder.Property(l => l.TenantId)
+        builder.Property(l => l.WorkspaceId)
             .IsRequired();
 
         builder.Property(l => l.UserId)
             .IsRequired();
 
         builder.HasIndex(l => l.VehicleId);
-        builder.HasIndex(l => new { l.TenantId, l.UserId });
+        builder.HasIndex(l => new { l.WorkspaceId, l.UserId });
     }
 }

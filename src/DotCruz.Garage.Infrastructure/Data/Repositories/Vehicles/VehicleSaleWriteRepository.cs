@@ -15,11 +15,11 @@ public class VehicleSaleWriteRepository(GarageDbContext context)
             .FirstOrDefaultAsync(cancellationToken);
     }
 
-    public async Task<VehicleSale?> GetSaleToUpdateUnscopedAsync(Guid saleId, Guid tenantId, CancellationToken cancellationToken)
+    public async Task<VehicleSale?> GetSaleToUpdateUnscopedAsync(Guid saleId, Guid workspaceId, CancellationToken cancellationToken)
     {
         return await _dbSet
             .IgnoreQueryFilters()
-            .Where(s => s.Id == saleId && s.TenantId == tenantId && s.DeletedAt == null)
+            .Where(s => s.Id == saleId && s.WorkspaceId == workspaceId && s.DeletedAt == null)
             .Include(s => s.Vehicle)
             .FirstOrDefaultAsync(cancellationToken);
     }

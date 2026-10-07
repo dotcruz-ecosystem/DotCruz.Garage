@@ -44,14 +44,14 @@ public class DriverConfiguration : IEntityTypeConfiguration<Driver>
             .IsRequired()
             .HasDefaultValue(true);
 
-        builder.Property(d => d.TenantId)
+        builder.Property(d => d.WorkspaceId)
             .IsRequired();
 
         builder.Property(d => d.UserId)
             .IsRequired();
 
-        builder.HasIndex(d => new { d.TenantId, d.Cpf }).IsUnique();
-        builder.HasIndex(d => new { d.TenantId, d.Cnh });
-        builder.HasIndex(d => new { d.TenantId, d.UserId });
+        builder.HasIndex(d => new { d.WorkspaceId, d.Cpf }).IsUnique();
+        builder.HasIndex(d => new { d.WorkspaceId, d.Cnh });
+        builder.HasIndex(d => new { d.WorkspaceId, d.UserId });
     }
 }

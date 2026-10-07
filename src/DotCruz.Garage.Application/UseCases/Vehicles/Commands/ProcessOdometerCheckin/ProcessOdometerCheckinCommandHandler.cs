@@ -1,4 +1,4 @@
-﻿using DotCruz.Garage.Application.Abstractions.Data;
+using DotCruz.Garage.Application.Abstractions.Data;
 using DotCruz.Garage.Application.Abstractions.Data.Repositories.Maintenance;
 using DotCruz.Garage.Application.Abstractions.Data.Repositories.Vehicles;
 using DotCruz.Garage.Application.Abstractions.Services.Security;
@@ -46,7 +46,7 @@ public class ProcessOdometerCheckinCommandHandler : IRequestHandler<ProcessOdome
 
         var vehicle = await _vehicleWriteRepository.GetByIdWithHistoriesToUpdateUnscopedAsync(
             checkinToken.VehicleId,
-            checkinToken.TenantId,
+            checkinToken.WorkspaceId,
             cancellationToken)
             ?? throw new NotFoundException(ResourceMessagesException.VEHICLE_NOT_FOUND);
 
@@ -74,7 +74,7 @@ public class ProcessOdometerCheckinCommandHandler : IRequestHandler<ProcessOdome
 
         var schedules = await _maintenanceScheduleWriteRepository.GetByVehicleIdToUpdateUnscopedAsync(
             vehicle.Id,
-            checkinToken.TenantId,
+            checkinToken.WorkspaceId,
             cancellationToken);
 
         foreach (var schedule in schedules)

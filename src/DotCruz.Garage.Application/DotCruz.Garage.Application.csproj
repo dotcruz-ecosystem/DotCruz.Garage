@@ -2,7 +2,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\DotCruz.Garage.Domain\DotCruz.Garage.Domain.csproj" />
-    <PackageReference Include="DotCruz.Shared.Security" Version="1.0.8" />
+    <PackageReference Include="DotCruz.Shared.Security" Version="2.0.0" />
   </ItemGroup>
 
   <ItemGroup>

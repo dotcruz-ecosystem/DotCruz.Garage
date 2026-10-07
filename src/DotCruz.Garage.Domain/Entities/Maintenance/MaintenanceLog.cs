@@ -2,9 +2,9 @@ using DotCruz.Garage.Domain.Entities.Base;
 
 namespace DotCruz.Garage.Domain.Entities.Maintenance;
 
-public class MaintenanceLog : BaseEntity, ITenantEntity
+public class MaintenanceLog : BaseEntity, IWorkspaceEntity
 {
-    public Guid TenantId { get; private set; }
+    public Guid WorkspaceId { get; private set; }
     public Guid UserId { get; private set; }
     public Guid VehicleId { get; private set; }
     public Guid? MaintenanceScheduleId { get; private set; }
@@ -18,7 +18,7 @@ public class MaintenanceLog : BaseEntity, ITenantEntity
     private MaintenanceLog() { }
 
     public static MaintenanceLog Create(
-        Guid tenantId,
+        Guid workspaceId,
         Guid userId,
         Guid vehicleId,
         Guid? maintenanceScheduleId,
@@ -31,7 +31,7 @@ public class MaintenanceLog : BaseEntity, ITenantEntity
     {
         return new MaintenanceLog
         {
-            TenantId = tenantId,
+            WorkspaceId = workspaceId,
             UserId = userId,
             VehicleId = vehicleId,
             MaintenanceScheduleId = maintenanceScheduleId,

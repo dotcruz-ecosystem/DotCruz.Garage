@@ -59,13 +59,13 @@ public class MaintenanceScheduleConfiguration : IEntityTypeConfiguration<Mainten
         builder.Property(s => s.WarningThresholdDays)
             .IsRequired(false);
 
-        builder.Property(s => s.TenantId)
+        builder.Property(s => s.WorkspaceId)
             .IsRequired();
 
         builder.Property(s => s.UserId)
             .IsRequired();
 
         builder.HasIndex(s => s.VehicleId);
-        builder.HasIndex(s => new { s.TenantId, s.UserId });
+        builder.HasIndex(s => new { s.WorkspaceId, s.UserId });
     }
 }

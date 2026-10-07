@@ -7,7 +7,7 @@ namespace CommonTestUtilities.Entities;
 public class VehicleDocumentBuilder
 {
     public static VehicleDocument Build(
-        Guid? tenantId = null,
+        Guid? workspaceId = null,
         Guid? userId = null,
         Guid? vehicleId = null,
         DocumentType type = DocumentType.IPVA,
@@ -17,7 +17,7 @@ public class VehicleDocumentBuilder
         DocumentStatus status = DocumentStatus.Pending)
     {
         return VehicleDocument.Create(
-            tenantId: tenantId ?? Guid.NewGuid(),
+            workspaceId: workspaceId ?? Guid.NewGuid(),
             userId: userId ?? Guid.NewGuid(),
             vehicleId: vehicleId ?? Guid.NewGuid(),
             type: type,

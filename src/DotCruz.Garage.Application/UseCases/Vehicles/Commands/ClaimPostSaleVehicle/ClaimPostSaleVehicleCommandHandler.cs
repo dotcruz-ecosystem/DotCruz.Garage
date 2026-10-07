@@ -18,7 +18,7 @@ public class ClaimPostSaleVehicleCommandHandler : IRequestHandler<ClaimPostSaleV
     private readonly IVehicleSaleWriteRepository _vehicleSaleWriteRepository;
     private readonly IVehicleWriteRepository _vehicleWriteRepository;
     private readonly IMaintenanceScheduleWriteRepository _maintenanceScheduleWriteRepository;
-    private readonly ITenantProvider _tenantProvider;
+    private readonly IWorkspaceProvider _workspaceProvider;
     private readonly IUnitOfWork _unitOfWork;
 
     public ClaimPostSaleVehicleCommandHandler(
@@ -26,14 +26,14 @@ public class ClaimPostSaleVehicleCommandHandler : IRequestHandler<ClaimPostSaleV
         IVehicleSaleWriteRepository vehicleSaleWriteRepository,
         IVehicleWriteRepository vehicleWriteRepository,
         IMaintenanceScheduleWriteRepository maintenanceScheduleWriteRepository,
-        ITenantProvider tenantProvider,
+        IWorkspaceProvider workspaceProvider,
         IUnitOfWork unitOfWork)
     {
         _tokenService = tokenService;
         _vehicleSaleWriteRepository = vehicleSaleWriteRepository;
         _vehicleWriteRepository = vehicleWriteRepository;
         _maintenanceScheduleWriteRepository = maintenanceScheduleWriteRepository;
-        _tenantProvider = tenantProvider;
+        _workspaceProvider = workspaceProvider;
         _unitOfWork = unitOfWork;
     }
 
@@ -49,17 +49,17 @@ public class ClaimPostSaleVehicleCommandHandler : IRequestHandler<ClaimPostSaleV
             throw new ErrorOnValidationException(ResourceMessagesException.TOKEN_EXPIRED);
         }
 
-        var buyerTenantId = _tenantProvider.TenantId;
-        var buyerUserId = _tenantProvider.UserId;
+        var buyerWorkspaceId = _workspaceProvider.WorkspaceId;
+        var buyerUserId = _workspaceProvider.UserId;
 
-        if (!buyerTenantId.HasValue || !buyerUserId.HasValue)
+        if (!buyerWorkspaceId.HasValue || !buyerUserId.HasValue)
         {
             throw new ErrorOnValidationException("Usuário deve estar autenticado em um workspace para reivindicar o veículo.");
         }
 
         var sale = await _vehicleSaleWriteRepository.GetSaleToUpdateUnscopedAsync(
             portalToken.SaleId,
-            portalToken.TenantId,
+            portalToken.WorkspaceId,
             cancellationToken)
             ?? throw new NotFoundException("Venda do veículo não encontrada.");
 
@@ -70,7 +70,7 @@ public class ClaimPostSaleVehicleCommandHandler : IRequestHandler<ClaimPostSaleV
 
         var originalVehicle = await _vehicleWriteRepository.GetByIdWithHistoriesToUpdateUnscopedAsync(
             portalToken.VehicleId,
-            portalToken.TenantId,
+            portalToken.WorkspaceId,
             cancellationToken)
             ?? throw new NotFoundException(ResourceMessagesException.VEHICLE_NOT_FOUND);
 
@@ -78,7 +78,7 @@ public class ClaimPostSaleVehicleCommandHandler : IRequestHandler<ClaimPostSaleV
         sale.MarkAsClaimed(buyerUserId.Value, claimedAt);
 
         var claimedVehicle = Vehicle.Create(
-            buyerTenantId.Value,
+            buyerWorkspaceId.Value,
             buyerUserId.Value,
             originalVehicle.Name,
             originalVehicle.Brand,
@@ -94,13 +94,13 @@ public class ClaimPostSaleVehicleCommandHandler : IRequestHandler<ClaimPostSaleV
 
         var originalSchedules = await _maintenanceScheduleWriteRepository.GetByVehicleIdToUpdateUnscopedAsync(
             originalVehicle.Id,
-            portalToken.TenantId,
+            portalToken.WorkspaceId,
             cancellationToken);
 
         foreach (var schedule in originalSchedules.Where(s => s.DeletedAt == null))
         {
             var claimedSchedule = MaintenanceSchedule.Create(
-                buyerTenantId.Value,
+                buyerWorkspaceId.Value,
                 buyerUserId.Value,
                 claimedVehicle.Id,
                 schedule.Description,

@@ -11,22 +11,22 @@ public class GetVehicleMaintenanceOverviewQueryHandlerTest
     [Fact]
     public async Task Returns_Accurate_Overview_Statistics()
     {
-        var tenantId = Guid.NewGuid();
-        var vehicle = VehicleBuilder.Build(tenantId: tenantId, initialOdometer: 50_000);
+        var workspaceId = Guid.NewGuid();
+        var vehicle = VehicleBuilder.Build(workspaceId: workspaceId, initialOdometer: 50_000);
 
         var scheduleActive = MaintenanceScheduleBuilder.Build(
-            tenantId: tenantId,
+            workspaceId: workspaceId,
             vehicleId: vehicle.Id,
             currentOdometer: 50_000,
             lastPerformedOdometer: 50_000,
             intervalOdometer: 10_000,
             warningThresholdOdometer: 1_000);
         var scheduleDueSoon = MaintenanceSchedule.Create(
-            tenantId, Guid.NewGuid(), vehicle.Id, "Revisão", MaintenanceCategory.General,
+            workspaceId, Guid.NewGuid(), vehicle.Id, "Revisão", MaintenanceCategory.General,
             10_000, null, 50_000, null, 1_000, null, 59_500, 20);
 
-        var log1 = MaintenanceLogBuilder.Build(tenantId: tenantId, vehicleId: vehicle.Id, cost: 500m, performedAt: DateTimeOffset.UtcNow.AddMonths(-2));
-        var log2 = MaintenanceLogBuilder.Build(tenantId: tenantId, vehicleId: vehicle.Id, cost: 300m, performedAt: DateTimeOffset.UtcNow.AddMonths(-1));
+        var log1 = MaintenanceLogBuilder.Build(workspaceId: workspaceId, vehicleId: vehicle.Id, cost: 500m, performedAt: DateTimeOffset.UtcNow.AddMonths(-2));
+        var log2 = MaintenanceLogBuilder.Build(workspaceId: workspaceId, vehicleId: vehicle.Id, cost: 300m, performedAt: DateTimeOffset.UtcNow.AddMonths(-1));
 
         var (vehicleRead, _) = new VehicleRepositoryBuilder().SetupGetById(vehicle).Build();
         var (scheduleRead, _) = new MaintenanceScheduleRepositoryBuilder()

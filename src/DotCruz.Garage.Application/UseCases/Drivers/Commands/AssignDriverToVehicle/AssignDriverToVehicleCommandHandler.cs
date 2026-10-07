@@ -14,20 +14,20 @@ public class AssignDriverToVehicleCommandHandler : IRequestHandler<AssignDriverT
     private readonly IDriverReadRepository _driverReadRepository;
     private readonly IVehicleReadRepository _vehicleReadRepository;
     private readonly IVehicleDriverAssignmentWriteRepository _assignmentWriteRepository;
-    private readonly ITenantProvider _tenantProvider;
+    private readonly IWorkspaceProvider _workspaceProvider;
     private readonly IUnitOfWork _unitOfWork;
 
     public AssignDriverToVehicleCommandHandler(
         IDriverReadRepository driverReadRepository,
         IVehicleReadRepository vehicleReadRepository,
         IVehicleDriverAssignmentWriteRepository assignmentWriteRepository,
-        ITenantProvider tenantProvider,
+        IWorkspaceProvider workspaceProvider,
         IUnitOfWork unitOfWork)
     {
         _driverReadRepository = driverReadRepository;
         _vehicleReadRepository = vehicleReadRepository;
         _assignmentWriteRepository = assignmentWriteRepository;
-        _tenantProvider = tenantProvider;
+        _workspaceProvider = workspaceProvider;
         _unitOfWork = unitOfWork;
     }
 
@@ -54,10 +54,10 @@ public class AssignDriverToVehicleCommandHandler : IRequestHandler<AssignDriverT
             currentAssignment.EndAssignment(startedAt);
         }
 
-        var tenantId = _tenantProvider.TenantId ?? vehicle.TenantId;
-        var userId = _tenantProvider.UserId ?? vehicle.UserId;
+        var workspaceId = _workspaceProvider.WorkspaceId ?? vehicle.WorkspaceId;
+        var userId = _workspaceProvider.UserId ?? vehicle.UserId;
         var assignment = VehicleDriverAssignment.Create(
-            tenantId,
+            workspaceId,
             userId,
             vehicle.Id,
             driver.Id,

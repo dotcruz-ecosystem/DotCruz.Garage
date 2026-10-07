@@ -21,7 +21,7 @@ public class RegisterVehicleSaleCommandHandler : IRequestHandler<RegisterVehicle
     private readonly IMaintenanceScheduleWriteRepository _maintenanceScheduleWriteRepository;
     private readonly ICheckinTokenService _tokenService;
     private readonly INotificationService _notificationService;
-    private readonly ITenantProvider _tenantProvider;
+    private readonly IWorkspaceProvider _workspaceProvider;
     private readonly IConfiguration _configuration;
     private readonly IUnitOfWork _unitOfWork;
     private readonly ILogger<RegisterVehicleSaleCommandHandler> _logger;
@@ -31,7 +31,7 @@ public class RegisterVehicleSaleCommandHandler : IRequestHandler<RegisterVehicle
         IMaintenanceScheduleWriteRepository maintenanceScheduleWriteRepository,
         ICheckinTokenService tokenService,
         INotificationService notificationService,
-        ITenantProvider tenantProvider,
+        IWorkspaceProvider workspaceProvider,
         IConfiguration configuration,
         IUnitOfWork unitOfWork,
         ILogger<RegisterVehicleSaleCommandHandler> logger)
@@ -40,7 +40,7 @@ public class RegisterVehicleSaleCommandHandler : IRequestHandler<RegisterVehicle
         _maintenanceScheduleWriteRepository = maintenanceScheduleWriteRepository;
         _tokenService = tokenService;
         _notificationService = notificationService;
-        _tenantProvider = tenantProvider;
+        _workspaceProvider = workspaceProvider;
         _configuration = configuration;
         _unitOfWork = unitOfWork;
         _logger = logger;
@@ -51,8 +51,8 @@ public class RegisterVehicleSaleCommandHandler : IRequestHandler<RegisterVehicle
         var vehicle = await _vehicleWriteRepository.GetByIdWithSalesToUpdateAsync(request.VehicleId, cancellationToken)
             ?? throw new NotFoundException(ResourceMessagesException.VEHICLE_NOT_FOUND);
 
-        var tenantId = _tenantProvider.TenantId ?? vehicle.TenantId;
-        var userId = _tenantProvider.UserId ?? vehicle.UserId;
+        var workspaceId = _workspaceProvider.WorkspaceId ?? vehicle.WorkspaceId;
+        var userId = _workspaceProvider.UserId ?? vehicle.UserId;
 
         var soldAt = request.SoldAt ?? DateTimeOffset.UtcNow;
         var soldOdometer = request.SoldOdometer ?? vehicle.CurrentOdometer;
@@ -73,7 +73,7 @@ public class RegisterVehicleSaleCommandHandler : IRequestHandler<RegisterVehicle
 
         // Schedule post-sale maintenance routines
         var oilChangeSchedule = MaintenanceSchedule.Create(
-            tenantId,
+            workspaceId,
             userId,
             vehicle.Id,
             "Troca de Óleo e Filtro (Pós-Venda)",
@@ -96,7 +96,7 @@ public class RegisterVehicleSaleCommandHandler : IRequestHandler<RegisterVehicle
                 : 3;
 
             var warrantyInspection = MaintenanceSchedule.Create(
-                tenantId,
+                workspaceId,
                 userId,
                 vehicle.Id,
                 "Revisão de Garantia da Loja",
@@ -117,7 +117,7 @@ public class RegisterVehicleSaleCommandHandler : IRequestHandler<RegisterVehicle
             ? (request.WarrantyExpiresAt.Value - DateTimeOffset.UtcNow) + TimeSpan.FromDays(30)
             : TimeSpan.FromDays(180);
 
-        var portalToken = _tokenService.GeneratePostSaleToken(vehicle.Id, sale.Id, tenantId, tokenValidity);
+        var portalToken = _tokenService.GeneratePostSaleToken(vehicle.Id, sale.Id, workspaceId, tokenValidity);
         var baseUrl = _configuration["Settings:FrontendUrl"] ?? "https://garage.dotcruz.com";
         var portalUrl = $"{baseUrl.TrimEnd('/')}/post-sale/portal?token={portalToken}";
 
@@ -127,7 +127,7 @@ public class RegisterVehicleSaleCommandHandler : IRequestHandler<RegisterVehicle
         {
             await _notificationService.SendPostSaleWelcomeAsync(
                 userId,
-                tenantId,
+                workspaceId,
                 sale.CustomerName,
                 sale.CustomerEmail,
                 vehicle.Name,

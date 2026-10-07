@@ -8,11 +8,11 @@ public static class VehicleDocumentMapper
 {
     public static VehicleDocument ToDomain(
         this CreateVehicleDocumentCommand command,
-        Guid tenantId,
+        Guid workspaceId,
         Guid userId)
     {
         return VehicleDocument.Create(
-            tenantId,
+            workspaceId,
             userId,
             command.VehicleId,
             command.RequestDto.Type,

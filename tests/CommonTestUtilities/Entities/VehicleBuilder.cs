@@ -6,7 +6,7 @@ namespace CommonTestUtilities.Entities;
 public class VehicleBuilder
 {
     public static Vehicle Build(
-        Guid? tenantId = null,
+        Guid? workspaceId = null,
         Guid? userId = null,
         string? name = null,
         string? plate = null,
@@ -15,7 +15,7 @@ public class VehicleBuilder
         var faker = new Faker();
 
         return Vehicle.Create(
-            tenantId: tenantId ?? Guid.NewGuid(),
+            workspaceId: workspaceId ?? Guid.NewGuid(),
             userId: userId ?? Guid.NewGuid(),
             name: name ?? faker.Vehicle.Model(),
             brand: faker.Vehicle.Manufacturer(),

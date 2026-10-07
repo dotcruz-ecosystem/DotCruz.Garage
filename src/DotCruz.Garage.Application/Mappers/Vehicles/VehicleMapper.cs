@@ -6,14 +6,14 @@ namespace DotCruz.Garage.Application.Mappers.Vehicles;
 
 public static class VehicleMapper
 {
-    public static Vehicle ToDomain(this CreateVehicleCommand command, Guid tenantId, Guid userId)
+    public static Vehicle ToDomain(this CreateVehicleCommand command, Guid workspaceId, Guid userId)
     {
         var resolvedName = string.IsNullOrWhiteSpace(command.Name)
             ? $"{command.Model.Trim()} - {command.Brand.Trim()} - {command.Year}"
             : command.Name.Trim();
 
         return Vehicle.Create(
-            tenantId,
+            workspaceId,
             userId,
             resolvedName,
             command.Brand.Trim(),

@@ -1,4 +1,4 @@
-﻿using CommonTestUtilities.Data;
+using CommonTestUtilities.Data;
 using CommonTestUtilities.Entities;
 using CommonTestUtilities.Repositories;
 using CommonTestUtilities.Services;
@@ -12,13 +12,13 @@ public class AssignDriverToVehicleCommandHandlerTest
     [Fact]
     public async Task Successfully_Assigns_Driver_And_Closes_Previous_Assignment()
     {
-        var tenantId = Guid.NewGuid();
-        var vehicle = VehicleBuilder.Build(tenantId: tenantId);
-        var previousDriver = DriverBuilder.Build(tenantId: tenantId);
-        var newDriver = DriverBuilder.Build(tenantId: tenantId);
+        var workspaceId = Guid.NewGuid();
+        var vehicle = VehicleBuilder.Build(workspaceId: workspaceId);
+        var previousDriver = DriverBuilder.Build(workspaceId: workspaceId);
+        var newDriver = DriverBuilder.Build(workspaceId: workspaceId);
 
         var previousAssignment = VehicleDriverAssignmentBuilder.Build(
-            tenantId: tenantId,
+            workspaceId: workspaceId,
             vehicleId: vehicle.Id,
             driverId: previousDriver.Id);
 
@@ -28,13 +28,13 @@ public class AssignDriverToVehicleCommandHandlerTest
             .SetupGetCurrentByVehicleIdToUpdate(previousAssignment)
             .Build();
 
-        var tenantProvider = new TenantProviderBuilder().AsTenant(tenantId).Build();
+        var workspaceProvider = new WorkspaceProviderBuilder().AsWorkspace(workspaceId).Build();
 
         var handler = new AssignDriverToVehicleCommandHandler(
             driverRead,
             vehicleRead,
             assignWrite,
-            tenantProvider,
+            workspaceProvider,
             UnitOfWorkBuilder.Build());
 
         var reqDto = new AssignDriverRequestDto(vehicle.Id, Notes: "Novo condutor responsável");

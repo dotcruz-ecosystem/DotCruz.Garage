@@ -74,7 +74,7 @@ public class TrafficFineConfiguration : IEntityTypeConfiguration<TrafficFine>
             .HasMaxLength(100)
             .IsRequired(false);
 
-        builder.Property(f => f.TenantId)
+        builder.Property(f => f.WorkspaceId)
             .IsRequired();
 
         builder.Property(f => f.UserId)
@@ -88,6 +88,6 @@ public class TrafficFineConfiguration : IEntityTypeConfiguration<TrafficFine>
         builder.HasIndex(f => f.VehicleId);
         builder.HasIndex(f => f.DriverId);
         builder.HasIndex(f => f.IndicationDeadline);
-        builder.HasIndex(f => new { f.TenantId, f.UserId });
+        builder.HasIndex(f => new { f.WorkspaceId, f.UserId });
     }
 }

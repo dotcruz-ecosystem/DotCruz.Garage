@@ -8,11 +8,11 @@ public static class VehicleAccessoryMapper
 {
     public static VehicleAccessory ToDomain(
         this CreateVehicleAccessoryCommand command,
-        Guid tenantId,
+        Guid workspaceId,
         Guid userId)
     {
         return VehicleAccessory.Create(
-            tenantId,
+            workspaceId,
             userId,
             command.VehicleId,
             command.RequestDto.Name,

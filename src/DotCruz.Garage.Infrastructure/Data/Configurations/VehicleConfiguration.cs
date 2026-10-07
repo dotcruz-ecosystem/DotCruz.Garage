@@ -42,13 +42,13 @@ public class VehicleConfiguration : IEntityTypeConfiguration<Vehicle>
         builder.Property(v => v.DailyMileageAverage)
             .IsRequired();
 
-        builder.Property(v => v.TenantId)
+        builder.Property(v => v.WorkspaceId)
             .IsRequired();
 
         builder.Property(v => v.UserId)
             .IsRequired();
 
-        builder.HasIndex(v => new { v.TenantId, v.UserId });
+        builder.HasIndex(v => new { v.WorkspaceId, v.UserId });
 
         builder.HasMany(v => v.OdometerHistories)
             .WithOne()

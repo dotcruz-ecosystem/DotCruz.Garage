@@ -35,13 +35,13 @@ public class VehicleSaleReadRepository(GarageDbContext context)
             .FirstOrDefaultAsync(cancellationToken);
     }
 
-    public async Task<VehicleSale?> GetSaleUnscopedAsync(Guid saleId, Guid tenantId, CancellationToken cancellationToken)
+    public async Task<VehicleSale?> GetSaleUnscopedAsync(Guid saleId, Guid workspaceId, CancellationToken cancellationToken)
     {
         return await _dbSet
             .AsNoTracking()
             .IgnoreQueryFilters()
             .Include(s => s.Vehicle)
-            .Where(s => s.Id == saleId && s.TenantId == tenantId && s.DeletedAt == null)
+            .Where(s => s.Id == saleId && s.WorkspaceId == workspaceId && s.DeletedAt == null)
             .FirstOrDefaultAsync(cancellationToken);
     }
 }

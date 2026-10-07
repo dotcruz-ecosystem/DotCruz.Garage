@@ -29,7 +29,7 @@ public class VehicleDriverAssignmentConfiguration : IEntityTypeConfiguration<Veh
             .HasMaxLength(500)
             .IsRequired(false);
 
-        builder.Property(a => a.TenantId)
+        builder.Property(a => a.WorkspaceId)
             .IsRequired();
 
         builder.Property(a => a.UserId)
@@ -47,6 +47,6 @@ public class VehicleDriverAssignmentConfiguration : IEntityTypeConfiguration<Veh
 
         builder.HasIndex(a => a.VehicleId);
         builder.HasIndex(a => a.DriverId);
-        builder.HasIndex(a => new { a.TenantId, a.VehicleId, a.EndedAt });
+        builder.HasIndex(a => new { a.WorkspaceId, a.VehicleId, a.EndedAt });
     }
 }

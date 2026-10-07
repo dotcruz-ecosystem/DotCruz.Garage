@@ -13,6 +13,6 @@ public interface IMaintenanceLogReadRepository : IBaseReadRepository<Maintenance
 
     Task<IReadOnlyCollection<MaintenanceLog>> GetByVehicleIdUnscopedAsync(
         Guid vehicleId,
-        Guid tenantId,
+        Guid workspaceId,
         CancellationToken cancellationToken);
 }

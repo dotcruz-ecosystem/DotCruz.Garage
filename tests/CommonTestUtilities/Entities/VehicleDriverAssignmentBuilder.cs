@@ -6,7 +6,7 @@ namespace CommonTestUtilities.Entities;
 public class VehicleDriverAssignmentBuilder
 {
     public static VehicleDriverAssignment Build(
-        Guid? tenantId = null,
+        Guid? workspaceId = null,
         Guid? userId = null,
         Guid? vehicleId = null,
         Guid? driverId = null,
@@ -16,7 +16,7 @@ public class VehicleDriverAssignmentBuilder
         var faker = new Faker();
 
         return VehicleDriverAssignment.Create(
-            tenantId: tenantId ?? Guid.NewGuid(),
+            workspaceId: workspaceId ?? Guid.NewGuid(),
             userId: userId ?? Guid.NewGuid(),
             vehicleId: vehicleId ?? Guid.NewGuid(),
             driverId: driverId ?? Guid.NewGuid(),

@@ -19,7 +19,7 @@ public class NotificationService(HttpClient httpClient) : INotificationService
 
     public async Task SendMaintenanceAlertAsync(
         Guid userId,
-        Guid tenantId,
+        Guid workspaceId,
         string userName,
         string userEmail,
         string vehicleName,
@@ -43,12 +43,12 @@ public class NotificationService(HttpClient httpClient) : INotificationService
             }
         );
 
-        await SendAsync(message, tenantId, cancellationToken);
+        await SendAsync(message, workspaceId, cancellationToken);
     }
 
     public async Task SendTrafficFineAlertAsync(
         Guid userId,
-        Guid tenantId,
+        Guid workspaceId,
         string userName,
         string userEmail,
         string vehicleName,
@@ -72,12 +72,12 @@ public class NotificationService(HttpClient httpClient) : INotificationService
             }
         );
 
-        await SendAsync(message, tenantId, cancellationToken);
+        await SendAsync(message, workspaceId, cancellationToken);
     }
 
     public async Task SendDocumentAlertAsync(
         Guid userId,
-        Guid tenantId,
+        Guid workspaceId,
         string userName,
         string userEmail,
         string vehicleName,
@@ -103,12 +103,12 @@ public class NotificationService(HttpClient httpClient) : INotificationService
             }
         );
 
-        await SendAsync(message, tenantId, cancellationToken);
+        await SendAsync(message, workspaceId, cancellationToken);
     }
 
     public async Task SendOdometerCheckinRequestAsync(
         Guid userId,
-        Guid tenantId,
+        Guid workspaceId,
         string userName,
         string userEmail,
         string vehicleName,
@@ -132,12 +132,12 @@ public class NotificationService(HttpClient httpClient) : INotificationService
             }
         );
 
-        await SendAsync(message, tenantId, cancellationToken);
+        await SendAsync(message, workspaceId, cancellationToken);
     }
 
     public async Task SendPostSaleWelcomeAsync(
         Guid userId,
-        Guid tenantId,
+        Guid workspaceId,
         string customerName,
         string customerEmail,
         string vehicleName,
@@ -161,18 +161,18 @@ public class NotificationService(HttpClient httpClient) : INotificationService
             }
         );
 
-        await SendAsync(message, tenantId, cancellationToken);
+        await SendAsync(message, workspaceId, cancellationToken);
     }
 
-    private async Task SendAsync(CreateNotificationMessage message, Guid tenantId, CancellationToken cancellationToken)
+    private async Task SendAsync(CreateNotificationMessage message, Guid workspaceId, CancellationToken cancellationToken)
     {
         using var request = new HttpRequestMessage(HttpMethod.Post, "api/Notification")
         {
             Content = JsonContent.Create(message, options: JsonOptions)
         };
 
-        if (tenantId != Guid.Empty)
-            request.Headers.Add("X-Tenant-ID", tenantId.ToString());
+        if (workspaceId != Guid.Empty)
+            request.Headers.Add("X-Workspace-ID", workspaceId.ToString());
 
         var response = await httpClient.SendAsync(request, cancellationToken);
         response.EnsureSuccessStatusCode();

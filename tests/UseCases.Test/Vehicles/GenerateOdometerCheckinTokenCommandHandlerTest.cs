@@ -1,4 +1,4 @@
-﻿using CommonTestUtilities.Entities;
+using CommonTestUtilities.Entities;
 using CommonTestUtilities.Repositories;
 using CommonTestUtilities.Services;
 using DotCruz.Garage.Application.UseCases.Vehicles.Commands.GenerateOdometerCheckinToken;
@@ -13,8 +13,8 @@ public class GenerateOdometerCheckinTokenCommandHandlerTest
     [Fact]
     public async Task Successfully_Generates_Checkin_Token_And_Magic_Link()
     {
-        var tenantId = Guid.NewGuid();
-        var vehicle = VehicleBuilder.Build(tenantId: tenantId);
+        var workspaceId = Guid.NewGuid();
+        var vehicle = VehicleBuilder.Build(workspaceId: workspaceId);
 
         var (vehicleRead, _) = new VehicleRepositoryBuilder()
             .SetupGetById(vehicle)
@@ -23,8 +23,8 @@ public class GenerateOdometerCheckinTokenCommandHandlerTest
         var tokenService = new CheckinTokenServiceBuilder()
             .SetupGenerateToken("generated.hmac.token");
 
-        var tenantProvider = new TenantProviderBuilder()
-            .AsUser(tenantId, vehicle.UserId)
+        var workspaceProvider = new WorkspaceProviderBuilder()
+            .AsUser(workspaceId, vehicle.UserId)
             .Build();
 
         var config = new ConfigurationBuilder()
@@ -37,7 +37,7 @@ public class GenerateOdometerCheckinTokenCommandHandlerTest
         var handler = new GenerateOdometerCheckinTokenCommandHandler(
             vehicleRead,
             tokenService.Build(),
-            tenantProvider,
+            workspaceProvider,
             config);
 
         var result = await handler.Handle(
@@ -58,13 +58,13 @@ public class GenerateOdometerCheckinTokenCommandHandlerTest
             .Build();
 
         var tokenService = new CheckinTokenServiceBuilder();
-        var tenantProvider = new TenantProviderBuilder().Build();
+        var workspaceProvider = new WorkspaceProviderBuilder().Build();
         var config = new ConfigurationBuilder().Build();
 
         var handler = new GenerateOdometerCheckinTokenCommandHandler(
             vehicleRead,
             tokenService.Build(),
-            tenantProvider,
+            workspaceProvider,
             config);
 
         await Assert.ThrowsAsync<NotFoundException>(() =>

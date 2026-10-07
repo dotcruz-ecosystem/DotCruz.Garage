@@ -14,10 +14,10 @@ public class GetPostSalePortalQueryHandlerTest
     [Fact]
     public async Task Successfully_Returns_Portal_Details_For_Valid_Token()
     {
-        var tenantId = Guid.NewGuid();
-        var vehicle = VehicleBuilder.Build(tenantId: tenantId, name: "Civic Touring", initialOdometer: 55_000);
+        var workspaceId = Guid.NewGuid();
+        var vehicle = VehicleBuilder.Build(workspaceId: workspaceId, name: "Civic Touring", initialOdometer: 55_000);
         var sale = VehicleSaleBuilder.Build(
-            tenantId: tenantId,
+            workspaceId: workspaceId,
             vehicleId: vehicle.Id,
             customerName: "Lucas Mendes",
             soldOdometer: 50_000,
@@ -26,7 +26,7 @@ public class GetPostSalePortalQueryHandlerTest
         );
 
         var tokenString = "valid.postsale.portal.token";
-        var portalToken = new PostSalePortalToken(vehicle.Id, sale.Id, tenantId, DateTimeOffset.UtcNow.AddDays(30));
+        var portalToken = new PostSalePortalToken(vehicle.Id, sale.Id, workspaceId, DateTimeOffset.UtcNow.AddDays(30));
 
         var tokenService = new CheckinTokenServiceBuilder()
             .SetupValidPostSaleToken(tokenString, portalToken)
@@ -40,7 +40,7 @@ public class GetPostSalePortalQueryHandlerTest
             .SetupGetByIdWithHistoriesToUpdateUnscoped(vehicle)
             .Build();
 
-        var schedule = MaintenanceScheduleBuilder.Build(tenantId: tenantId, vehicleId: vehicle.Id, description: "Revisão Geral");
+        var schedule = MaintenanceScheduleBuilder.Build(workspaceId: workspaceId, vehicleId: vehicle.Id, description: "Revisão Geral");
         var (_, scheduleWrite) = new MaintenanceScheduleRepositoryBuilder()
             .SetupGetByVehicleIdToUpdateUnscoped(new List<MaintenanceSchedule> { schedule })
             .Build();

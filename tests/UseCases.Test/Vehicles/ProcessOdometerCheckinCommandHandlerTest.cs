@@ -1,4 +1,4 @@
-﻿using CommonTestUtilities.Data;
+using CommonTestUtilities.Data;
 using CommonTestUtilities.Entities;
 using CommonTestUtilities.Repositories;
 using CommonTestUtilities.Services;
@@ -16,15 +16,15 @@ public class ProcessOdometerCheckinCommandHandlerTest
     [Fact]
     public async Task Successfully_Updates_Odometer_And_Recalculates_Schedules()
     {
-        var tenantId = Guid.NewGuid();
-        var vehicle = VehicleBuilder.Build(tenantId: tenantId, initialOdometer: 50_000);
+        var workspaceId = Guid.NewGuid();
+        var vehicle = VehicleBuilder.Build(workspaceId: workspaceId, initialOdometer: 50_000);
         var schedule = MaintenanceScheduleBuilder.Build(
-            tenantId: tenantId,
+            workspaceId: workspaceId,
             vehicleId: vehicle.Id,
             currentOdometer: 50_000,
             intervalOdometer: 10_000);
 
-        var tokenVo = new OdometerCheckinToken(vehicle.Id, tenantId, DateTimeOffset.UtcNow.AddHours(24));
+        var tokenVo = new OdometerCheckinToken(vehicle.Id, workspaceId, DateTimeOffset.UtcNow.AddHours(24));
         var tokenService = new CheckinTokenServiceBuilder()
             .SetupValidToken("valid.token", tokenVo);
 
@@ -81,8 +81,8 @@ public class ProcessOdometerCheckinCommandHandlerTest
     public async Task Throws_ErrorOnValidationException_When_Token_Is_Expired()
     {
         var vehicleId = Guid.NewGuid();
-        var tenantId = Guid.NewGuid();
-        var expiredTokenVo = new OdometerCheckinToken(vehicleId, tenantId, DateTimeOffset.UtcNow.AddHours(-1));
+        var workspaceId = Guid.NewGuid();
+        var expiredTokenVo = new OdometerCheckinToken(vehicleId, workspaceId, DateTimeOffset.UtcNow.AddHours(-1));
 
         var tokenService = new CheckinTokenServiceBuilder()
             .SetupValidToken("expired.token", expiredTokenVo);
@@ -107,9 +107,9 @@ public class ProcessOdometerCheckinCommandHandlerTest
     [Fact]
     public async Task Throws_ErrorOnValidationException_When_New_Odometer_Is_Less_Than_Current()
     {
-        var tenantId = Guid.NewGuid();
-        var vehicle = VehicleBuilder.Build(tenantId: tenantId, initialOdometer: 50_000);
-        var tokenVo = new OdometerCheckinToken(vehicle.Id, tenantId, DateTimeOffset.UtcNow.AddHours(24));
+        var workspaceId = Guid.NewGuid();
+        var vehicle = VehicleBuilder.Build(workspaceId: workspaceId, initialOdometer: 50_000);
+        var tokenVo = new OdometerCheckinToken(vehicle.Id, workspaceId, DateTimeOffset.UtcNow.AddHours(24));
 
         var tokenService = new CheckinTokenServiceBuilder().SetupValidToken("valid.token", tokenVo);
         var (_, vehicleWrite) = new VehicleRepositoryBuilder()
@@ -134,9 +134,9 @@ public class ProcessOdometerCheckinCommandHandlerTest
     [Fact]
     public async Task Throws_ErrorOnValidationException_When_Odometer_Jump_Is_Unrealistic()
     {
-        var tenantId = Guid.NewGuid();
-        var vehicle = VehicleBuilder.Build(tenantId: tenantId, initialOdometer: 50_000);
-        var tokenVo = new OdometerCheckinToken(vehicle.Id, tenantId, DateTimeOffset.UtcNow.AddHours(24));
+        var workspaceId = Guid.NewGuid();
+        var vehicle = VehicleBuilder.Build(workspaceId: workspaceId, initialOdometer: 50_000);
+        var tokenVo = new OdometerCheckinToken(vehicle.Id, workspaceId, DateTimeOffset.UtcNow.AddHours(24));
 
         var tokenService = new CheckinTokenServiceBuilder().SetupValidToken("valid.token", tokenVo);
         var (_, vehicleWrite) = new VehicleRepositoryBuilder()

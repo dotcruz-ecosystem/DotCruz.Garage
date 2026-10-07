@@ -15,21 +15,21 @@ public class ClaimPostSaleVehicleCommandHandlerTest
     [Fact]
     public async Task Successfully_Claims_Vehicle_Into_Buyer_Personal_Workspace()
     {
-        var dealershipTenantId = Guid.NewGuid();
+        var dealershipWorkspaceId = Guid.NewGuid();
         var dealershipUserId = Guid.NewGuid();
 
-        var buyerTenantId = Guid.NewGuid();
+        var buyerWorkspaceId = Guid.NewGuid();
         var buyerUserId = Guid.NewGuid();
 
         var originalVehicle = VehicleBuilder.Build(
-            tenantId: dealershipTenantId,
+            workspaceId: dealershipWorkspaceId,
             userId: dealershipUserId,
             name: "Golf GTI 2024",
             initialOdometer: 12_000
         );
 
         var sale = VehicleSaleBuilder.Build(
-            tenantId: dealershipTenantId,
+            workspaceId: dealershipWorkspaceId,
             userId: dealershipUserId,
             vehicleId: originalVehicle.Id,
             customerName: "Matheus Cruz",
@@ -38,7 +38,7 @@ public class ClaimPostSaleVehicleCommandHandlerTest
         );
 
         var tokenString = "valid.claim.token";
-        var portalToken = new PostSalePortalToken(originalVehicle.Id, sale.Id, dealershipTenantId, DateTimeOffset.UtcNow.AddDays(15));
+        var portalToken = new PostSalePortalToken(originalVehicle.Id, sale.Id, dealershipWorkspaceId, DateTimeOffset.UtcNow.AddDays(15));
 
         var tokenService = new CheckinTokenServiceBuilder()
             .SetupValidPostSaleToken(tokenString, portalToken)
@@ -55,7 +55,7 @@ public class ClaimPostSaleVehicleCommandHandlerTest
             .Build();
 
         var schedule = MaintenanceScheduleBuilder.Build(
-            tenantId: dealershipTenantId,
+            workspaceId: dealershipWorkspaceId,
             vehicleId: originalVehicle.Id,
             description: "Troca de Óleo dos 20.000km"
         );
@@ -66,8 +66,8 @@ public class ClaimPostSaleVehicleCommandHandlerTest
             .SetupAdd(s => schedulesCopied.Add(s))
             .Build();
 
-        var tenantProvider = new TenantProviderBuilder()
-            .AsUser(buyerTenantId, buyerUserId)
+        var workspaceProvider = new WorkspaceProviderBuilder()
+            .AsUser(buyerWorkspaceId, buyerUserId)
             .Build();
 
         var unitOfWork = UnitOfWorkBuilder.Build();
@@ -77,7 +77,7 @@ public class ClaimPostSaleVehicleCommandHandlerTest
             saleWrite,
             vehicleWrite,
             scheduleWrite,
-            tenantProvider,
+            workspaceProvider,
             unitOfWork
         );
 
@@ -87,7 +87,7 @@ public class ClaimPostSaleVehicleCommandHandlerTest
         Assert.NotNull(result);
         Assert.Equal("Golf GTI 2024", result.VehicleName);
         Assert.NotNull(claimedVehicleSaved);
-        Assert.Equal(buyerTenantId, claimedVehicleSaved.TenantId);
+        Assert.Equal(buyerWorkspaceId, claimedVehicleSaved.WorkspaceId);
         Assert.Equal(buyerUserId, claimedVehicleSaved.UserId);
         Assert.Equal(12_000, claimedVehicleSaved.CurrentOdometer);
 
@@ -97,7 +97,7 @@ public class ClaimPostSaleVehicleCommandHandlerTest
 
         // Schedule was copied to buyer workspace
         Assert.Single(schedulesCopied);
-        Assert.Equal(buyerTenantId, schedulesCopied[0].TenantId);
+        Assert.Equal(buyerWorkspaceId, schedulesCopied[0].WorkspaceId);
         Assert.Equal(buyerUserId, schedulesCopied[0].UserId);
         Assert.Equal(claimedVehicleSaved.Id, schedulesCopied[0].VehicleId);
     }
@@ -105,15 +105,15 @@ public class ClaimPostSaleVehicleCommandHandlerTest
     [Fact]
     public async Task Throws_ErrorOnValidationException_When_Vehicle_Already_Claimed()
     {
-        var dealershipTenantId = Guid.NewGuid();
-        var buyerTenantId = Guid.NewGuid();
+        var dealershipWorkspaceId = Guid.NewGuid();
+        var buyerWorkspaceId = Guid.NewGuid();
         var buyerUserId = Guid.NewGuid();
 
-        var sale = VehicleSaleBuilder.Build(tenantId: dealershipTenantId);
+        var sale = VehicleSaleBuilder.Build(workspaceId: dealershipWorkspaceId);
         sale.MarkAsClaimed(Guid.NewGuid(), DateTimeOffset.UtcNow);
 
         var tokenString = "already.claimed.token";
-        var portalToken = new PostSalePortalToken(sale.VehicleId, sale.Id, dealershipTenantId, DateTimeOffset.UtcNow.AddDays(15));
+        var portalToken = new PostSalePortalToken(sale.VehicleId, sale.Id, dealershipWorkspaceId, DateTimeOffset.UtcNow.AddDays(15));
 
         var tokenService = new CheckinTokenServiceBuilder()
             .SetupValidPostSaleToken(tokenString, portalToken)
@@ -126,8 +126,8 @@ public class ClaimPostSaleVehicleCommandHandlerTest
         var (_, vehicleWrite) = new VehicleRepositoryBuilder().Build();
         var (_, scheduleWrite) = new MaintenanceScheduleRepositoryBuilder().Build();
 
-        var tenantProvider = new TenantProviderBuilder()
-            .AsUser(buyerTenantId, buyerUserId)
+        var workspaceProvider = new WorkspaceProviderBuilder()
+            .AsUser(buyerWorkspaceId, buyerUserId)
             .Build();
 
         var unitOfWork = UnitOfWorkBuilder.Build();
@@ -137,7 +137,7 @@ public class ClaimPostSaleVehicleCommandHandlerTest
             saleWrite,
             vehicleWrite,
             scheduleWrite,
-            tenantProvider,
+            workspaceProvider,
             unitOfWork
         );
 

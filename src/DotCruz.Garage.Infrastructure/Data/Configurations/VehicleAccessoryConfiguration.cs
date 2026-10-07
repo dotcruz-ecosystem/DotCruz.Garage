@@ -36,13 +36,13 @@ public class VehicleAccessoryConfiguration : IEntityTypeConfiguration<VehicleAcc
             .HasMaxLength(1000)
             .IsRequired(false);
 
-        builder.Property(a => a.TenantId)
+        builder.Property(a => a.WorkspaceId)
             .IsRequired();
 
         builder.Property(a => a.UserId)
             .IsRequired();
 
         builder.HasIndex(a => a.VehicleId);
-        builder.HasIndex(a => new { a.TenantId, a.UserId });
+        builder.HasIndex(a => new { a.WorkspaceId, a.UserId });
     }
 }

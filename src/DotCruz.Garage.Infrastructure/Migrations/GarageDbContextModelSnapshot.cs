@@ -66,10 +66,6 @@ namespace DotCruz.Garage.Infrastructure.Migrations
                         .HasColumnType("character varying(200)")
                         .HasColumnName("store");
 
-                    b.Property<Guid>("TenantId")
-                        .HasColumnType("uuid")
-                        .HasColumnName("tenant_id");
-
                     b.Property<DateTimeOffset>("UpdatedAt")
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("updated_at");
@@ -82,14 +78,18 @@ namespace DotCruz.Garage.Infrastructure.Migrations
                         .HasColumnType("uuid")
                         .HasColumnName("vehicle_id");
 
+                    b.Property<Guid>("WorkspaceId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("workspace_id");
+
                     b.HasKey("Id")
                         .HasName("pk_vehicle_accessories");
 
                     b.HasIndex("VehicleId")
                         .HasDatabaseName("ix_vehicle_accessories_vehicle_id");
 
-                    b.HasIndex("TenantId", "UserId")
-                        .HasDatabaseName("ix_vehicle_accessories_tenant_id_user_id");
+                    b.HasIndex("WorkspaceId", "UserId")
+                        .HasDatabaseName("ix_vehicle_accessories_workspace_id_user_id");
 
                     b.ToTable("vehicle_accessories", (string)null);
                 });
@@ -264,10 +264,6 @@ namespace DotCruz.Garage.Infrastructure.Migrations
                         .HasColumnType("character varying(30)")
                         .HasColumnName("status");
 
-                    b.Property<Guid>("TenantId")
-                        .HasColumnType("uuid")
-                        .HasColumnName("tenant_id");
-
                     b.Property<string>("Type")
                         .IsRequired()
                         .HasMaxLength(30)
@@ -290,14 +286,18 @@ namespace DotCruz.Garage.Infrastructure.Migrations
                         .HasColumnType("integer")
                         .HasColumnName("warning_threshold_days");
 
+                    b.Property<Guid>("WorkspaceId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("workspace_id");
+
                     b.HasKey("Id")
                         .HasName("pk_vehicle_documents");
 
                     b.HasIndex("VehicleId")
                         .HasDatabaseName("ix_vehicle_documents_vehicle_id");
 
-                    b.HasIndex("TenantId", "UserId")
-                        .HasDatabaseName("ix_vehicle_documents_tenant_id_user_id");
+                    b.HasIndex("WorkspaceId", "UserId")
+                        .HasDatabaseName("ix_vehicle_documents_workspace_id_user_id");
 
                     b.ToTable("vehicle_documents", (string)null);
                 });
@@ -362,10 +362,6 @@ namespace DotCruz.Garage.Infrastructure.Migrations
                         .HasColumnType("character varying(30)")
                         .HasColumnName("phone");
 
-                    b.Property<Guid>("TenantId")
-                        .HasColumnType("uuid")
-                        .HasColumnName("tenant_id");
-
                     b.Property<DateTimeOffset>("UpdatedAt")
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("updated_at");
@@ -374,18 +370,22 @@ namespace DotCruz.Garage.Infrastructure.Migrations
                         .HasColumnType("uuid")
                         .HasColumnName("user_id");
 
+                    b.Property<Guid>("WorkspaceId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("workspace_id");
+
                     b.HasKey("Id")
                         .HasName("pk_drivers");
 
-                    b.HasIndex("TenantId", "Cnh")
-                        .HasDatabaseName("ix_drivers_tenant_id_cnh");
+                    b.HasIndex("WorkspaceId", "Cnh")
+                        .HasDatabaseName("ix_drivers_workspace_id_cnh");
 
-                    b.HasIndex("TenantId", "Cpf")
+                    b.HasIndex("WorkspaceId", "Cpf")
                         .IsUnique()
-                        .HasDatabaseName("ix_drivers_tenant_id_cpf");
+                        .HasDatabaseName("ix_drivers_workspace_id_cpf");
 
-                    b.HasIndex("TenantId", "UserId")
-                        .HasDatabaseName("ix_drivers_tenant_id_user_id");
+                    b.HasIndex("WorkspaceId", "UserId")
+                        .HasDatabaseName("ix_drivers_workspace_id_user_id");
 
                     b.ToTable("drivers", (string)null);
                 });
@@ -421,10 +421,6 @@ namespace DotCruz.Garage.Infrastructure.Migrations
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("started_at");
 
-                    b.Property<Guid>("TenantId")
-                        .HasColumnType("uuid")
-                        .HasColumnName("tenant_id");
-
                     b.Property<DateTimeOffset>("UpdatedAt")
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("updated_at");
@@ -437,6 +433,10 @@ namespace DotCruz.Garage.Infrastructure.Migrations
                         .HasColumnType("uuid")
                         .HasColumnName("vehicle_id");
 
+                    b.Property<Guid>("WorkspaceId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("workspace_id");
+
                     b.HasKey("Id")
                         .HasName("pk_vehicle_driver_assignments");
 
@@ -446,8 +446,8 @@ namespace DotCruz.Garage.Infrastructure.Migrations
                     b.HasIndex("VehicleId")
                         .HasDatabaseName("ix_vehicle_driver_assignments_vehicle_id");
 
-                    b.HasIndex("TenantId", "VehicleId", "EndedAt")
-                        .HasDatabaseName("ix_vehicle_driver_assignments_tenant_id_vehicle_id_ended_at");
+                    b.HasIndex("WorkspaceId", "VehicleId", "EndedAt")
+                        .HasDatabaseName("ix_vehicle_driver_assignments_workspace_id_vehicle_id_ended_at");
 
                     b.ToTable("vehicle_driver_assignments", (string)null);
                 });
@@ -542,10 +542,6 @@ namespace DotCruz.Garage.Infrastructure.Migrations
                         .HasColumnType("character varying(30)")
                         .HasColumnName("status");
 
-                    b.Property<Guid>("TenantId")
-                        .HasColumnType("uuid")
-                        .HasColumnName("tenant_id");
-
                     b.Property<DateTimeOffset>("UpdatedAt")
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("updated_at");
@@ -562,6 +558,10 @@ namespace DotCruz.Garage.Infrastructure.Migrations
                         .HasColumnType("integer")
                         .HasColumnName("warning_threshold_days");
 
+                    b.Property<Guid>("WorkspaceId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("workspace_id");
+
                     b.HasKey("Id")
                         .HasName("pk_traffic_fines");
 
@@ -574,8 +574,8 @@ namespace DotCruz.Garage.Infrastructure.Migrations
                     b.HasIndex("VehicleId")
                         .HasDatabaseName("ix_traffic_fines_vehicle_id");
 
-                    b.HasIndex("TenantId", "UserId")
-                        .HasDatabaseName("ix_traffic_fines_tenant_id_user_id");
+                    b.HasIndex("WorkspaceId", "UserId")
+                        .HasDatabaseName("ix_traffic_fines_workspace_id_user_id");
 
                     b.ToTable("traffic_fines", (string)null);
                 });
@@ -627,10 +627,6 @@ namespace DotCruz.Garage.Infrastructure.Migrations
                         .HasColumnType("character varying(1000)")
                         .HasColumnName("receipt_url");
 
-                    b.Property<Guid>("TenantId")
-                        .HasColumnType("uuid")
-                        .HasColumnName("tenant_id");
-
                     b.Property<DateTimeOffset>("UpdatedAt")
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("updated_at");
@@ -643,14 +639,18 @@ namespace DotCruz.Garage.Infrastructure.Migrations
                         .HasColumnType("uuid")
                         .HasColumnName("vehicle_id");
 
+                    b.Property<Guid>("WorkspaceId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("workspace_id");
+
                     b.HasKey("Id")
                         .HasName("pk_maintenance_logs");
 
                     b.HasIndex("VehicleId")
                         .HasDatabaseName("ix_maintenance_logs_vehicle_id");
 
-                    b.HasIndex("TenantId", "UserId")
-                        .HasDatabaseName("ix_maintenance_logs_tenant_id_user_id");
+                    b.HasIndex("WorkspaceId", "UserId")
+                        .HasDatabaseName("ix_maintenance_logs_workspace_id_user_id");
 
                     b.ToTable("maintenance_logs", (string)null);
                 });
@@ -720,10 +720,6 @@ namespace DotCruz.Garage.Infrastructure.Migrations
                         .HasColumnType("character varying(30)")
                         .HasColumnName("status");
 
-                    b.Property<Guid>("TenantId")
-                        .HasColumnType("uuid")
-                        .HasColumnName("tenant_id");
-
                     b.Property<DateTimeOffset>("UpdatedAt")
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("updated_at");
@@ -744,14 +740,18 @@ namespace DotCruz.Garage.Infrastructure.Migrations
                         .HasColumnType("integer")
                         .HasColumnName("warning_threshold_odometer");
 
+                    b.Property<Guid>("WorkspaceId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("workspace_id");
+
                     b.HasKey("Id")
                         .HasName("pk_maintenance_schedules");
 
                     b.HasIndex("VehicleId")
                         .HasDatabaseName("ix_maintenance_schedules_vehicle_id");
 
-                    b.HasIndex("TenantId", "UserId")
-                        .HasDatabaseName("ix_maintenance_schedules_tenant_id_user_id");
+                    b.HasIndex("WorkspaceId", "UserId")
+                        .HasDatabaseName("ix_maintenance_schedules_workspace_id_user_id");
 
                     b.ToTable("maintenance_schedules", (string)null);
                 });
@@ -844,10 +844,6 @@ namespace DotCruz.Garage.Infrastructure.Migrations
                         .HasColumnType("character varying(20)")
                         .HasColumnName("plate");
 
-                    b.Property<Guid>("TenantId")
-                        .HasColumnType("uuid")
-                        .HasColumnName("tenant_id");
-
                     b.Property<DateTimeOffset>("UpdatedAt")
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("updated_at");
@@ -861,6 +857,10 @@ namespace DotCruz.Garage.Infrastructure.Migrations
                         .HasColumnType("character varying(50)")
                         .HasColumnName("vin");
 
+                    b.Property<Guid>("WorkspaceId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("workspace_id");
+
                     b.Property<int>("Year")
                         .HasColumnType("integer")
                         .HasColumnName("year");
@@ -868,8 +868,8 @@ namespace DotCruz.Garage.Infrastructure.Migrations
                     b.HasKey("Id")
                         .HasName("pk_vehicles");
 
-                    b.HasIndex("TenantId", "UserId")
-                        .HasDatabaseName("ix_vehicles_tenant_id_user_id");
+                    b.HasIndex("WorkspaceId", "UserId")
+                        .HasDatabaseName("ix_vehicles_workspace_id_user_id");
 
                     b.ToTable("vehicles", (string)null);
                 });
@@ -942,10 +942,6 @@ namespace DotCruz.Garage.Infrastructure.Migrations
                         .HasColumnType("numeric(18,2)")
                         .HasColumnName("sold_price");
 
-                    b.Property<Guid>("TenantId")
-                        .HasColumnType("uuid")
-                        .HasColumnName("tenant_id");
-
                     b.Property<DateTimeOffset>("UpdatedAt")
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("updated_at");
@@ -966,6 +962,10 @@ namespace DotCruz.Garage.Infrastructure.Migrations
                         .HasColumnType("integer")
                         .HasColumnName("warranty_km");
 
+                    b.Property<Guid>("WorkspaceId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("workspace_id");
+
                     b.HasKey("Id")
                         .HasName("pk_vehicle_sales");
 
@@ -975,8 +975,8 @@ namespace DotCruz.Garage.Infrastructure.Migrations
                     b.HasIndex("VehicleId")
                         .HasDatabaseName("ix_vehicle_sales_vehicle_id");
 
-                    b.HasIndex("TenantId", "VehicleId")
-                        .HasDatabaseName("ix_vehicle_sales_tenant_id_vehicle_id");
+                    b.HasIndex("WorkspaceId", "VehicleId")
+                        .HasDatabaseName("ix_vehicle_sales_workspace_id_vehicle_id");
 
                     b.ToTable("vehicle_sales", (string)null);
                 });

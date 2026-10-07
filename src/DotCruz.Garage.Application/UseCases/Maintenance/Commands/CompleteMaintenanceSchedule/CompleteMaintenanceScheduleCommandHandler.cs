@@ -1,4 +1,4 @@
-﻿using DotCruz.Garage.Application.Abstractions.Data;
+using DotCruz.Garage.Application.Abstractions.Data;
 using DotCruz.Garage.Application.Abstractions.Data.Repositories.Maintenance;
 using DotCruz.Garage.Application.Abstractions.Data.Repositories.Vehicles;
 using DotCruz.Garage.Application.DTOs.Maintenance;
@@ -18,20 +18,20 @@ public class CompleteMaintenanceScheduleCommandHandler : IRequestHandler<Complet
     private readonly IVehicleWriteRepository _vehicleWriteRepository;
     private readonly IMaintenanceScheduleWriteRepository _maintenanceScheduleWriteRepository;
     private readonly IMaintenanceLogWriteRepository _maintenanceLogWriteRepository;
-    private readonly ITenantProvider _tenantProvider;
+    private readonly IWorkspaceProvider _workspaceProvider;
     private readonly IUnitOfWork _unitOfWork;
 
     public CompleteMaintenanceScheduleCommandHandler(
         IVehicleWriteRepository vehicleWriteRepository,
         IMaintenanceScheduleWriteRepository maintenanceScheduleWriteRepository,
         IMaintenanceLogWriteRepository maintenanceLogWriteRepository,
-        ITenantProvider tenantProvider,
+        IWorkspaceProvider workspaceProvider,
         IUnitOfWork unitOfWork)
     {
         _vehicleWriteRepository = vehicleWriteRepository;
         _maintenanceScheduleWriteRepository = maintenanceScheduleWriteRepository;
         _maintenanceLogWriteRepository = maintenanceLogWriteRepository;
-        _tenantProvider = tenantProvider;
+        _workspaceProvider = workspaceProvider;
         _unitOfWork = unitOfWork;
     }
 
@@ -49,8 +49,8 @@ public class CompleteMaintenanceScheduleCommandHandler : IRequestHandler<Complet
         if (request.RequestDto.OdometerAtService < vehicle.CurrentOdometer)
             throw new ErrorOnValidationException(ResourceMessagesException.ODOMETER_VALUE_INVALID);
 
-        var tenantId = _tenantProvider.TenantId ?? schedule.TenantId;
-        var userId = _tenantProvider.UserId ?? schedule.UserId;
+        var workspaceId = _workspaceProvider.WorkspaceId ?? schedule.WorkspaceId;
+        var userId = _workspaceProvider.UserId ?? schedule.UserId;
 
         schedule.Perform(request.RequestDto.OdometerAtService, request.RequestDto.PerformedAt, vehicle.DailyMileageAverage);
 
@@ -73,7 +73,7 @@ public class CompleteMaintenanceScheduleCommandHandler : IRequestHandler<Complet
         }
 
         var log = MaintenanceLog.Create(
-            tenantId,
+            workspaceId,
             userId,
             vehicle.Id,
             schedule.Id,

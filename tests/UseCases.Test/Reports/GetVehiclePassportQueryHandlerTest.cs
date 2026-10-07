@@ -11,15 +11,15 @@ public class GetVehiclePassportQueryHandlerTest
     [Fact]
     public async Task Successfully_Generates_Vehicle_Passport_With_All_Details()
     {
-        var tenantId = Guid.NewGuid();
-        var vehicle = VehicleBuilder.Build(tenantId: tenantId, initialOdometer: 40_000);
+        var workspaceId = Guid.NewGuid();
+        var vehicle = VehicleBuilder.Build(workspaceId: workspaceId, initialOdometer: 40_000);
         typeof(DotCruz.Garage.Domain.Entities.Vehicles.Vehicle)
             .GetProperty(nameof(vehicle.CurrentOdometer))!
             .SetValue(vehicle, 55_000);
 
-        var driver = DriverBuilder.Build(tenantId: tenantId, name: "Roberto Firmino");
+        var driver = DriverBuilder.Build(workspaceId: workspaceId, name: "Roberto Firmino");
         var assignment = VehicleDriverAssignmentBuilder.Build(
-            tenantId: tenantId,
+            workspaceId: workspaceId,
             vehicleId: vehicle.Id,
             driverId: driver.Id);
         typeof(DotCruz.Garage.Domain.Entities.Drivers.VehicleDriverAssignment)
@@ -27,32 +27,32 @@ public class GetVehiclePassportQueryHandlerTest
             .SetValue(assignment, driver);
 
         var log = MaintenanceLogBuilder.Build(
-            tenantId: tenantId,
+            workspaceId: workspaceId,
             vehicleId: vehicle.Id,
             cost: 850m,
             odometerAtService: 50_000,
             performedAt: DateTimeOffset.UtcNow.AddMonths(-1));
 
         var schedule = MaintenanceScheduleBuilder.Build(
-            tenantId: tenantId,
+            workspaceId: workspaceId,
             vehicleId: vehicle.Id,
             currentOdometer: 55_000,
             intervalOdometer: 10_000,
             lastPerformedOdometer: 50_000);
 
         var doc = VehicleDocumentBuilder.Build(
-            tenantId: tenantId,
+            workspaceId: workspaceId,
             vehicleId: vehicle.Id,
             cost: 1400m,
             type: DocumentType.IPVA);
 
         var fine = TrafficFineBuilder.Build(
-            tenantId: tenantId,
+            workspaceId: workspaceId,
             vehicleId: vehicle.Id,
             amount: 195m);
 
         var acc = VehicleAccessoryBuilder.Build(
-            tenantId: tenantId,
+            workspaceId: workspaceId,
             vehicleId: vehicle.Id,
             cost: 300m);
 

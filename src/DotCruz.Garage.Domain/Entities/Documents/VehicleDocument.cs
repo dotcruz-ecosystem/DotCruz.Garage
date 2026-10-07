@@ -4,11 +4,11 @@ using DotCruz.Garage.Domain.Enums;
 
 namespace DotCruz.Garage.Domain.Entities.Documents;
 
-public class VehicleDocument : BaseEntity, ITenantEntity
+public class VehicleDocument : BaseEntity, IWorkspaceEntity
 {
     public const int DefaultWarningThresholdDays = 30;
 
-    public Guid TenantId { get; private set; }
+    public Guid WorkspaceId { get; private set; }
     public Guid UserId { get; private set; }
     public Guid VehicleId { get; private set; }
     public DocumentType Type { get; private set; }
@@ -27,7 +27,7 @@ public class VehicleDocument : BaseEntity, ITenantEntity
     private VehicleDocument() { }
 
     public static VehicleDocument Create(
-        Guid tenantId,
+        Guid workspaceId,
         Guid userId,
         Guid vehicleId,
         DocumentType type,
@@ -41,7 +41,7 @@ public class VehicleDocument : BaseEntity, ITenantEntity
     {
         return new VehicleDocument
         {
-            TenantId = tenantId,
+            WorkspaceId = workspaceId,
             UserId = userId,
             VehicleId = vehicleId,
             Type = type,

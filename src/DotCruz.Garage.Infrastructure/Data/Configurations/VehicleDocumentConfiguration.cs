@@ -51,13 +51,13 @@ public class VehicleDocumentConfiguration : IEntityTypeConfiguration<VehicleDocu
         builder.Property(d => d.WarningThresholdDays)
             .IsRequired(false);
 
-        builder.Property(d => d.TenantId)
+        builder.Property(d => d.WorkspaceId)
             .IsRequired();
 
         builder.Property(d => d.UserId)
             .IsRequired();
 
         builder.HasIndex(d => d.VehicleId);
-        builder.HasIndex(d => new { d.TenantId, d.UserId });
+        builder.HasIndex(d => new { d.WorkspaceId, d.UserId });
     }
 }

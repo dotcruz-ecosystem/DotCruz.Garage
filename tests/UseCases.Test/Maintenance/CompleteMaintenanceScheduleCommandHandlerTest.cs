@@ -16,11 +16,11 @@ public class CompleteMaintenanceScheduleCommandHandlerTest
     [Fact]
     public async Task Successfully_Completes_Schedule_And_Creates_Maintenance_Log()
     {
-        var tenantId = Guid.NewGuid();
+        var workspaceId = Guid.NewGuid();
         var userId = Guid.NewGuid();
-        var vehicle = VehicleBuilder.Build(tenantId: tenantId, userId: userId, initialOdometer: 50_000);
+        var vehicle = VehicleBuilder.Build(workspaceId: workspaceId, userId: userId, initialOdometer: 50_000);
         var schedule = MaintenanceScheduleBuilder.Build(
-            tenantId: tenantId,
+            workspaceId: workspaceId,
             userId: userId,
             vehicleId: vehicle.Id,
             currentOdometer: 50_000,
@@ -39,13 +39,13 @@ public class CompleteMaintenanceScheduleCommandHandlerTest
         var logRepo = new MaintenanceLogRepositoryBuilder();
         var (_, logWrite) = logRepo.Build();
 
-        var tenantProvider = new TenantProviderBuilder().AsUser(tenantId, userId).Build();
+        var workspaceProvider = new WorkspaceProviderBuilder().AsUser(workspaceId, userId).Build();
 
         var handler = new CompleteMaintenanceScheduleCommandHandler(
             vehicleWrite,
             scheduleWrite,
             logWrite,
-            tenantProvider,
+            workspaceProvider,
             UnitOfWorkBuilder.Build());
 
         var reqDto = new CompleteMaintenanceScheduleRequestDto(
@@ -74,13 +74,13 @@ public class CompleteMaintenanceScheduleCommandHandlerTest
         var (_, vehicleWrite) = new VehicleRepositoryBuilder().Build();
         var (_, scheduleWrite) = new MaintenanceScheduleRepositoryBuilder().Build();
         var (_, logWrite) = new MaintenanceLogRepositoryBuilder().Build();
-        var tenantProvider = new TenantProviderBuilder().Build();
+        var workspaceProvider = new WorkspaceProviderBuilder().Build();
 
         var handler = new CompleteMaintenanceScheduleCommandHandler(
             vehicleWrite,
             scheduleWrite,
             logWrite,
-            tenantProvider,
+            workspaceProvider,
             UnitOfWorkBuilder.Build());
 
         var reqDto = new CompleteMaintenanceScheduleRequestDto(DateTimeOffset.UtcNow, 60_000, 100m);
@@ -93,9 +93,9 @@ public class CompleteMaintenanceScheduleCommandHandlerTest
     [Fact]
     public async Task Throws_ErrorOnValidationException_When_Odometer_Is_Lower_Than_Vehicle_Current()
     {
-        var tenantId = Guid.NewGuid();
-        var vehicle = VehicleBuilder.Build(tenantId: tenantId, initialOdometer: 50_000);
-        var schedule = MaintenanceScheduleBuilder.Build(tenantId: tenantId, vehicleId: vehicle.Id, currentOdometer: 50_000);
+        var workspaceId = Guid.NewGuid();
+        var vehicle = VehicleBuilder.Build(workspaceId: workspaceId, initialOdometer: 50_000);
+        var schedule = MaintenanceScheduleBuilder.Build(workspaceId: workspaceId, vehicleId: vehicle.Id, currentOdometer: 50_000);
 
         var (_, vehicleWrite) = new VehicleRepositoryBuilder()
             .SetupGetByIdWithHistoriesToUpdate(vehicle)
@@ -106,13 +106,13 @@ public class CompleteMaintenanceScheduleCommandHandlerTest
             .Build();
 
         var (_, logWrite) = new MaintenanceLogRepositoryBuilder().Build();
-        var tenantProvider = new TenantProviderBuilder().Build();
+        var workspaceProvider = new WorkspaceProviderBuilder().Build();
 
         var handler = new CompleteMaintenanceScheduleCommandHandler(
             vehicleWrite,
             scheduleWrite,
             logWrite,
-            tenantProvider,
+            workspaceProvider,
             UnitOfWorkBuilder.Build());
 
         var reqDto = new CompleteMaintenanceScheduleRequestDto(DateTimeOffset.UtcNow, 45_000, 100m); // Lower than 50,000

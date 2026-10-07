@@ -60,6 +60,15 @@ public class TrafficFineRepositoryBuilder
         return this;
     }
 
+    public TrafficFineRepositoryBuilder SetupGetPendingFinesToNotify(IReadOnlyCollection<TrafficFine> fines)
+    {
+        _writeMock.Setup(w => w.GetPendingFinesToNotifyAsync(
+            It.IsAny<CancellationToken>()))
+            .ReturnsAsync(fines);
+
+        return this;
+    }
+
     public (ITrafficFineReadRepository Read, ITrafficFineWriteRepository Write) Build() =>
         (_readMock.Object, _writeMock.Object);
 }

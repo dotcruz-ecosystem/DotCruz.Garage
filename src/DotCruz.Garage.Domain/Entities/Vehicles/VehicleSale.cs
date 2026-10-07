@@ -2,9 +2,9 @@ using DotCruz.Garage.Domain.Entities.Base;
 
 namespace DotCruz.Garage.Domain.Entities.Vehicles;
 
-public class VehicleSale : BaseEntity, ITenantEntity
+public class VehicleSale : BaseEntity, IWorkspaceEntity
 {
-    public Guid TenantId { get; private set; }
+    public Guid WorkspaceId { get; private set; }
     public Guid UserId { get; private set; }
     public Guid VehicleId { get; private set; }
     public string CustomerName { get; private set; } = null!;
@@ -26,7 +26,7 @@ public class VehicleSale : BaseEntity, ITenantEntity
     private VehicleSale() { }
 
     public static VehicleSale Create(
-        Guid tenantId,
+        Guid workspaceId,
         Guid userId,
         Guid vehicleId,
         string customerName,
@@ -40,8 +40,8 @@ public class VehicleSale : BaseEntity, ITenantEntity
         int? warrantyKm,
         string? notes)
     {
-        if (tenantId == Guid.Empty)
-            throw new ArgumentException("TenantId não pode ser vazio.", nameof(tenantId));
+        if (workspaceId == Guid.Empty)
+            throw new ArgumentException("WorkspaceId não pode ser vazio.", nameof(workspaceId));
 
         if (vehicleId == Guid.Empty)
             throw new ArgumentException("VehicleId não pode ser vazio.", nameof(vehicleId));
@@ -57,7 +57,7 @@ public class VehicleSale : BaseEntity, ITenantEntity
 
         return new VehicleSale
         {
-            TenantId = tenantId,
+            WorkspaceId = workspaceId,
             UserId = userId,
             VehicleId = vehicleId,
             CustomerName = customerName.Trim(),

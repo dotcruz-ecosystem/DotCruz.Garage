@@ -8,13 +8,13 @@ public static class MaintenanceScheduleMapper
 {
     public static MaintenanceSchedule ToDomain(
         this CreateMaintenanceScheduleCommand command,
-        Guid tenantId,
+        Guid workspaceId,
         Guid userId,
         int currentOdometer,
         double dailyMileageAverage)
     {
         return MaintenanceSchedule.Create(
-            tenantId,
+            workspaceId,
             userId,
             command.VehicleId,
             command.RequestDto.Description,

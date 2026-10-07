@@ -29,7 +29,7 @@ public class CheckAlertsCommandHandler : IRequestHandler<CheckAlertsCommand>
     private readonly INotificationService _notificationService;
     private readonly IUnitOfWork _unitOfWork;
 
-    private readonly Dictionary<(Guid UserId, Guid TenantId), UserResponseDto> _usersCache = [];
+    private readonly Dictionary<(Guid UserId, Guid WorkspaceId), UserResponseDto> _usersCache = [];
 
     public CheckAlertsCommandHandler(
         IMaintenanceScheduleWriteRepository scheduleWriteRepository,
@@ -72,18 +72,18 @@ public class CheckAlertsCommandHandler : IRequestHandler<CheckAlertsCommand>
 
         foreach (var vehicle in staleVehicles)
         {
-            var user = await GetUserAsync(vehicle.UserId, vehicle.TenantId, cancellationToken);
+            var user = await GetUserAsync(vehicle.UserId, vehicle.WorkspaceId, cancellationToken);
             if (user is null)
                 continue;
 
             var validity = TimeSpan.FromHours(48);
-            var token = _tokenService.GenerateToken(vehicle.Id, vehicle.TenantId, validity);
+            var token = _tokenService.GenerateToken(vehicle.Id, vehicle.WorkspaceId, validity);
             var baseUrl = _configuration?["Settings:FrontendUrl"] ?? "https://garage.dotcruz.com";
             var magicLinkUrl = $"{baseUrl.TrimEnd('/')}/checkin/odometer?token={token}";
 
             await _notificationService.SendOdometerCheckinRequestAsync(
                 userId: vehicle.UserId,
-                tenantId: vehicle.TenantId,
+                workspaceId: vehicle.WorkspaceId,
                 userName: user.Name,
                 userEmail: user.Email,
                 vehicleName: vehicle.Name,
@@ -112,13 +112,13 @@ public class CheckAlertsCommandHandler : IRequestHandler<CheckAlertsCommand>
 
     private async Task NotifyMaintenanceAsync(MaintenanceSchedule maintenance, ScheduleStatus status, CancellationToken cancellationToken)
     {
-        var user = await GetUserAsync(maintenance.UserId, maintenance.TenantId, cancellationToken);
+        var user = await GetUserAsync(maintenance.UserId, maintenance.WorkspaceId, cancellationToken);
         if (user == null)
             return;
 
         await _notificationService.SendMaintenanceAlertAsync(
             userId: maintenance.UserId,
-            tenantId: maintenance.TenantId,
+            workspaceId: maintenance.WorkspaceId,
             userName: user.Name,
             userEmail: user.Email,
             vehicleName: maintenance.Vehicle.Name,
@@ -143,13 +143,13 @@ public class CheckAlertsCommandHandler : IRequestHandler<CheckAlertsCommand>
 
     private async Task NotifyTrafficFineAsync(TrafficFine fine, CancellationToken cancellationToken)
     {
-        var user = await GetUserAsync(fine.UserId, fine.TenantId, cancellationToken);
+        var user = await GetUserAsync(fine.UserId, fine.WorkspaceId, cancellationToken);
         if (user == null)
             return;
 
         await _notificationService.SendTrafficFineAlertAsync(
             userId: fine.UserId,
-            tenantId: fine.TenantId,
+            workspaceId: fine.WorkspaceId,
             userName: user.Name,
             userEmail: user.Email,
             vehicleName: fine.Vehicle.Name,
@@ -174,7 +174,7 @@ public class CheckAlertsCommandHandler : IRequestHandler<CheckAlertsCommand>
 
     private async Task NotifyDocumentAsync(VehicleDocument doc, CancellationToken cancellationToken)
     {
-        var user = await GetUserAsync(doc.UserId, doc.TenantId, cancellationToken);
+        var user = await GetUserAsync(doc.UserId, doc.WorkspaceId, cancellationToken);
         if (user == null)
             return;
 
@@ -183,7 +183,7 @@ public class CheckAlertsCommandHandler : IRequestHandler<CheckAlertsCommand>
 
         await _notificationService.SendDocumentAlertAsync(
             userId: doc.UserId,
-            tenantId: doc.TenantId,
+            workspaceId: doc.WorkspaceId,
             userName: user.Name,
             userEmail: user.Email,
             vehicleName: doc.Vehicle.Name,
@@ -197,14 +197,14 @@ public class CheckAlertsCommandHandler : IRequestHandler<CheckAlertsCommand>
         doc.Notify(statusToNotify);
     }
 
-    private async Task<UserResponseDto?> GetUserAsync(Guid userId, Guid tenantId, CancellationToken cancellationToken)
+    private async Task<UserResponseDto?> GetUserAsync(Guid userId, Guid workspaceId, CancellationToken cancellationToken)
     {
-        var key = (userId, tenantId);
+        var key = (userId, workspaceId);
 
         if (_usersCache.TryGetValue(key, out var cached))
             return cached;
 
-        var user = await _authServiceClient.GetUserByIdAsync(userId, tenantId, cancellationToken);
+        var user = await _authServiceClient.GetUserByIdAsync(userId, workspaceId, cancellationToken);
 
         if (user != null)
             _usersCache[key] = user;

@@ -1,4 +1,4 @@
-﻿using DotCruz.Garage.Application.Abstractions.Data;
+using DotCruz.Garage.Application.Abstractions.Data;
 using DotCruz.Garage.Application.Abstractions.Data.Repositories.Catalog;
 using DotCruz.Garage.Application.Abstractions.Data.Repositories.Maintenance;
 using DotCruz.Garage.Application.Abstractions.Data.Repositories.Vehicles;
@@ -101,7 +101,7 @@ public class ExtractManualMaintenanceCommandHandler : IRequestHandler<ExtractMan
             foreach (var template in blueprint.PlanTemplates)
             {
                 var schedule = MaintenanceSchedule.Create(
-                    tenantId: vehicle.TenantId,
+                    workspaceId: vehicle.WorkspaceId,
                     userId: vehicle.UserId,
                     vehicleId: vehicle.Id,
                     description: template.Description,

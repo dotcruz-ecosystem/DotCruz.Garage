@@ -4,7 +4,7 @@ public interface INotificationService
 {
     Task SendMaintenanceAlertAsync(
         Guid userId,
-        Guid tenantId,
+        Guid workspaceId,
         string userName,
         string userEmail,
         string vehicleName,
@@ -15,7 +15,7 @@ public interface INotificationService
 
     Task SendTrafficFineAlertAsync(
         Guid userId,
-        Guid tenantId,
+        Guid workspaceId,
         string userName,
         string userEmail,
         string vehicleName,
@@ -26,7 +26,7 @@ public interface INotificationService
 
     Task SendDocumentAlertAsync(
         Guid userId,
-        Guid tenantId,
+        Guid workspaceId,
         string userName,
         string userEmail,
         string vehicleName,
@@ -38,7 +38,7 @@ public interface INotificationService
 
     Task SendOdometerCheckinRequestAsync(
         Guid userId,
-        Guid tenantId,
+        Guid workspaceId,
         string userName,
         string userEmail,
         string vehicleName,
@@ -49,7 +49,7 @@ public interface INotificationService
 
     Task SendPostSaleWelcomeAsync(
         Guid userId,
-        Guid tenantId,
+        Guid workspaceId,
         string customerName,
         string customerEmail,
         string vehicleName,

@@ -16,20 +16,20 @@ public class LogMaintenanceCommandHandler : IRequestHandler<LogMaintenanceComman
     private readonly IVehicleWriteRepository _vehicleWriteRepository;
     private readonly IMaintenanceScheduleWriteRepository _maintenanceScheduleWriteRepository;
     private readonly IMaintenanceLogWriteRepository _maintenanceLogWriteRepository;
-    private readonly ITenantProvider _tenantProvider;
+    private readonly IWorkspaceProvider _workspaceProvider;
     private readonly IUnitOfWork _unitOfWork;
 
     public LogMaintenanceCommandHandler(
         IVehicleWriteRepository vehicleWriteRepository,
         IMaintenanceScheduleWriteRepository maintenanceScheduleWriteRepository,
         IMaintenanceLogWriteRepository maintenanceLogWriteRepository,
-        ITenantProvider tenantProvider,
+        IWorkspaceProvider workspaceProvider,
         IUnitOfWork unitOfWork)
     {
         _vehicleWriteRepository = vehicleWriteRepository;
         _maintenanceScheduleWriteRepository = maintenanceScheduleWriteRepository;
         _maintenanceLogWriteRepository = maintenanceLogWriteRepository;
-        _tenantProvider = tenantProvider;
+        _workspaceProvider = workspaceProvider;
         _unitOfWork = unitOfWork;
     }
 
@@ -41,8 +41,8 @@ public class LogMaintenanceCommandHandler : IRequestHandler<LogMaintenanceComman
         if (request.RequestDto.OdometerAtService < vehicle.CurrentOdometer)
             throw new ErrorOnValidationException(ResourceMessagesException.ODOMETER_VALUE_INVALID);
 
-        var tenantId = _tenantProvider.TenantId;
-        var userId = _tenantProvider.UserId;
+        var workspaceId = _workspaceProvider.WorkspaceId;
+        var userId = _workspaceProvider.UserId;
 
         if (request.RequestDto.MaintenanceScheduleId.HasValue)
         {
@@ -67,7 +67,7 @@ public class LogMaintenanceCommandHandler : IRequestHandler<LogMaintenanceComman
                 schedule.RecalculateNextDue(vehicle.CurrentOdometer, vehicle.DailyMileageAverage);
         }
 
-        var logMaintenance = request.ToDomain(tenantId!.Value, userId!.Value);
+        var logMaintenance = request.ToDomain(workspaceId!.Value, userId!.Value);
 
         await _maintenanceLogWriteRepository.AddAsync(logMaintenance, cancellationToken);
 

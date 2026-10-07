@@ -4,12 +4,12 @@ using DotCruz.Garage.Domain.Enums;
 
 namespace DotCruz.Garage.Domain.Entities.Maintenance;
 
-public class MaintenanceSchedule : BaseEntity, ITenantEntity
+public class MaintenanceSchedule : BaseEntity, IWorkspaceEntity
 {
     public const int DefaultWarningThresholdOdometer = 1000;
     public const int DefaultWarningThresholdDays = 30;
 
-    public Guid TenantId { get; private set; }
+    public Guid WorkspaceId { get; private set; }
     public Guid UserId { get; private set; }
     public Guid VehicleId { get; private set; }
     public string Description { get; private set; } = null!;
@@ -31,7 +31,7 @@ public class MaintenanceSchedule : BaseEntity, ITenantEntity
     private MaintenanceSchedule() { }
 
     public static MaintenanceSchedule Create(
-        Guid tenantId,
+        Guid workspaceId,
         Guid userId,
         Guid vehicleId,
         string description,
@@ -47,7 +47,7 @@ public class MaintenanceSchedule : BaseEntity, ITenantEntity
     {
         var schedule = new MaintenanceSchedule
         {
-            TenantId = tenantId,
+            WorkspaceId = workspaceId,
             UserId = userId,
             VehicleId = vehicleId,
             Description = description,

@@ -10,9 +10,9 @@ public class GetPostSaleVehiclesQueryHandlerTest
     [Fact]
     public async Task Successfully_Returns_Active_Sales_With_Vehicle_Details()
     {
-        var tenantId = Guid.NewGuid();
-        var vehicle = VehicleBuilder.Build(tenantId: tenantId, initialOdometer: 60_000);
-        var sale = VehicleSaleBuilder.Build(tenantId: tenantId, vehicleId: vehicle.Id, customerName: "Fernanda Costa", soldOdometer: 58_000);
+        var workspaceId = Guid.NewGuid();
+        var vehicle = VehicleBuilder.Build(workspaceId: workspaceId, initialOdometer: 60_000);
+        var sale = VehicleSaleBuilder.Build(workspaceId: workspaceId, vehicleId: vehicle.Id, customerName: "Fernanda Costa", soldOdometer: 58_000);
 
         var (saleRead, _) = new VehicleSaleRepositoryBuilder()
             .SetupGetActiveSalesWithVehicle(new List<VehicleSale> { sale })

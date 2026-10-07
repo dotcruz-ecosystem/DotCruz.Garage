@@ -8,10 +8,10 @@ namespace DotCruz.Garage.Application.Mappers.Drivers;
 
 public static class DriverMapper
 {
-    public static Driver ToDomain(this RegisterDriverCommand command, Guid tenantId, Guid userId)
+    public static Driver ToDomain(this RegisterDriverCommand command, Guid workspaceId, Guid userId)
     {
         return Driver.Create(
-            tenantId,
+            workspaceId,
             userId,
             command.RequestDto.Name,
             command.RequestDto.Cpf,

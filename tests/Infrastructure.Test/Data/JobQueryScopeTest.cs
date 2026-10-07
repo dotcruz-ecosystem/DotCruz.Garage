@@ -9,14 +9,14 @@ namespace Infrastructure.Test.Data;
 public class JobQueryScopeTest
 {
     [Fact]
-    public async Task Job_Reaches_Schedules_From_Every_Tenant()
+    public async Task Job_Reaches_Schedules_From_Every_Workspace()
     {
-        var tenantA = Guid.NewGuid();
-        var tenantB = Guid.NewGuid();
+        var workspaceA = Guid.NewGuid();
+        var workspaceB = Guid.NewGuid();
 
-        await using var context = BuildContextWithoutTenant();
-        SeedDueSchedule(context, tenantA);
-        SeedDueSchedule(context, tenantB);
+        await using var context = BuildContextWithoutWorkspace();
+        SeedDueSchedule(context, workspaceA);
+        SeedDueSchedule(context, workspaceB);
         await context.SaveChangesAsync(TestContext.Current.CancellationToken);
 
         var repository = new MaintenanceScheduleWriteRepository(context);
@@ -24,14 +24,14 @@ public class JobQueryScopeTest
         var due = await repository.GetSchedulesWithVehicleDetailsToUpdateAsync(TestContext.Current.CancellationToken);
 
         Assert.Equal(2, due.Count);
-        Assert.Contains(due, s => s.TenantId == tenantA);
-        Assert.Contains(due, s => s.TenantId == tenantB);
+        Assert.Contains(due, s => s.WorkspaceId == workspaceA);
+        Assert.Contains(due, s => s.WorkspaceId == workspaceB);
     }
 
     [Fact]
     public async Task Job_Skips_Soft_Deleted_Schedules()
     {
-        await using var context = BuildContextWithoutTenant();
+        await using var context = BuildContextWithoutWorkspace();
 
         var kept = SeedDueSchedule(context, Guid.NewGuid());
         var removed = SeedDueSchedule(context, Guid.NewGuid());
@@ -48,50 +48,50 @@ public class JobQueryScopeTest
     }
 
     [Fact]
-    public async Task Tenant_Scope_Still_Applies_To_Regular_Queries()
+    public async Task Workspace_Scope_Still_Applies_To_Regular_Queries()
     {
-        var tenantId = Guid.NewGuid();
+        var workspaceId = Guid.NewGuid();
         var userId = Guid.NewGuid();
         var databaseName = Guid.NewGuid().ToString();
 
-        await using (var seedContext = BuildContext(databaseName, new TenantProviderBuilder().AsService().Build()))
+        await using (var seedContext = BuildContext(databaseName, new WorkspaceProviderBuilder().AsService().Build()))
         {
-            SeedDueSchedule(seedContext, tenantId, userId);
+            SeedDueSchedule(seedContext, workspaceId, userId);
             SeedDueSchedule(seedContext, Guid.NewGuid());
             await seedContext.SaveChangesAsync(TestContext.Current.CancellationToken);
         }
 
         await using var scopedContext = BuildContext(
             databaseName,
-            new TenantProviderBuilder().AsUser(tenantId, userId).Build());
+            new WorkspaceProviderBuilder().AsUser(workspaceId, userId).Build());
 
         var visible = await scopedContext.MaintenanceSchedules.ToListAsync(TestContext.Current.CancellationToken);
 
         Assert.Single(visible);
-        Assert.Equal(tenantId, visible.Single().TenantId);
+        Assert.Equal(workspaceId, visible.Single().WorkspaceId);
     }
 
-    private static GarageDbContext BuildContextWithoutTenant() =>
-        BuildContext(Guid.NewGuid().ToString(), new TenantProviderBuilder().AsService().Build());
+    private static GarageDbContext BuildContextWithoutWorkspace() =>
+        BuildContext(Guid.NewGuid().ToString(), new WorkspaceProviderBuilder().AsService().Build());
 
-    private static GarageDbContext BuildContext(string databaseName, DotCruz.Shared.Security.Context.ITenantProvider tenantProvider)
+    private static GarageDbContext BuildContext(string databaseName, DotCruz.Shared.Security.Context.IWorkspaceProvider workspaceProvider)
     {
         var options = new DbContextOptionsBuilder<GarageDbContext>()
             .UseInMemoryDatabase(databaseName)
             .Options;
 
-        return new GarageDbContext(options, tenantProvider);
+        return new GarageDbContext(options, workspaceProvider);
     }
 
     private static DotCruz.Garage.Domain.Entities.Maintenance.MaintenanceSchedule SeedDueSchedule(
         GarageDbContext context,
-        Guid tenantId,
+        Guid workspaceId,
         Guid? userId = null)
     {
         var owner = userId ?? Guid.NewGuid();
-        var vehicle = VehicleBuilder.Build(tenantId: tenantId, userId: owner, initialOdometer: 50_000);
+        var vehicle = VehicleBuilder.Build(workspaceId: workspaceId, userId: owner, initialOdometer: 50_000);
         var schedule = MaintenanceScheduleBuilder.Build(
-            tenantId: tenantId,
+            workspaceId: workspaceId,
             userId: owner,
             vehicleId: vehicle.Id,
             currentOdometer: 50_000);

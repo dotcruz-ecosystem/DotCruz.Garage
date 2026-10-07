@@ -8,10 +8,10 @@ public class AuthServiceClientBuilder
 {
     private readonly Mock<IAuthServiceClient> _client = new();
 
-    public AuthServiceClientBuilder SetupGetUserById(Guid userId, Guid tenantId, UserResponseDto? user)
+    public AuthServiceClientBuilder SetupGetUserById(Guid userId, Guid workspaceId, UserResponseDto? user)
     {
         _client
-            .Setup(c => c.GetUserByIdAsync(userId, tenantId, It.IsAny<CancellationToken>()))
+            .Setup(c => c.GetUserByIdAsync(userId, workspaceId, It.IsAny<CancellationToken>()))
             .ReturnsAsync(user);
 
         return this;

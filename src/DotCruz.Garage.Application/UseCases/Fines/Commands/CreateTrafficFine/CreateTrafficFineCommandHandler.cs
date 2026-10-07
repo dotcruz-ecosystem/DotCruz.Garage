@@ -13,18 +13,18 @@ public class CreateTrafficFineCommandHandler : IRequestHandler<CreateTrafficFine
 {
     private readonly IVehicleReadRepository _vehicleReadRepository;
     private readonly ITrafficFineWriteRepository _trafficFineWriteRepository;
-    private readonly ITenantProvider _tenantProvider;
+    private readonly IWorkspaceProvider _workspaceProvider;
     private readonly IUnitOfWork _unitOfWork;
 
     public CreateTrafficFineCommandHandler(
         IVehicleReadRepository vehicleReadRepository,
         ITrafficFineWriteRepository trafficFineWriteRepository,
-        ITenantProvider tenantProvider,
+        IWorkspaceProvider workspaceProvider,
         IUnitOfWork unitOfWork)
     {
         _vehicleReadRepository = vehicleReadRepository;
         _trafficFineWriteRepository = trafficFineWriteRepository;
-        _tenantProvider = tenantProvider;
+        _workspaceProvider = workspaceProvider;
         _unitOfWork = unitOfWork;
     }
 
@@ -34,10 +34,10 @@ public class CreateTrafficFineCommandHandler : IRequestHandler<CreateTrafficFine
         if (!vehicleExists)
             throw new NotFoundException(ResourceMessagesException.VEHICLE_NOT_FOUND);
 
-        var tenantId = _tenantProvider.TenantId;
-        var userId = _tenantProvider.UserId;
+        var workspaceId = _workspaceProvider.WorkspaceId;
+        var userId = _workspaceProvider.UserId;
 
-        var fine = request.ToDomain(tenantId!.Value, userId!.Value);
+        var fine = request.ToDomain(workspaceId!.Value, userId!.Value);
 
         await _trafficFineWriteRepository.AddAsync(fine, cancellationToken);
 

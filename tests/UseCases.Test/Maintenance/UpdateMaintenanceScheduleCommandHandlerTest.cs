@@ -1,4 +1,4 @@
-﻿using CommonTestUtilities.Data;
+using CommonTestUtilities.Data;
 using CommonTestUtilities.Entities;
 using CommonTestUtilities.Repositories;
 using DotCruz.Garage.Application.DTOs.Maintenance;
@@ -13,9 +13,9 @@ public class UpdateMaintenanceScheduleCommandHandlerTest
     [Fact]
     public async Task Successfully_Updates_Schedule()
     {
-        var tenantId = Guid.NewGuid();
-        var vehicle = VehicleBuilder.Build(tenantId: tenantId, initialOdometer: 50_000);
-        var schedule = MaintenanceScheduleBuilder.Build(tenantId: tenantId, vehicleId: vehicle.Id, currentOdometer: 50_000);
+        var workspaceId = Guid.NewGuid();
+        var vehicle = VehicleBuilder.Build(workspaceId: workspaceId, initialOdometer: 50_000);
+        var schedule = MaintenanceScheduleBuilder.Build(workspaceId: workspaceId, vehicleId: vehicle.Id, currentOdometer: 50_000);
 
         var (vehicleRead, _) = new VehicleRepositoryBuilder().SetupGetById(vehicle).Build();
         var (_, scheduleWrite) = new MaintenanceScheduleRepositoryBuilder().SetupGetByIdToUpdate(schedule).Build();

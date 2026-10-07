@@ -63,6 +63,15 @@ public class MaintenanceScheduleRepositoryBuilder
         return this;
     }
 
+    public MaintenanceScheduleRepositoryBuilder SetupGetSchedulesWithVehicleDetailsToUpdate(IReadOnlyCollection<MaintenanceSchedule> schedules)
+    {
+        _writeMock.Setup(w => w.GetSchedulesWithVehicleDetailsToUpdateAsync(
+            It.IsAny<CancellationToken>()))
+            .ReturnsAsync(schedules);
+
+        return this;
+    }
+
     public MaintenanceScheduleRepositoryBuilder SetupAdd(Action<MaintenanceSchedule>? callback = null)
     {
         var setup = _writeMock.Setup(w => w.AddAsync(

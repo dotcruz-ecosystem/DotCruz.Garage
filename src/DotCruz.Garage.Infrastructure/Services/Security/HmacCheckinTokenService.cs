@@ -21,13 +21,13 @@ public class HmacCheckinTokenService : ICheckinTokenService
         _secretKeyBytes = Encoding.UTF8.GetBytes(secret);
     }
 
-    public string GenerateToken(Guid vehicleId, Guid tenantId, TimeSpan? validity = null)
+    public string GenerateToken(Guid vehicleId, Guid workspaceId, TimeSpan? validity = null)
     {
         var duration = validity ?? TimeSpan.FromHours(48);
         var expiresAt = DateTimeOffset.UtcNow.Add(duration);
         var expiresUnix = expiresAt.ToUnixTimeSeconds();
 
-        var payload = $"{vehicleId:N}:{tenantId:N}:{expiresUnix}";
+        var payload = $"{vehicleId:N}:{workspaceId:N}:{expiresUnix}";
         var payloadBytes = Encoding.UTF8.GetBytes(payload);
         var base64UrlPayload = WebEncoders.Base64UrlEncode(payloadBytes);
 
@@ -71,14 +71,14 @@ public class HmacCheckinTokenService : ICheckinTokenService
             if (!Guid.TryParseExact(segments[0], "N", out var vehicleId))
                 return false;
 
-            if (!Guid.TryParseExact(segments[1], "N", out var tenantId))
+            if (!Guid.TryParseExact(segments[1], "N", out var workspaceId))
                 return false;
 
             if (!long.TryParse(segments[2], out var expiresUnix))
                 return false;
 
             var expiresAt = DateTimeOffset.FromUnixTimeSeconds(expiresUnix);
-            token = new OdometerCheckinToken(vehicleId, tenantId, expiresAt);
+            token = new OdometerCheckinToken(vehicleId, workspaceId, expiresAt);
             return true;
         }
         catch
@@ -87,13 +87,13 @@ public class HmacCheckinTokenService : ICheckinTokenService
         }
     }
 
-    public string GeneratePostSaleToken(Guid vehicleId, Guid saleId, Guid tenantId, TimeSpan? validity = null)
+    public string GeneratePostSaleToken(Guid vehicleId, Guid saleId, Guid workspaceId, TimeSpan? validity = null)
     {
         var duration = validity ?? TimeSpan.FromDays(180);
         var expiresAt = DateTimeOffset.UtcNow.Add(duration);
         var expiresUnix = expiresAt.ToUnixTimeSeconds();
 
-        var payload = $"{vehicleId:N}:{saleId:N}:{tenantId:N}:{expiresUnix}";
+        var payload = $"{vehicleId:N}:{saleId:N}:{workspaceId:N}:{expiresUnix}";
         var payloadBytes = Encoding.UTF8.GetBytes(payload);
         var base64UrlPayload = WebEncoders.Base64UrlEncode(payloadBytes);
 
@@ -140,14 +140,14 @@ public class HmacCheckinTokenService : ICheckinTokenService
             if (!Guid.TryParseExact(segments[1], "N", out var saleId))
                 return false;
 
-            if (!Guid.TryParseExact(segments[2], "N", out var tenantId))
+            if (!Guid.TryParseExact(segments[2], "N", out var workspaceId))
                 return false;
 
             if (!long.TryParse(segments[3], out var expiresUnix))
                 return false;
 
             var expiresAt = DateTimeOffset.FromUnixTimeSeconds(expiresUnix);
-            token = new PostSalePortalToken(vehicleId, saleId, tenantId, expiresAt);
+            token = new PostSalePortalToken(vehicleId, saleId, workspaceId, expiresAt);
             return true;
         }
         catch

@@ -23,9 +23,9 @@ public class HmacCheckinTokenServiceTest
     public void Generated_Token_Can_Be_Validated_Successfully()
     {
         var vehicleId = Guid.NewGuid();
-        var tenantId = Guid.NewGuid();
+        var workspaceId = Guid.NewGuid();
 
-        var token = _service.GenerateToken(vehicleId, tenantId, TimeSpan.FromHours(48));
+        var token = _service.GenerateToken(vehicleId, workspaceId, TimeSpan.FromHours(48));
 
         Assert.NotNull(token);
         Assert.Contains(".", token);
@@ -35,7 +35,7 @@ public class HmacCheckinTokenServiceTest
         Assert.True(isValid);
         Assert.NotNull(tokenVo);
         Assert.Equal(vehicleId, tokenVo.VehicleId);
-        Assert.Equal(tenantId, tokenVo.TenantId);
+        Assert.Equal(workspaceId, tokenVo.WorkspaceId);
         Assert.False(tokenVo.IsExpired());
     }
 
@@ -43,9 +43,9 @@ public class HmacCheckinTokenServiceTest
     public void Tampered_Token_Fails_Validation()
     {
         var vehicleId = Guid.NewGuid();
-        var tenantId = Guid.NewGuid();
+        var workspaceId = Guid.NewGuid();
 
-        var token = _service.GenerateToken(vehicleId, tenantId, TimeSpan.FromHours(48));
+        var token = _service.GenerateToken(vehicleId, workspaceId, TimeSpan.FromHours(48));
         var parts = token.Split('.');
         var tamperedToken = $"{parts[0]}a.{parts[1]}";
 
@@ -59,9 +59,9 @@ public class HmacCheckinTokenServiceTest
     public void Expired_Token_Is_Detected()
     {
         var vehicleId = Guid.NewGuid();
-        var tenantId = Guid.NewGuid();
+        var workspaceId = Guid.NewGuid();
 
-        var token = _service.GenerateToken(vehicleId, tenantId, TimeSpan.FromSeconds(-10));
+        var token = _service.GenerateToken(vehicleId, workspaceId, TimeSpan.FromSeconds(-10));
 
         var isValid = _service.TryValidateToken(token, out var tokenVo);
 
@@ -75,9 +75,9 @@ public class HmacCheckinTokenServiceTest
     {
         var vehicleId = Guid.NewGuid();
         var saleId = Guid.NewGuid();
-        var tenantId = Guid.NewGuid();
+        var workspaceId = Guid.NewGuid();
 
-        var token = _service.GeneratePostSaleToken(vehicleId, saleId, tenantId, TimeSpan.FromDays(180));
+        var token = _service.GeneratePostSaleToken(vehicleId, saleId, workspaceId, TimeSpan.FromDays(180));
 
         Assert.NotNull(token);
         Assert.Contains(".", token);
@@ -88,7 +88,7 @@ public class HmacCheckinTokenServiceTest
         Assert.NotNull(tokenVo);
         Assert.Equal(vehicleId, tokenVo.VehicleId);
         Assert.Equal(saleId, tokenVo.SaleId);
-        Assert.Equal(tenantId, tokenVo.TenantId);
+        Assert.Equal(workspaceId, tokenVo.WorkspaceId);
         Assert.False(tokenVo.IsExpired());
     }
 
@@ -97,9 +97,9 @@ public class HmacCheckinTokenServiceTest
     {
         var vehicleId = Guid.NewGuid();
         var saleId = Guid.NewGuid();
-        var tenantId = Guid.NewGuid();
+        var workspaceId = Guid.NewGuid();
 
-        var token = _service.GeneratePostSaleToken(vehicleId, saleId, tenantId, TimeSpan.FromDays(180));
+        var token = _service.GeneratePostSaleToken(vehicleId, saleId, workspaceId, TimeSpan.FromDays(180));
         var parts = token.Split('.');
         var tamperedToken = $"{parts[0]}xyz.{parts[1]}";
 

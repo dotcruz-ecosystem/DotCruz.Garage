@@ -6,7 +6,7 @@ namespace CommonTestUtilities.Entities;
 public class DriverBuilder
 {
     public static Driver Build(
-        Guid? tenantId = null,
+        Guid? workspaceId = null,
         Guid? userId = null,
         string? name = null,
         string? cpf = null,
@@ -19,7 +19,7 @@ public class DriverBuilder
         var faker = new Faker("pt_BR");
 
         return Driver.Create(
-            tenantId: tenantId ?? Guid.NewGuid(),
+            workspaceId: workspaceId ?? Guid.NewGuid(),
             userId: userId ?? Guid.NewGuid(),
             name: name ?? faker.Name.FullName(),
             cpf: cpf ?? faker.Random.Replace("###.###.###-##"),

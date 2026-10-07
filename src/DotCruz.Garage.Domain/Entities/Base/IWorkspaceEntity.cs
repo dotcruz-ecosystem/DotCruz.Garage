@@ -1,7 +1,7 @@
 namespace DotCruz.Garage.Domain.Entities.Base;
 
-public interface ITenantEntity
+public interface IWorkspaceEntity
 {
-    Guid TenantId { get; }
+    Guid WorkspaceId { get; }
     Guid UserId { get; }
 }

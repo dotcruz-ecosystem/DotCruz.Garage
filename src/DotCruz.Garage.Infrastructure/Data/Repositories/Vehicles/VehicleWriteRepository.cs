@@ -15,11 +15,11 @@ public class VehicleWriteRepository(GarageDbContext context)
             .FirstOrDefaultAsync(v => v.Id == id, cancellationToken);
     }
 
-    public async Task<Vehicle?> GetByIdWithHistoriesToUpdateUnscopedAsync(Guid id, Guid tenantId, CancellationToken cancellationToken)
+    public async Task<Vehicle?> GetByIdWithHistoriesToUpdateUnscopedAsync(Guid id, Guid workspaceId, CancellationToken cancellationToken)
     {
         return await _dbSet
             .IgnoreQueryFilters()
-            .Where(v => v.Id == id && v.TenantId == tenantId && v.DeletedAt == null)
+            .Where(v => v.Id == id && v.WorkspaceId == workspaceId && v.DeletedAt == null)
             .Include(v => v.OdometerHistories)
             .FirstOrDefaultAsync(cancellationToken);
     }

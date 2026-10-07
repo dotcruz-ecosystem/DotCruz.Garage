@@ -2,9 +2,9 @@ using DotCruz.Garage.Domain.Entities.Base;
 
 namespace DotCruz.Garage.Domain.Entities.Accessories;
 
-public class VehicleAccessory : BaseEntity, ITenantEntity
+public class VehicleAccessory : BaseEntity, IWorkspaceEntity
 {
-    public Guid TenantId { get; private set; }
+    public Guid WorkspaceId { get; private set; }
     public Guid UserId { get; private set; }
     public Guid VehicleId { get; private set; }
     public string Name { get; private set; } = null!;
@@ -17,7 +17,7 @@ public class VehicleAccessory : BaseEntity, ITenantEntity
     private VehicleAccessory() { }
 
     public static VehicleAccessory Create(
-        Guid tenantId,
+        Guid workspaceId,
         Guid userId,
         Guid vehicleId,
         string name,
@@ -29,7 +29,7 @@ public class VehicleAccessory : BaseEntity, ITenantEntity
     {
         return new VehicleAccessory
         {
-            TenantId = tenantId,
+            WorkspaceId = workspaceId,
             UserId = userId,
             VehicleId = vehicleId,
             Name = name,
