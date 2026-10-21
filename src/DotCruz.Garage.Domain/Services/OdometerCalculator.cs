@@ -19,25 +19,35 @@ public static class OdometerCalculator
         }
 
         var latest = sortedHistory.First();
-        
         var limitDate = latest.RecordedAt.AddDays(-windowDays);
-        var oldestInWindow = sortedHistory
+
+        var pointsInWindow = sortedHistory
             .Where(h => h.RecordedAt >= limitDate)
-            .LastOrDefault();
+            .ToList();
 
-        oldestInWindow ??= sortedHistory.Last();
+        OdometerHistory oldest;
+        if (pointsInWindow.Count >= 2)
+        {
+            oldest = pointsInWindow.Last();
+        }
+        else
+        {
+            oldest = sortedHistory.Last();
+        }
 
-        if (latest.Id == oldestInWindow.Id)
+        if (latest.Id == oldest.Id || latest.RecordedAt == oldest.RecordedAt)
         {
             return fallbackEstimate;
         }
 
-        double odometerDiff = latest.OdometerValue - oldestInWindow.OdometerValue;
-        double daysDiff = (latest.RecordedAt - oldestInWindow.RecordedAt).TotalDays;
+        double odometerDiff = latest.OdometerValue - oldest.OdometerValue;
+        double daysDiff = (latest.RecordedAt - oldest.RecordedAt).TotalDays;
 
         if (odometerDiff <= 0 || daysDiff < 1)
+        {
             return fallbackEstimate;
+        }
 
-        return odometerDiff / daysDiff;
+        return Math.Round(odometerDiff / daysDiff, 1);
     }
 }

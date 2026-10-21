@@ -5,5 +5,6 @@ public enum ScheduleStatus
     Active,
     DueSoon,
     Overdue,
-    Inactive
+    Inactive,
+    PendingFirstExecution
 }

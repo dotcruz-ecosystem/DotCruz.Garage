@@ -37,7 +37,6 @@ public class CreateVehicleCommandHandlerTest
             model: "Corolla",
             year: 2024,
             plate: "bra2e19",
-            vin: "9br12345678901234",
             initialOdometer: 15_000,
             initialDailyMileageAverage: 40);
 
@@ -51,7 +50,6 @@ public class CreateVehicleCommandHandlerTest
         Assert.Equal("Corolla", savedVehicle.Model);
         Assert.Equal(2024, savedVehicle.Year);
         Assert.Equal("BRA2E19", savedVehicle.Plate);
-        Assert.Equal("9BR12345678901234", savedVehicle.Vin);
         Assert.Equal(15_000, savedVehicle.CurrentOdometer);
         Assert.Equal(40, savedVehicle.DailyMileageAverage);
         Assert.Single(savedVehicle.OdometerHistories);
@@ -85,8 +83,7 @@ public class CreateVehicleCommandHandlerTest
             brand: "Fiat",
             model: "Strada",
             year: 2023,
-            withoutPlate: true,
-            withoutVin: true);
+            withoutPlate: true);
 
         var vehicleId = await handler.Handle(command, TestContext.Current.CancellationToken);
 
@@ -96,6 +93,5 @@ public class CreateVehicleCommandHandlerTest
         Assert.Equal("Fiat", savedVehicle.Brand);
         Assert.Equal("Strada", savedVehicle.Model);
         Assert.Null(savedVehicle.Plate);
-        Assert.Null(savedVehicle.Vin);
     }
 }

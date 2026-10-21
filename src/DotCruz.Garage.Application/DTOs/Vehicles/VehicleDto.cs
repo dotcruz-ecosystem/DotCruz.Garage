@@ -7,7 +7,6 @@ public record VehicleDto(
     string Model,
     int Year,
     string? Plate,
-    string? Vin,
     int CurrentOdometer,
     double DailyMileageAverage,
     DateTimeOffset? OdometerUpdatedAt

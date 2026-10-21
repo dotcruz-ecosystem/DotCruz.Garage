@@ -30,12 +30,6 @@ public class CreateVehicleCommandValidator : AbstractValidator<CreateVehicleComm
                 .MaximumLength(10);
         });
 
-        When(x => !string.IsNullOrWhiteSpace(x.Vin), () =>
-        {
-            RuleFor(x => x.Vin!)
-                .MaximumLength(17);
-        });
-
         RuleFor(x => x.InitialOdometer)
             .GreaterThanOrEqualTo(0).WithMessage(ResourceMessagesException.ODOMETER_NEGATIVE);
 

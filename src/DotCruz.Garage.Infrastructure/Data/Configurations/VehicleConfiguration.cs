@@ -32,10 +32,6 @@ public class VehicleConfiguration : IEntityTypeConfiguration<Vehicle>
             .HasMaxLength(20)
             .IsRequired(false);
 
-        builder.Property(v => v.Vin)
-            .HasMaxLength(50)
-            .IsRequired(false);
-
         builder.Property(v => v.CurrentOdometer)
             .IsRequired();
 
@@ -53,11 +49,6 @@ public class VehicleConfiguration : IEntityTypeConfiguration<Vehicle>
         builder.HasMany(v => v.OdometerHistories)
             .WithOne()
             .HasForeignKey(o => o.VehicleId)
-            .OnDelete(DeleteBehavior.Cascade);
-
-        builder.HasMany(v => v.Sales)
-            .WithOne(s => s.Vehicle)
-            .HasForeignKey(s => s.VehicleId)
             .OnDelete(DeleteBehavior.Cascade);
     }
 }

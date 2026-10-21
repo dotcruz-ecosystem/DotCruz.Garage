@@ -15,7 +15,6 @@ public class CreateVehicleCommandValidatorTest
             model: "Sprinter",
             year: 2023,
             plate: "BRA2E19",
-            vin: "9BR12345678901234",
             initialOdometer: 10_000,
             initialDailyMileageAverage: 50);
 
@@ -34,7 +33,6 @@ public class CreateVehicleCommandValidatorTest
             model: "Corolla",
             year: 2024,
             plate: null,
-            vin: null,
             initialOdometer: 0,
             initialDailyMileageAverage: 30);
 

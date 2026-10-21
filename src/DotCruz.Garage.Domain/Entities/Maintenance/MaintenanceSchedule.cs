@@ -61,6 +61,14 @@ public class MaintenanceSchedule : BaseEntity, IWorkspaceEntity
             Status = ScheduleStatus.Active
         };
 
+        if (!lastPerformedOdometer.HasValue && !lastPerformedDate.HasValue)
+        {
+            schedule.Status = ScheduleStatus.PendingFirstExecution;
+            schedule.NextDueOdometer = null;
+            schedule.NextDueDate = null;
+            return schedule;
+        }
+
         schedule.RecalculateNextDue(currentOdometer, dailyMileageAverage);
 
         return schedule;
@@ -68,6 +76,14 @@ public class MaintenanceSchedule : BaseEntity, IWorkspaceEntity
 
     public void RecalculateNextDue(int currentOdometer, double dailyMileageAverage)
     {
+        if (!LastPerformedOdometer.HasValue && !LastPerformedDate.HasValue)
+        {
+            Status = ScheduleStatus.PendingFirstExecution;
+            NextDueOdometer = null;
+            NextDueDate = null;
+            return;
+        }
+
         int baseOdometer = LastPerformedOdometer ?? currentOdometer;
         DateTimeOffset baseDate = LastPerformedDate ?? CreatedAt;
 
@@ -98,9 +114,13 @@ public class MaintenanceSchedule : BaseEntity, IWorkspaceEntity
         {
             NextDueDate = timeBasedDate.Value < mileageBasedDate.Value ? timeBasedDate.Value : mileageBasedDate.Value;
         }
+        else if (timeBasedDate.HasValue)
+        {
+            NextDueDate = timeBasedDate.Value;
+        }
         else
         {
-            NextDueDate = timeBasedDate ?? mileageBasedDate;
+            NextDueDate = null;
         }
 
         UpdateStatus(currentOdometer);
@@ -108,6 +128,12 @@ public class MaintenanceSchedule : BaseEntity, IWorkspaceEntity
 
     public void UpdateStatus(int currentOdometer)
     {
+        if (!LastPerformedOdometer.HasValue && !LastPerformedDate.HasValue)
+        {
+            Status = ScheduleStatus.PendingFirstExecution;
+            return;
+        }
+
         bool isOverdueByOdometer = NextDueOdometer.HasValue && currentOdometer >= NextDueOdometer.Value;
         bool isOverdueByDate = NextDueDate.HasValue && DateTimeOffset.UtcNow >= NextDueDate.Value;
 

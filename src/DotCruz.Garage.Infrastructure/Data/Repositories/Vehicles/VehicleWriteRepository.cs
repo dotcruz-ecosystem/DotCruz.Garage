@@ -24,14 +24,6 @@ public class VehicleWriteRepository(GarageDbContext context)
             .FirstOrDefaultAsync(cancellationToken);
     }
 
-    public async Task<Vehicle?> GetByIdWithSalesToUpdateAsync(Guid id, CancellationToken cancellationToken)
-    {
-        return await _dbSet
-            .Include(v => v.Sales)
-            .Include(v => v.OdometerHistories)
-            .FirstOrDefaultAsync(v => v.Id == id, cancellationToken);
-    }
-
     public async Task<IReadOnlyCollection<Vehicle>> GetVehiclesWithStaleOdometerAsync(int staleDaysThreshold, CancellationToken cancellationToken)
     {
         var thresholdDate = DateTimeOffset.UtcNow.AddDays(-staleDaysThreshold);

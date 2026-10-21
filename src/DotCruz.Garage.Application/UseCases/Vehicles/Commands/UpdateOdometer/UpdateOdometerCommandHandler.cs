@@ -35,18 +35,7 @@ public class UpdateOdometerCommandHandler : IRequestHandler<UpdateOdometerComman
         if (request.RequestDto.NewOdometer < vehicle.CurrentOdometer)
             throw new ErrorOnValidationException(ResourceMessagesException.ODOMETER_VALUE_INVALID);
 
-        vehicle.UpdateOdometer(request.RequestDto.NewOdometer, recordedAt);
-
-        var historyRecord = OdometerHistory.Create(vehicle.Id, request.RequestDto.NewOdometer, recordedAt);
-        
-        vehicle.OdometerHistories.Add(historyRecord);
-
-        var newAverage = OdometerCalculator.CalculateDailyAverage(
-            vehicle.OdometerHistories,
-            vehicle.DailyMileageAverage
-        );
-
-        vehicle.UpdateDailyMileageAverage(newAverage);
+        vehicle.RecordOdometerReading(request.RequestDto.NewOdometer, recordedAt);
 
         var schedules = await _maintenanceScheduleWriteRepository.GetByVehicleIdToUpdateAsync(vehicle.Id, cancellationToken);
         

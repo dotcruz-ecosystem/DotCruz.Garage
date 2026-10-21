@@ -41,16 +41,6 @@ public class VehicleRepositoryBuilder
         return this;
     }
 
-    public VehicleRepositoryBuilder SetupGetByIdWithSalesToUpdate(Vehicle? vehicle)
-    {
-        _writeMock.Setup(w => w.GetByIdWithSalesToUpdateAsync(
-            It.IsAny<Guid>(),
-            It.IsAny<CancellationToken>()))
-            .ReturnsAsync(vehicle);
-
-        return this;
-    }
-
     public VehicleRepositoryBuilder SetupGetByIdWithHistoriesToUpdateUnscoped(Vehicle? vehicle)
     {
         _writeMock.Setup(w => w.GetByIdWithHistoriesToUpdateUnscopedAsync(

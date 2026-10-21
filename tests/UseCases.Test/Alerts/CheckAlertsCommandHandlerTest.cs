@@ -2,13 +2,9 @@ using CommonTestUtilities.Data;
 using CommonTestUtilities.Entities;
 using CommonTestUtilities.Repositories;
 using CommonTestUtilities.Services;
-using DotCruz.Garage.Application.Abstractions.Data.Repositories.Documents;
-using DotCruz.Garage.Application.Abstractions.Data.Repositories.Fines;
 using DotCruz.Garage.Application.Abstractions.Data.Repositories.Maintenance;
 using DotCruz.Garage.Application.Abstractions.Services.Auth.DTOs;
 using DotCruz.Garage.Application.UseCases.Alerts.Commands.CheckAlerts;
-using DotCruz.Garage.Domain.Entities.Documents;
-using DotCruz.Garage.Domain.Entities.Fines;
 using DotCruz.Garage.Domain.Entities.Maintenance;
 using Moq;
 
@@ -180,18 +176,8 @@ public class CheckAlertsCommandHandlerTest
             .SetupGetSchedulesWithVehicleDetailsToUpdate(schedules)
             .Build();
 
-        var (_, fineRepository) = new TrafficFineRepositoryBuilder()
-            .SetupGetPendingFinesToNotify([])
-            .Build();
-
-        var (_, documentRepository) = new VehicleDocumentRepositoryBuilder()
-            .SetupGetDocumentsToNotify([])
-            .Build();
-
         return new CheckAlertsCommandHandler(
             scheduleRepository,
-            fineRepository,
-            documentRepository,
             authClient,
             notifications.Build(),
             UnitOfWorkBuilder.Build());

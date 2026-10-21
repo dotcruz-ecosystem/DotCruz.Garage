@@ -98,4 +98,82 @@ public class MaintenanceScheduleDomainTest
         Assert.Null(schedule.LastNotifiedAt);
         Assert.Null(schedule.LastNotifiedStatus);
     }
+
+    [Fact]
+    public void Status_Is_PendingFirstExecution_When_Created_Without_Previous_Performance()
+    {
+        var schedule = MaintenanceSchedule.Create(
+            workspaceId: Guid.NewGuid(),
+            userId: Guid.NewGuid(),
+            vehicleId: Guid.NewGuid(),
+            description: "Troca de Óleo",
+            category: MaintenanceCategory.Engine,
+            intervalOdometer: 10_000,
+            intervalTimeMonths: 6,
+            lastPerformedOdometer: null,
+            lastPerformedDate: null,
+            warningThresholdOdometer: 1_000,
+            warningThresholdDays: 15,
+            currentOdometer: 52_000,
+            dailyMileageAverage: 20);
+
+        Assert.Equal(ScheduleStatus.PendingFirstExecution, schedule.Status);
+        Assert.Null(schedule.NextDueOdometer);
+        Assert.Null(schedule.NextDueDate);
+
+        schedule.Perform(52_000, DateTimeOffset.UtcNow, 20);
+
+        Assert.Equal(ScheduleStatus.Active, schedule.Status);
+        Assert.Equal(62_000, schedule.NextDueOdometer);
+    }
+
+    [Fact]
+    public void Schedule_With_Odometer_Only_Interval_Has_No_NextDueDate_And_Only_Overdues_By_Km()
+    {
+        var schedule = MaintenanceSchedule.Create(
+            workspaceId: Guid.NewGuid(),
+            userId: Guid.NewGuid(),
+            vehicleId: Guid.NewGuid(),
+            description: "Velas de Ignição da Moto",
+            category: MaintenanceCategory.Engine,
+            intervalOdometer: 10_000,
+            intervalTimeMonths: null,
+            lastPerformedOdometer: 20_000,
+            lastPerformedDate: DateTimeOffset.UtcNow.AddYears(-2), // 2 years ago, but bike not ridden
+            warningThresholdOdometer: 1_000,
+            warningThresholdDays: null,
+            currentOdometer: 25_000,
+            dailyMileageAverage: 20);
+
+        Assert.Equal(30_000, schedule.NextDueOdometer);
+        Assert.Null(schedule.NextDueDate); // No date due!
+        Assert.Equal(ScheduleStatus.Active, schedule.Status); // Not overdue even though 2 years passed!
+
+        // Now advance current odometer past 30,000
+        schedule.RecalculateNextDue(30_500, 20);
+        Assert.Equal(ScheduleStatus.Overdue, schedule.Status);
+    }
+
+    [Fact]
+    public void Schedule_With_Time_Only_Interval_Has_No_NextDueOdometer_And_Only_Overdues_By_Date()
+    {
+        var schedule = MaintenanceSchedule.Create(
+            workspaceId: Guid.NewGuid(),
+            userId: Guid.NewGuid(),
+            vehicleId: Guid.NewGuid(),
+            description: "Fluido de Freio",
+            category: MaintenanceCategory.Brakes,
+            intervalOdometer: null,
+            intervalTimeMonths: 12,
+            lastPerformedOdometer: null,
+            lastPerformedDate: DateTimeOffset.UtcNow.AddMonths(-14),
+            warningThresholdOdometer: null,
+            warningThresholdDays: 15,
+            currentOdometer: 80_000,
+            dailyMileageAverage: 20);
+
+        Assert.Null(schedule.NextDueOdometer); // No km due!
+        Assert.NotNull(schedule.NextDueDate);
+        Assert.Equal(ScheduleStatus.Overdue, schedule.Status);
+    }
 }

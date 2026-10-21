@@ -46,25 +46,16 @@ public class CompleteMaintenanceScheduleCommandHandler : IRequestHandler<Complet
         if (schedule.VehicleId != vehicle.Id)
             throw new NotFoundException(ResourceMessagesException.MAINTENANCE_SCHEDULE_NOT_FOUND);
 
-        if (request.RequestDto.OdometerAtService < vehicle.CurrentOdometer)
-            throw new ErrorOnValidationException(ResourceMessagesException.ODOMETER_VALUE_INVALID);
-
         var workspaceId = _workspaceProvider.WorkspaceId ?? schedule.WorkspaceId;
         var userId = _workspaceProvider.UserId ?? schedule.UserId;
 
         schedule.Perform(request.RequestDto.OdometerAtService, request.RequestDto.PerformedAt, vehicle.DailyMileageAverage);
 
-        if (request.RequestDto.OdometerAtService > vehicle.CurrentOdometer)
+        vehicle.RecordOdometerReading(request.RequestDto.OdometerAtService, request.RequestDto.PerformedAt);
+
+        var schedules = await _maintenanceScheduleWriteRepository.GetByVehicleIdToUpdateAsync(vehicle.Id, cancellationToken);
+        if (schedules is not null)
         {
-            vehicle.UpdateOdometer(request.RequestDto.OdometerAtService, request.RequestDto.PerformedAt);
-            vehicle.OdometerHistories.Add(OdometerHistory.Create(vehicle.Id, request.RequestDto.OdometerAtService, request.RequestDto.PerformedAt));
-
-            var newAverage = OdometerCalculator.CalculateDailyAverage(
-                vehicle.OdometerHistories,
-                vehicle.DailyMileageAverage);
-            vehicle.UpdateDailyMileageAverage(newAverage);
-
-            var schedules = await _maintenanceScheduleWriteRepository.GetByVehicleIdToUpdateAsync(vehicle.Id, cancellationToken);
             foreach (var otherSchedule in schedules)
             {
                 if (otherSchedule.Id != schedule.Id)

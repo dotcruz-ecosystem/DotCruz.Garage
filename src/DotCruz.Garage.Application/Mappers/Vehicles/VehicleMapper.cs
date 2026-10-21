@@ -20,7 +20,6 @@ public static class VehicleMapper
             command.Model.Trim(),
             command.Year,
             command.Plate?.Trim().ToUpper(),
-            command.Vin?.Trim().ToUpper(),
             command.InitialOdometer,
             command.InitialDailyMileageAverage
         );
@@ -35,7 +34,6 @@ public static class VehicleMapper
             vehicle.Model,
             vehicle.Year,
             vehicle.Plate,
-            vehicle.Vin,
             vehicle.CurrentOdometer,
             vehicle.DailyMileageAverage,
             vehicle.OdometerUpdatedAt

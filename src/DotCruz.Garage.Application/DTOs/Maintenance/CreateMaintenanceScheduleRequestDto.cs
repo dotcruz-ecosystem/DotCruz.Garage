@@ -10,5 +10,9 @@ public sealed record CreateMaintenanceScheduleRequestDto(
     int? LastPerformedOdometer,
     DateTimeOffset? LastPerformedDate,
     int? WarningThresholdOdometer,
-    int? WarningThresholdDays
+    int? WarningThresholdDays,
+    bool RecordInitialLog = false,
+    decimal? InitialCost = null,
+    string? InitialReceiptUrl = null,
+    string? InitialNotes = null
 );

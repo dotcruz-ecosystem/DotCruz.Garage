@@ -9,5 +9,6 @@ public record MaintenanceLogDto(
     int OdometerAtService,
     decimal Cost,
     string? ReceiptUrl,
-    string? Notes
+    string? Notes,
+    string Type
 );

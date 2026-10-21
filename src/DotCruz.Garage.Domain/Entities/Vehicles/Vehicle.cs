@@ -11,16 +11,11 @@ public class Vehicle : BaseEntity, IWorkspaceEntity
     public string Model { get; private set; } = null!;
     public int Year { get; private set; }
     public string? Plate { get; private set; }
-    public string? Vin { get; private set; }
     public int CurrentOdometer { get; private set; }
     public double DailyMileageAverage { get; private set; }
     public DateTimeOffset? OdometerUpdatedAt { get; private set; }
 
     public virtual ICollection<OdometerHistory> OdometerHistories { get; private init; } = new List<OdometerHistory>();
-    public virtual ICollection<VehicleSale> Sales { get; private init; } = new List<VehicleSale>();
-
-    public VehicleSale? ActiveSale => Sales.FirstOrDefault(s => s.IsActive && s.DeletedAt == null);
-    public bool HasActivePostSale => ActiveSale != null;
 
     private Vehicle() { }
 
@@ -32,7 +27,6 @@ public class Vehicle : BaseEntity, IWorkspaceEntity
         string model,
         int year,
         string? plate,
-        string? vin,
         int initialOdometer,
         double initialDailyMileageAverage)
     {
@@ -45,7 +39,6 @@ public class Vehicle : BaseEntity, IWorkspaceEntity
             Model = model,
             Year = year,
             Plate = plate,
-            Vin = vin,
             CurrentOdometer = initialOdometer,
             DailyMileageAverage = initialDailyMileageAverage,
             OdometerUpdatedAt = DateTimeOffset.UtcNow
@@ -77,48 +70,29 @@ public class Vehicle : BaseEntity, IWorkspaceEntity
         DailyMileageAverage = newAverage;
     }
 
-    public VehicleSale RegisterSale(
-        Guid userId,
-        string customerName,
-        string customerEmail,
-        string? customerPhone,
-        string? customerDocument,
-        DateTimeOffset soldAt,
-        decimal? soldPrice,
-        int soldOdometer,
-        DateTimeOffset? warrantyExpiresAt,
-        int? warrantyKm,
-        string? notes)
+    public bool RecordOdometerReading(int odometer, DateTimeOffset recordedAt)
     {
-        var existingActive = ActiveSale;
-        existingActive?.Deactivate();
+        bool alreadyExists = OdometerHistories.Any(h =>
+            h.OdometerValue == odometer &&
+            h.RecordedAt.UtcDateTime.Date == recordedAt.UtcDateTime.Date);
 
-        var sale = VehicleSale.Create(
-            WorkspaceId,
-            userId,
-            Id,
-            customerName,
-            customerEmail,
-            customerPhone,
-            customerDocument,
-            soldAt,
-            soldPrice,
-            soldOdometer,
-            warrantyExpiresAt,
-            warrantyKm,
-            notes
-        );
-
-        Sales.Add(sale);
-
-        if (soldOdometer > CurrentOdometer)
+        if (!alreadyExists)
         {
-            UpdateOdometer(soldOdometer, soldAt);
-            OdometerHistories.Add(OdometerHistory.Create(Id, soldOdometer, soldAt));
+            OdometerHistories.Add(OdometerHistory.Create(Id, odometer, recordedAt));
         }
 
-        Touch();
+        if (odometer > CurrentOdometer)
+        {
+            CurrentOdometer = odometer;
+            OdometerUpdatedAt = recordedAt;
+        }
 
-        return sale;
+        var newAverage = DotCruz.Garage.Domain.Services.OdometerCalculator.CalculateDailyAverage(
+            OdometerHistories,
+            DailyMileageAverage);
+
+        UpdateDailyMileageAverage(newAverage);
+
+        return !alreadyExists;
     }
 }

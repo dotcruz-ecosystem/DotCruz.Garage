@@ -11,11 +11,9 @@ public class CreateVehicleCommandBuilder
         string? model = null,
         int? year = null,
         string? plate = null,
-        string? vin = null,
         int? initialOdometer = null,
         double? initialDailyMileageAverage = null,
-        bool withoutPlate = false,
-        bool withoutVin = false)
+        bool withoutPlate = false)
     {
         var faker = new Faker();
 
@@ -25,7 +23,6 @@ public class CreateVehicleCommandBuilder
             Model: model ?? faker.Vehicle.Model(),
             Year: year ?? faker.Random.Int(2010, DateTime.UtcNow.Year),
             Plate: withoutPlate ? null : (plate ?? faker.Random.Replace("???####")),
-            Vin: withoutVin ? null : (vin ?? faker.Vehicle.Vin()),
             InitialOdometer: initialOdometer ?? faker.Random.Int(0, 100_000),
             InitialDailyMileageAverage: initialDailyMileageAverage ?? 30
         );

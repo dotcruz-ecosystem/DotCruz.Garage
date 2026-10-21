@@ -22,7 +22,6 @@ public class VehicleBuilder
             model: faker.Vehicle.Model(),
             year: 2020,
             plate: plate ?? faker.Random.Replace("???####"),
-            vin: faker.Vehicle.Vin(),
             initialOdometer: initialOdometer,
             initialDailyMileageAverage: 30
         );

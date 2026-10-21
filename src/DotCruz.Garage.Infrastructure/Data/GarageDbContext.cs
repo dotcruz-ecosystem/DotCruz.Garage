@@ -1,13 +1,8 @@
 using System.Linq.Expressions;
 using DotCruz.Shared.Security.Context;
 using DotCruz.Garage.Domain.Entities.Base;
-using DotCruz.Garage.Domain.Entities.Drivers;
 using DotCruz.Garage.Domain.Entities.Vehicles;
 using DotCruz.Garage.Domain.Entities.Maintenance;
-using DotCruz.Garage.Domain.Entities.Fines;
-using DotCruz.Garage.Domain.Entities.Documents;
-using DotCruz.Garage.Domain.Entities.Accessories;
-using DotCruz.Garage.Domain.Entities.Catalog;
 using Microsoft.EntityFrameworkCore;
 
 namespace DotCruz.Garage.Infrastructure.Data;
@@ -26,14 +21,6 @@ public class GarageDbContext : DbContext
     public DbSet<OdometerHistory> OdometerHistories { get; set; }
     public DbSet<MaintenanceSchedule> MaintenanceSchedules { get; set; }
     public DbSet<MaintenanceLog> MaintenanceLogs { get; set; }
-    public DbSet<TrafficFine> TrafficFines { get; set; }
-    public DbSet<Driver> Drivers { get; set; }
-    public DbSet<VehicleDriverAssignment> VehicleDriverAssignments { get; set; }
-    public DbSet<VehicleDocument> VehicleDocuments { get; set; }
-    public DbSet<VehicleAccessory> VehicleAccessories { get; set; }
-    public DbSet<VehicleBlueprint> VehicleBlueprints { get; set; }
-    public DbSet<MaintenancePlanTemplate> MaintenancePlanTemplates { get; set; }
-    public DbSet<VehicleSale> VehicleSales { get; set; }
 
     public Guid CurrentWorkspaceId => _workspaceProvider.WorkspaceId ?? Guid.Empty;
     public Guid CurrentUserId => _workspaceProvider.UserId ?? Guid.Empty;

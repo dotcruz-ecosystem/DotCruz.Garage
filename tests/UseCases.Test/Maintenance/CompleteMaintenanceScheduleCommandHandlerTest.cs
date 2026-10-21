@@ -91,7 +91,7 @@ public class CompleteMaintenanceScheduleCommandHandlerTest
     }
 
     [Fact]
-    public async Task Throws_ErrorOnValidationException_When_Odometer_Is_Lower_Than_Vehicle_Current()
+    public async Task Does_Not_Throw_And_Keeps_Vehicle_Odometer_When_Odometer_Is_Lower_Than_Vehicle_Current()
     {
         var workspaceId = Guid.NewGuid();
         var vehicle = VehicleBuilder.Build(workspaceId: workspaceId, initialOdometer: 50_000);
@@ -103,6 +103,7 @@ public class CompleteMaintenanceScheduleCommandHandlerTest
 
         var (_, scheduleWrite) = new MaintenanceScheduleRepositoryBuilder()
             .SetupGetByIdToUpdate(schedule)
+            .SetupGetByVehicleIdToUpdate(new[] { schedule })
             .Build();
 
         var (_, logWrite) = new MaintenanceLogRepositoryBuilder().Build();
@@ -118,9 +119,9 @@ public class CompleteMaintenanceScheduleCommandHandlerTest
         var reqDto = new CompleteMaintenanceScheduleRequestDto(DateTimeOffset.UtcNow, 45_000, 100m); // Lower than 50,000
         var command = new CompleteMaintenanceScheduleCommand(vehicle.Id, schedule.Id, reqDto);
 
-        var ex = await Assert.ThrowsAsync<ErrorOnValidationException>(() =>
-            handler.Handle(command, TestContext.Current.CancellationToken));
+        var result = await handler.Handle(command, TestContext.Current.CancellationToken);
 
-        Assert.Contains(ex.GetErrorsMessages(), m => m == ResourceMessagesException.ODOMETER_VALUE_INVALID);
+        Assert.NotNull(result);
+        Assert.Equal(50_000, vehicle.CurrentOdometer);
     }
 }

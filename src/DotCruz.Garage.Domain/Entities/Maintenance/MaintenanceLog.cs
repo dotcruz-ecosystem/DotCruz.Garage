@@ -1,4 +1,5 @@
 using DotCruz.Garage.Domain.Entities.Base;
+using DotCruz.Garage.Domain.Enums;
 
 namespace DotCruz.Garage.Domain.Entities.Maintenance;
 
@@ -14,6 +15,7 @@ public class MaintenanceLog : BaseEntity, IWorkspaceEntity
     public decimal Cost { get; private set; }
     public string? ReceiptUrl { get; private set; }
     public string? Notes { get; private set; }
+    public MaintenanceType Type => MaintenanceScheduleId.HasValue ? MaintenanceType.Preventive : MaintenanceType.Corrective;
 
     private MaintenanceLog() { }
 

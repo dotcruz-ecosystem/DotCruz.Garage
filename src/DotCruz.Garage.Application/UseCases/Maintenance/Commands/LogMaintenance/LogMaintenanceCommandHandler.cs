@@ -38,9 +38,6 @@ public class LogMaintenanceCommandHandler : IRequestHandler<LogMaintenanceComman
         var vehicle = await _vehicleWriteRepository.GetByIdWithHistoriesToUpdateAsync(request.VehicleId, cancellationToken) 
             ?? throw new NotFoundException(ResourceMessagesException.VEHICLE_NOT_FOUND);
 
-        if (request.RequestDto.OdometerAtService < vehicle.CurrentOdometer)
-            throw new ErrorOnValidationException(ResourceMessagesException.ODOMETER_VALUE_INVALID);
-
         var workspaceId = _workspaceProvider.WorkspaceId;
         var userId = _workspaceProvider.UserId;
 
@@ -50,21 +47,16 @@ public class LogMaintenanceCommandHandler : IRequestHandler<LogMaintenanceComman
             schedule?.Perform(request.RequestDto.OdometerAtService, request.RequestDto.PerformedAt, vehicle.DailyMileageAverage);
         }
 
-        vehicle.UpdateOdometer(request.RequestDto.OdometerAtService, request.RequestDto.PerformedAt);
-        vehicle.OdometerHistories.Add(OdometerHistory.Create(vehicle.Id, request.RequestDto.OdometerAtService, request.RequestDto.PerformedAt));
-
-        var newAverage = OdometerCalculator.CalculateDailyAverage(
-            vehicle.OdometerHistories,
-            vehicle.DailyMileageAverage
-        );
-
-        vehicle.UpdateDailyMileageAverage(newAverage);
+        vehicle.RecordOdometerReading(request.RequestDto.OdometerAtService, request.RequestDto.PerformedAt);
 
         var schedules = await _maintenanceScheduleWriteRepository.GetByVehicleIdToUpdateAsync(vehicle.Id, cancellationToken);
-        foreach (var schedule in schedules)
+        if (schedules is not null)
         {
-            if (schedule.Id != request.RequestDto.MaintenanceScheduleId)
-                schedule.RecalculateNextDue(vehicle.CurrentOdometer, vehicle.DailyMileageAverage);
+            foreach (var schedule in schedules)
+            {
+                if (schedule.Id != request.RequestDto.MaintenanceScheduleId)
+                    schedule.RecalculateNextDue(vehicle.CurrentOdometer, vehicle.DailyMileageAverage);
+            }
         }
 
         var logMaintenance = request.ToDomain(workspaceId!.Value, userId!.Value);

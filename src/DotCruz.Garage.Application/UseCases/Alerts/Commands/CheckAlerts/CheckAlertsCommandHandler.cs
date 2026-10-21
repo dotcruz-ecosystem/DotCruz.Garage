@@ -1,18 +1,10 @@
 using DotCruz.Garage.Application.Abstractions.Data;
 using DotCruz.Garage.Application.Abstractions.Data.Repositories.Maintenance;
-using DotCruz.Garage.Application.Abstractions.Data.Repositories.Fines;
-using DotCruz.Garage.Application.Abstractions.Data.Repositories.Documents;
-using DotCruz.Garage.Application.Abstractions.Data.Repositories.Vehicles;
 using DotCruz.Garage.Application.Abstractions.Services.Auth;
 using DotCruz.Garage.Application.Abstractions.Services.Notifications;
-using DotCruz.Garage.Application.Abstractions.Services.Security;
 using DotCruz.Garage.Domain.Entities.Maintenance;
-using DotCruz.Garage.Domain.Entities.Fines;
-using DotCruz.Garage.Domain.Entities.Documents;
-using DotCruz.Garage.Domain.Entities.Vehicles;
 using DotCruz.Garage.Domain.Enums;
 using MediatR;
-using Microsoft.Extensions.Configuration;
 using DotCruz.Garage.Application.Abstractions.Services.Auth.DTOs;
 
 namespace DotCruz.Garage.Application.UseCases.Alerts.Commands.CheckAlerts;
@@ -20,11 +12,6 @@ namespace DotCruz.Garage.Application.UseCases.Alerts.Commands.CheckAlerts;
 public class CheckAlertsCommandHandler : IRequestHandler<CheckAlertsCommand>
 {
     private readonly IMaintenanceScheduleWriteRepository _scheduleWriteRepository;
-    private readonly ITrafficFineWriteRepository _fineWriteRepository;
-    private readonly IVehicleDocumentWriteRepository _documentWriteRepository;
-    private readonly IVehicleWriteRepository? _vehicleWriteRepository;
-    private readonly ICheckinTokenService? _tokenService;
-    private readonly IConfiguration? _configuration;
     private readonly IAuthServiceClient _authServiceClient;
     private readonly INotificationService _notificationService;
     private readonly IUnitOfWork _unitOfWork;
@@ -33,65 +20,21 @@ public class CheckAlertsCommandHandler : IRequestHandler<CheckAlertsCommand>
 
     public CheckAlertsCommandHandler(
         IMaintenanceScheduleWriteRepository scheduleWriteRepository,
-        ITrafficFineWriteRepository fineWriteRepository,
-        IVehicleDocumentWriteRepository documentWriteRepository,
         IAuthServiceClient authServiceClient,
         INotificationService notificationService,
-        IUnitOfWork unitOfWork,
-        IVehicleWriteRepository? vehicleWriteRepository = null,
-        ICheckinTokenService? tokenService = null,
-        IConfiguration? configuration = null)
+        IUnitOfWork unitOfWork)
     {
         _scheduleWriteRepository = scheduleWriteRepository;
-        _fineWriteRepository = fineWriteRepository;
-        _documentWriteRepository = documentWriteRepository;
         _authServiceClient = authServiceClient;
         _notificationService = notificationService;
         _unitOfWork = unitOfWork;
-        _vehicleWriteRepository = vehicleWriteRepository;
-        _tokenService = tokenService;
-        _configuration = configuration;
     }
 
     public async Task Handle(CheckAlertsCommand request, CancellationToken cancellationToken)
     {
         await ProcessMaintenanceAlertsAsync(cancellationToken);
-        await ProcessTrafficFineAlertsAsync(cancellationToken);
-        await ProcessDocumentAlertsAsync(cancellationToken);
-        await ProcessOdometerCheckinAlertsAsync(cancellationToken);
 
         await _unitOfWork.CommitAsync(cancellationToken);
-    }
-
-    private async Task ProcessOdometerCheckinAlertsAsync(CancellationToken cancellationToken)
-    {
-        if (_vehicleWriteRepository is null || _tokenService is null)
-            return;
-
-        var staleVehicles = await _vehicleWriteRepository.GetVehiclesWithStaleOdometerAsync(15, cancellationToken);
-
-        foreach (var vehicle in staleVehicles)
-        {
-            var user = await GetUserAsync(vehicle.UserId, vehicle.WorkspaceId, cancellationToken);
-            if (user is null)
-                continue;
-
-            var validity = TimeSpan.FromHours(48);
-            var token = _tokenService.GenerateToken(vehicle.Id, vehicle.WorkspaceId, validity);
-            var baseUrl = _configuration?["Settings:FrontendUrl"] ?? "https://garage.dotcruz.com";
-            var magicLinkUrl = $"{baseUrl.TrimEnd('/')}/checkin/odometer?token={token}";
-
-            await _notificationService.SendOdometerCheckinRequestAsync(
-                userId: vehicle.UserId,
-                workspaceId: vehicle.WorkspaceId,
-                userName: user.Name,
-                userEmail: user.Email,
-                vehicleName: vehicle.Name,
-                currentOdometer: vehicle.CurrentOdometer,
-                magicLinkUrl: magicLinkUrl,
-                expiresAt: DateTimeOffset.UtcNow.Add(validity),
-                cancellationToken: cancellationToken);
-        }
     }
 
     private async Task ProcessMaintenanceAlertsAsync(CancellationToken cancellationToken)
@@ -129,72 +72,6 @@ public class CheckAlertsCommandHandler : IRequestHandler<CheckAlertsCommand>
         );
 
         maintenance.Notify(status);
-    }
-
-    private async Task ProcessTrafficFineAlertsAsync(CancellationToken cancellationToken)
-    {
-        var fines = await _fineWriteRepository.GetPendingFinesToNotifyAsync(cancellationToken);
-
-        foreach (var fine in fines)
-        {
-            await NotifyTrafficFineAsync(fine, cancellationToken);
-        }
-    }
-
-    private async Task NotifyTrafficFineAsync(TrafficFine fine, CancellationToken cancellationToken)
-    {
-        var user = await GetUserAsync(fine.UserId, fine.WorkspaceId, cancellationToken);
-        if (user == null)
-            return;
-
-        await _notificationService.SendTrafficFineAlertAsync(
-            userId: fine.UserId,
-            workspaceId: fine.WorkspaceId,
-            userName: user.Name,
-            userEmail: user.Email,
-            vehicleName: fine.Vehicle.Name,
-            infractionDescription: fine.Description,
-            amount: fine.Amount,
-            dueDate: fine.DueDate,
-            cancellationToken: cancellationToken
-        );
-
-        fine.Notify();
-    }
-
-    private async Task ProcessDocumentAlertsAsync(CancellationToken cancellationToken)
-    {
-        var documents = await _documentWriteRepository.GetDocumentsToNotifyAsync(cancellationToken);
-
-        foreach (var doc in documents)
-        {
-            await NotifyDocumentAsync(doc, cancellationToken);
-        }
-    }
-
-    private async Task NotifyDocumentAsync(VehicleDocument doc, CancellationToken cancellationToken)
-    {
-        var user = await GetUserAsync(doc.UserId, doc.WorkspaceId, cancellationToken);
-        if (user == null)
-            return;
-
-        var alertType = doc.Status == DocumentStatus.Pending ? "PaymentPending" : "Expiring";
-        var statusToNotify = doc.Status == DocumentStatus.Pending ? DocumentStatus.Pending : DocumentStatus.Expired;
-
-        await _notificationService.SendDocumentAlertAsync(
-            userId: doc.UserId,
-            workspaceId: doc.WorkspaceId,
-            userName: user.Name,
-            userEmail: user.Email,
-            vehicleName: doc.Vehicle.Name,
-            documentType: doc.Type.ToString(),
-            alertType: alertType,
-            dueDate: doc.DueDate,
-            expirationDate: doc.ExpirationDate,
-            cancellationToken: cancellationToken
-        );
-
-        doc.Notify(statusToNotify);
     }
 
     private async Task<UserResponseDto?> GetUserAsync(Guid userId, Guid workspaceId, CancellationToken cancellationToken)

@@ -8,7 +8,6 @@ public sealed record CreateVehicleCommand(
     string Model,
     int Year,
     string? Plate,
-    string? Vin,
     int InitialOdometer,
     double InitialDailyMileageAverage
 ) : IRequest<Guid>;

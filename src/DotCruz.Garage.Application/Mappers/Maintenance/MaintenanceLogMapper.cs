@@ -36,7 +36,8 @@ public static class MaintenanceLogMapper
             log.OdometerAtService,
             log.Cost,
             log.ReceiptUrl,
-            log.Notes
+            log.Notes,
+            log.Type.ToString()
         );
     }
 }
