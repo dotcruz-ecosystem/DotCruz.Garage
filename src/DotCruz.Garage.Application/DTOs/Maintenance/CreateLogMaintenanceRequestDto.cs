@@ -1,4 +1,4 @@
-﻿namespace DotCruz.Garage.Application.DTOs.Maintenance;
+namespace DotCruz.Garage.Application.DTOs.Maintenance;
 
 public sealed record CreateLogMaintenanceRequestDto(
     Guid? MaintenanceScheduleId,
@@ -7,5 +7,6 @@ public sealed record CreateLogMaintenanceRequestDto(
     int OdometerAtService,
     decimal Cost,
     string? ReceiptUrl = null,
-    string? Notes = null
+    string? Notes = null,
+    List<CreateMaintenanceAttachmentDto>? Attachments = null
 );

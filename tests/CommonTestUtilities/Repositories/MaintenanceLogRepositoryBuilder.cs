@@ -44,6 +44,16 @@ public class MaintenanceLogRepositoryBuilder
         return this;
     }
 
+    public MaintenanceLogRepositoryBuilder SetupGetByIdWithAttachmentsToUpdate(MaintenanceLog? log)
+    {
+        _writeMock.Setup(w => w.GetByIdWithAttachmentsToUpdateAsync(
+            It.IsAny<Guid>(),
+            It.IsAny<CancellationToken>()))
+            .ReturnsAsync(log);
+
+        return this;
+    }
+
     public (IMaintenanceLogReadRepository Read, IMaintenanceLogWriteRepository Write) Build() =>
         (_readMock.Object, _writeMock.Object);
 }

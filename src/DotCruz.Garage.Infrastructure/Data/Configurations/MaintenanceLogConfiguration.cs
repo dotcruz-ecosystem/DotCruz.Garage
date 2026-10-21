@@ -43,5 +43,10 @@ public class MaintenanceLogConfiguration : IEntityTypeConfiguration<MaintenanceL
 
         builder.HasIndex(l => l.VehicleId);
         builder.HasIndex(l => new { l.WorkspaceId, l.UserId });
+
+        builder.HasMany(l => l.Attachments)
+            .WithOne()
+            .HasForeignKey(a => a.MaintenanceLogId)
+            .OnDelete(DeleteBehavior.Cascade);
     }
 }

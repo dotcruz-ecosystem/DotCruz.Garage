@@ -10,5 +10,6 @@ public record MaintenanceLogDto(
     decimal Cost,
     string? ReceiptUrl,
     string? Notes,
-    string Type
+    string Type,
+    IReadOnlyList<MaintenanceAttachmentDto> Attachments
 );

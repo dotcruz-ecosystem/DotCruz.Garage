@@ -75,6 +75,14 @@ public class CompleteMaintenanceScheduleCommandHandler : IRequestHandler<Complet
             request.RequestDto.ReceiptUrl,
             request.RequestDto.Notes);
 
+        if (request.RequestDto.Attachments != null)
+        {
+            foreach (var att in request.RequestDto.Attachments)
+            {
+                log.AddAttachment(att.FileName, att.FileUrl, att.ContentType, att.FileSize);
+            }
+        }
+
         await _maintenanceLogWriteRepository.AddAsync(log, cancellationToken);
         await _unitOfWork.CommitAsync(cancellationToken);
 

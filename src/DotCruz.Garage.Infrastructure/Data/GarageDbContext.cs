@@ -21,6 +21,7 @@ public class GarageDbContext : DbContext
     public DbSet<OdometerHistory> OdometerHistories { get; set; }
     public DbSet<MaintenanceSchedule> MaintenanceSchedules { get; set; }
     public DbSet<MaintenanceLog> MaintenanceLogs { get; set; }
+    public DbSet<MaintenanceAttachment> MaintenanceAttachments { get; set; }
 
     public Guid CurrentWorkspaceId => _workspaceProvider.WorkspaceId ?? Guid.Empty;
     public Guid CurrentUserId => _workspaceProvider.UserId ?? Guid.Empty;

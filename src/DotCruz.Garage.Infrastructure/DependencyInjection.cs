@@ -3,11 +3,13 @@ using DotCruz.Garage.Application.Abstractions.Data.Repositories.Vehicles;
 using DotCruz.Garage.Application.Abstractions.Data.Repositories.Maintenance;
 using DotCruz.Garage.Application.Abstractions.Services.Auth;
 using DotCruz.Garage.Application.Abstractions.Services.Notifications;
+using DotCruz.Garage.Application.Abstractions.Services.Storage;
 using DotCruz.Garage.Infrastructure.Data;
 using DotCruz.Garage.Infrastructure.Data.Repositories.Vehicles;
 using DotCruz.Garage.Infrastructure.Data.Repositories.Maintenance;
 using DotCruz.Garage.Infrastructure.Services.Auth;
 using DotCruz.Garage.Infrastructure.Services.Notifications;
+using DotCruz.Garage.Infrastructure.Services.Storage;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -75,5 +77,8 @@ public static class DependencyInjection
             }
         })
         .AddServiceApiKeyPropagation();
+
+        services.Configure<CloudflareR2Settings>(configuration.GetSection(CloudflareR2Settings.SectionName));
+        services.AddScoped<IStorageService, CloudflareR2StorageService>();
     }
 }

@@ -10,6 +10,10 @@ using DotCruz.Garage.Application.UseCases.Maintenance.Queries.GetMaintenanceSche
 using DotCruz.Garage.Application.UseCases.Maintenance.Queries.GetVehicleMaintenanceOverview;
 using DotCruz.Garage.Application.UseCases.Maintenance.Queries.SearchMaintenanceLogs;
 using DotCruz.Garage.Application.UseCases.Maintenance.Queries.SearchMaintenanceSchedules;
+using DotCruz.Garage.Application.DTOs.Storage;
+using DotCruz.Garage.Application.UseCases.Maintenance.Commands.AddMaintenanceAttachment;
+using DotCruz.Garage.Application.UseCases.Maintenance.Commands.RemoveMaintenanceAttachment;
+using DotCruz.Garage.Application.UseCases.Maintenance.Queries.GetUploadUrl;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
 
@@ -150,5 +154,51 @@ public class MaintenanceController(IMediator mediator) : GarageBaseController
         var command = new LogMaintenanceCommand(vehicleId, request);
         var result = await mediator.Send(command, cancellationToken);
         return Ok(result);
+    }
+
+    [HttpPost]
+    [Route("~/api/vehicles/{vehicleId:guid}/maintenances/upload-url")]
+    [ProducesResponseType(typeof(StorageUploadUrlDto), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ErrorResponseDto), StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(typeof(ErrorResponseDto), StatusCodes.Status404NotFound)]
+    public async Task<IActionResult> GetUploadUrl(
+        [FromRoute] Guid vehicleId,
+        [FromBody] GetMaintenanceUploadUrlRequest request,
+        CancellationToken cancellationToken)
+    {
+        var query = new GetUploadUrlQuery(vehicleId, request.FileName, request.ContentType, request.FileSize);
+        var result = await mediator.Send(query, cancellationToken);
+        return Ok(result);
+    }
+
+    [HttpPost]
+    [Route("~/api/vehicles/{vehicleId:guid}/maintenance-logs/{logId:guid}/attachments")]
+    [ProducesResponseType(typeof(MaintenanceAttachmentDto), StatusCodes.Status201Created)]
+    [ProducesResponseType(typeof(ErrorResponseDto), StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(typeof(ErrorResponseDto), StatusCodes.Status404NotFound)]
+    public async Task<IActionResult> AddAttachment(
+        [FromRoute] Guid vehicleId,
+        [FromRoute] Guid logId,
+        [FromBody] CreateMaintenanceAttachmentDto request,
+        CancellationToken cancellationToken)
+    {
+        var command = new AddMaintenanceAttachmentCommand(vehicleId, logId, request);
+        var result = await mediator.Send(command, cancellationToken);
+        return StatusCode(StatusCodes.Status201Created, result);
+    }
+
+    [HttpDelete]
+    [Route("~/api/vehicles/{vehicleId:guid}/maintenance-logs/{logId:guid}/attachments/{attachmentId:guid}")]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [ProducesResponseType(typeof(ErrorResponseDto), StatusCodes.Status404NotFound)]
+    public async Task<IActionResult> RemoveAttachment(
+        [FromRoute] Guid vehicleId,
+        [FromRoute] Guid logId,
+        [FromRoute] Guid attachmentId,
+        CancellationToken cancellationToken)
+    {
+        var command = new RemoveMaintenanceAttachmentCommand(vehicleId, logId, attachmentId);
+        await mediator.Send(command, cancellationToken);
+        return NoContent();
     }
 }

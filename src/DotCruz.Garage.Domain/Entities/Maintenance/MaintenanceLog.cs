@@ -17,6 +17,8 @@ public class MaintenanceLog : BaseEntity, IWorkspaceEntity
     public string? Notes { get; private set; }
     public MaintenanceType Type => MaintenanceScheduleId.HasValue ? MaintenanceType.Preventive : MaintenanceType.Corrective;
 
+    public virtual ICollection<MaintenanceAttachment> Attachments { get; private init; } = new List<MaintenanceAttachment>();
+
     private MaintenanceLog() { }
 
     public static MaintenanceLog Create(
@@ -49,5 +51,24 @@ public class MaintenanceLog : BaseEntity, IWorkspaceEntity
     public void UpdateReceiptUrl(string receiptUrl)
     {
         ReceiptUrl = receiptUrl;
+        Touch();
+    }
+
+    public MaintenanceAttachment AddAttachment(string fileName, string fileUrl, string contentType, long fileSize)
+    {
+        var attachment = MaintenanceAttachment.Create(Id, fileName, fileUrl, contentType, fileSize);
+        Attachments.Add(attachment);
+        Touch();
+        return attachment;
+    }
+
+    public void RemoveAttachment(Guid attachmentId)
+    {
+        var attachment = Attachments.FirstOrDefault(a => a.Id == attachmentId);
+        if (attachment != null)
+        {
+            Attachments.Remove(attachment);
+            Touch();
+        }
     }
 }

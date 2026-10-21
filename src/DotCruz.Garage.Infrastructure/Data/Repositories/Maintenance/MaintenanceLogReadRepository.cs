@@ -16,6 +16,7 @@ public class MaintenanceLogReadRepository(GarageDbContext context)
     {
         var query = _dbSet
             .AsNoTracking()
+            .Include(l => l.Attachments)
             .Where(l => l.VehicleId == vehicleId);
 
         var totalCount = await query.CountAsync(cancellationToken);
@@ -36,6 +37,7 @@ public class MaintenanceLogReadRepository(GarageDbContext context)
     {
         return await _dbSet
             .AsNoTracking()
+            .Include(l => l.Attachments)
             .IgnoreQueryFilters()
             .Where(l => l.VehicleId == vehicleId && l.WorkspaceId == workspaceId && l.DeletedAt == null)
             .OrderByDescending(l => l.PerformedAt)

@@ -17,6 +17,11 @@ services:
       - Settings__Jwt__Issuer=${JWT_ISSUER}
       - Settings__Jwt__Audience=${JWT_AUDIENCE}
       - Settings__Jwt__JwksUrl=${JWT_JWKS_URL}
+      - CloudflareR2__AccountId=${CLOUDFLARE_R2_ACCOUNT_ID}
+      - CloudflareR2__AccessKey=${CLOUDFLARE_R2_ACCESS_KEY}
+      - CloudflareR2__SecretKey=${CLOUDFLARE_R2_SECRET_KEY}
+      - CloudflareR2__BucketName=${CLOUDFLARE_R2_BUCKET_NAME}
+      - CloudflareR2__PublicBaseUrl=${CLOUDFLARE_R2_PUBLIC_BASE_URL}
     networks:
       - dotcruz_net
     deploy:

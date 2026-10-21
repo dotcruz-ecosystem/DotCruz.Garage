@@ -11,7 +11,7 @@ public static class MaintenanceLogMapper
         Guid workspaceId,
         Guid userId)
     {
-        return MaintenanceLog.Create(
+        var log = MaintenanceLog.Create(
             workspaceId,
             userId,
             command.VehicleId,
@@ -23,10 +23,31 @@ public static class MaintenanceLogMapper
             command.RequestDto.ReceiptUrl,
             command.RequestDto.Notes
         );
+
+        if (command.RequestDto.Attachments != null)
+        {
+            foreach (var att in command.RequestDto.Attachments)
+            {
+                log.AddAttachment(att.FileName, att.FileUrl, att.ContentType, att.FileSize);
+            }
+        }
+
+        return log;
     }
 
     public static MaintenanceLogDto ToDto(this MaintenanceLog log)
     {
+        var attachmentsDto = log.Attachments?
+            .Select(a => new MaintenanceAttachmentDto(
+                a.Id,
+                a.MaintenanceLogId,
+                a.FileName,
+                a.FileUrl,
+                a.ContentType,
+                a.FileSize,
+                a.CreatedAt))
+            .ToList() ?? [];
+
         return new MaintenanceLogDto(
             log.Id,
             log.VehicleId,
@@ -37,7 +58,8 @@ public static class MaintenanceLogMapper
             log.Cost,
             log.ReceiptUrl,
             log.Notes,
-            log.Type.ToString()
+            log.Type.ToString(),
+            attachmentsDto
         );
     }
 }
