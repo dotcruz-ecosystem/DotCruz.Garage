@@ -1,5 +1,6 @@
 using Bogus;
 using DotCruz.Garage.Domain.Entities.Vehicles;
+using DotCruz.Garage.Domain.Enums;
 
 namespace CommonTestUtilities.Entities;
 
@@ -9,6 +10,10 @@ public class VehicleBuilder
         Guid? workspaceId = null,
         Guid? userId = null,
         string? name = null,
+        VehicleType? type = null,
+        string? brand = null,
+        string? model = null,
+        string? engine = null,
         string? plate = null,
         int initialOdometer = 50_000)
     {
@@ -18,8 +23,10 @@ public class VehicleBuilder
             workspaceId: workspaceId ?? Guid.NewGuid(),
             userId: userId ?? Guid.NewGuid(),
             name: name ?? faker.Vehicle.Model(),
-            brand: faker.Vehicle.Manufacturer(),
-            model: faker.Vehicle.Model(),
+            type: type ?? VehicleType.Car,
+            brand: brand ?? faker.Vehicle.Manufacturer(),
+            model: model ?? faker.Vehicle.Model(),
+            engine: engine ?? "2.0",
             year: 2020,
             plate: plate ?? faker.Random.Replace("???####"),
             initialOdometer: initialOdometer,

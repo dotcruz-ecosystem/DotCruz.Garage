@@ -89,4 +89,28 @@ public class CreateVehicleCommandValidatorTest
         Assert.False(result.IsValid);
         Assert.Contains(result.Errors, e => e.ErrorMessage == ResourceMessagesException.ODOMETER_NEGATIVE);
     }
+
+    [Fact]
+    public void Empty_Engine_Fails_Validation()
+    {
+        var command = CreateVehicleCommandBuilder.Build(engine: "");
+
+        var validator = new CreateVehicleCommandValidator();
+        var result = validator.Validate(command);
+
+        Assert.False(result.IsValid);
+        Assert.Contains(result.Errors, e => e.ErrorMessage == ResourceMessagesException.ENGINE_EMPTY);
+    }
+
+    [Fact]
+    public void Invalid_VehicleType_Fails_Validation()
+    {
+        var command = CreateVehicleCommandBuilder.Build(type: (DotCruz.Garage.Domain.Enums.VehicleType)999);
+
+        var validator = new CreateVehicleCommandValidator();
+        var result = validator.Validate(command);
+
+        Assert.False(result.IsValid);
+        Assert.Contains(result.Errors, e => e.ErrorMessage == ResourceMessagesException.VEHICLE_TYPE_INVALID);
+    }
 }

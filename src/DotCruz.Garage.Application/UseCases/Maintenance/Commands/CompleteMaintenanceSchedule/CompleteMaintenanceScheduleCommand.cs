@@ -1,4 +1,5 @@
-﻿using DotCruz.Garage.Application.DTOs.Maintenance;
+using DotCruz.Garage.Application.DTOs.Maintenance;
+using DotCruz.Garage.Application.DTOs.ServiceOrders;
 using MediatR;
 
 namespace DotCruz.Garage.Application.UseCases.Maintenance.Commands.CompleteMaintenanceSchedule;
@@ -6,4 +7,4 @@ namespace DotCruz.Garage.Application.UseCases.Maintenance.Commands.CompleteMaint
 public record CompleteMaintenanceScheduleCommand(
     Guid VehicleId,
     Guid ScheduleId,
-    CompleteMaintenanceScheduleRequestDto RequestDto) : IRequest<MaintenanceLogDto>;
+    CompleteMaintenanceScheduleRequestDto RequestDto) : IRequest<ServiceOrderDto>;

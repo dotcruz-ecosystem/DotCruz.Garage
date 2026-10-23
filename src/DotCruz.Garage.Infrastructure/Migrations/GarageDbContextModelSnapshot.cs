@@ -22,134 +22,6 @@ namespace DotCruz.Garage.Infrastructure.Migrations
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
 
-            modelBuilder.Entity("DotCruz.Garage.Domain.Entities.Maintenance.MaintenanceAttachment", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .HasColumnType("uuid")
-                        .HasColumnName("id");
-
-                    b.Property<string>("ContentType")
-                        .IsRequired()
-                        .HasMaxLength(100)
-                        .HasColumnType("character varying(100)")
-                        .HasColumnName("content_type");
-
-                    b.Property<DateTimeOffset>("CreatedAt")
-                        .HasColumnType("timestamp with time zone")
-                        .HasColumnName("created_at");
-
-                    b.Property<DateTimeOffset?>("DeletedAt")
-                        .HasColumnType("timestamp with time zone")
-                        .HasColumnName("deleted_at");
-
-                    b.Property<string>("FileName")
-                        .IsRequired()
-                        .HasMaxLength(255)
-                        .HasColumnType("character varying(255)")
-                        .HasColumnName("file_name");
-
-                    b.Property<long>("FileSize")
-                        .HasColumnType("bigint")
-                        .HasColumnName("file_size");
-
-                    b.Property<string>("FileUrl")
-                        .IsRequired()
-                        .HasMaxLength(1000)
-                        .HasColumnType("character varying(1000)")
-                        .HasColumnName("file_url");
-
-                    b.Property<Guid>("MaintenanceLogId")
-                        .HasColumnType("uuid")
-                        .HasColumnName("maintenance_log_id");
-
-                    b.Property<DateTimeOffset>("UpdatedAt")
-                        .HasColumnType("timestamp with time zone")
-                        .HasColumnName("updated_at");
-
-                    b.HasKey("Id")
-                        .HasName("pk_maintenance_attachments");
-
-                    b.HasIndex("MaintenanceLogId")
-                        .HasDatabaseName("ix_maintenance_attachments_maintenance_log_id");
-
-                    b.ToTable("maintenance_attachments", (string)null);
-                });
-
-            modelBuilder.Entity("DotCruz.Garage.Domain.Entities.Maintenance.MaintenanceLog", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .HasColumnType("uuid")
-                        .HasColumnName("id");
-
-                    b.Property<decimal>("Cost")
-                        .HasPrecision(18, 2)
-                        .HasColumnType("numeric(18,2)")
-                        .HasColumnName("cost");
-
-                    b.Property<DateTimeOffset>("CreatedAt")
-                        .HasColumnType("timestamp with time zone")
-                        .HasColumnName("created_at");
-
-                    b.Property<DateTimeOffset?>("DeletedAt")
-                        .HasColumnType("timestamp with time zone")
-                        .HasColumnName("deleted_at");
-
-                    b.Property<string>("Description")
-                        .IsRequired()
-                        .HasMaxLength(500)
-                        .HasColumnType("character varying(500)")
-                        .HasColumnName("description");
-
-                    b.Property<Guid?>("MaintenanceScheduleId")
-                        .HasColumnType("uuid")
-                        .HasColumnName("maintenance_schedule_id");
-
-                    b.Property<string>("Notes")
-                        .HasMaxLength(1000)
-                        .HasColumnType("character varying(1000)")
-                        .HasColumnName("notes");
-
-                    b.Property<int>("OdometerAtService")
-                        .HasColumnType("integer")
-                        .HasColumnName("odometer_at_service");
-
-                    b.Property<DateTimeOffset>("PerformedAt")
-                        .HasColumnType("timestamp with time zone")
-                        .HasColumnName("performed_at");
-
-                    b.Property<string>("ReceiptUrl")
-                        .HasMaxLength(1000)
-                        .HasColumnType("character varying(1000)")
-                        .HasColumnName("receipt_url");
-
-                    b.Property<DateTimeOffset>("UpdatedAt")
-                        .HasColumnType("timestamp with time zone")
-                        .HasColumnName("updated_at");
-
-                    b.Property<Guid>("UserId")
-                        .HasColumnType("uuid")
-                        .HasColumnName("user_id");
-
-                    b.Property<Guid>("VehicleId")
-                        .HasColumnType("uuid")
-                        .HasColumnName("vehicle_id");
-
-                    b.Property<Guid>("WorkspaceId")
-                        .HasColumnType("uuid")
-                        .HasColumnName("workspace_id");
-
-                    b.HasKey("Id")
-                        .HasName("pk_maintenance_logs");
-
-                    b.HasIndex("VehicleId")
-                        .HasDatabaseName("ix_maintenance_logs_vehicle_id");
-
-                    b.HasIndex("WorkspaceId", "UserId")
-                        .HasDatabaseName("ix_maintenance_logs_workspace_id_user_id");
-
-                    b.ToTable("maintenance_logs", (string)null);
-                });
-
             modelBuilder.Entity("DotCruz.Garage.Domain.Entities.Maintenance.MaintenanceSchedule", b =>
                 {
                     b.Property<Guid>("Id")
@@ -251,6 +123,269 @@ namespace DotCruz.Garage.Infrastructure.Migrations
                     b.ToTable("maintenance_schedules", (string)null);
                 });
 
+            modelBuilder.Entity("DotCruz.Garage.Domain.Entities.ServiceOrders.ServiceOrder", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("created_at");
+
+                    b.Property<DateTimeOffset?>("DeletedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("deleted_at");
+
+                    b.Property<decimal>("Discount")
+                        .ValueGeneratedOnAdd()
+                        .HasPrecision(18, 2)
+                        .HasColumnType("numeric(18,2)")
+                        .HasDefaultValue(0m)
+                        .HasColumnName("discount");
+
+                    b.Property<string>("Notes")
+                        .HasMaxLength(2000)
+                        .HasColumnType("character varying(2000)")
+                        .HasColumnName("notes");
+
+                    b.Property<int>("OdometerAtService")
+                        .HasColumnType("integer")
+                        .HasColumnName("odometer_at_service");
+
+                    b.Property<string>("OrderNumber")
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)")
+                        .HasColumnName("order_number");
+
+                    b.Property<DateTimeOffset>("PerformedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("performed_at");
+
+                    b.Property<decimal>("TotalCost")
+                        .HasPrecision(18, 2)
+                        .HasColumnType("numeric(18,2)")
+                        .HasColumnName("total_cost");
+
+                    b.Property<DateTimeOffset>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("updated_at");
+
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("user_id");
+
+                    b.Property<Guid>("VehicleId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("vehicle_id");
+
+                    b.Property<string>("WorkshopName")
+                        .HasMaxLength(150)
+                        .HasColumnType("character varying(150)")
+                        .HasColumnName("workshop_name");
+
+                    b.Property<Guid>("WorkspaceId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("workspace_id");
+
+                    b.HasKey("Id")
+                        .HasName("pk_service_orders");
+
+                    b.HasIndex("VehicleId")
+                        .HasDatabaseName("ix_service_orders_vehicle_id");
+
+                    b.HasIndex("VehicleId", "PerformedAt")
+                        .HasDatabaseName("ix_service_orders_vehicle_id_performed_at");
+
+                    b.HasIndex("WorkspaceId", "UserId")
+                        .HasDatabaseName("ix_service_orders_workspace_id_user_id");
+
+                    b.ToTable("service_orders", (string)null);
+                });
+
+            modelBuilder.Entity("DotCruz.Garage.Domain.Entities.ServiceOrders.ServiceOrderAttachment", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<string>("ContentType")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)")
+                        .HasColumnName("content_type");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("created_at");
+
+                    b.Property<DateTimeOffset?>("DeletedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("deleted_at");
+
+                    b.Property<string>("FileName")
+                        .IsRequired()
+                        .HasMaxLength(255)
+                        .HasColumnType("character varying(255)")
+                        .HasColumnName("file_name");
+
+                    b.Property<long>("FileSize")
+                        .HasColumnType("bigint")
+                        .HasColumnName("file_size");
+
+                    b.Property<string>("FileUrl")
+                        .IsRequired()
+                        .HasMaxLength(1000)
+                        .HasColumnType("character varying(1000)")
+                        .HasColumnName("file_url");
+
+                    b.Property<Guid>("ServiceOrderId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("service_order_id");
+
+                    b.Property<DateTimeOffset>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("updated_at");
+
+                    b.HasKey("Id")
+                        .HasName("pk_service_order_attachments");
+
+                    b.HasIndex("ServiceOrderId")
+                        .HasDatabaseName("ix_service_order_attachments_service_order_id");
+
+                    b.ToTable("service_order_attachments", (string)null);
+                });
+
+            modelBuilder.Entity("DotCruz.Garage.Domain.Entities.ServiceOrders.ServiceOrderItem", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<int>("Category")
+                        .HasColumnType("integer")
+                        .HasColumnName("category");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("created_at");
+
+                    b.Property<DateTimeOffset?>("DeletedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("deleted_at");
+
+                    b.Property<string>("Description")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)")
+                        .HasColumnName("description");
+
+                    b.Property<Guid?>("MaintenanceScheduleId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("maintenance_schedule_id");
+
+                    b.Property<string>("Notes")
+                        .HasMaxLength(1000)
+                        .HasColumnType("character varying(1000)")
+                        .HasColumnName("notes");
+
+                    b.Property<string>("PartNumber")
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)")
+                        .HasColumnName("part_number");
+
+                    b.Property<decimal>("Quantity")
+                        .HasPrecision(18, 2)
+                        .HasColumnType("numeric(18,2)")
+                        .HasColumnName("quantity");
+
+                    b.Property<Guid>("ServiceOrderId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("service_order_id");
+
+                    b.Property<decimal>("TotalCost")
+                        .HasPrecision(18, 2)
+                        .HasColumnType("numeric(18,2)")
+                        .HasColumnName("total_cost");
+
+                    b.Property<int>("Type")
+                        .HasColumnType("integer")
+                        .HasColumnName("type");
+
+                    b.Property<decimal>("UnitPrice")
+                        .HasPrecision(18, 2)
+                        .HasColumnType("numeric(18,2)")
+                        .HasColumnName("unit_price");
+
+                    b.Property<DateTimeOffset>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("updated_at");
+
+                    b.HasKey("Id")
+                        .HasName("pk_service_order_items");
+
+                    b.HasIndex("MaintenanceScheduleId")
+                        .HasDatabaseName("ix_service_order_items_maintenance_schedule_id");
+
+                    b.HasIndex("ServiceOrderId")
+                        .HasDatabaseName("ix_service_order_items_service_order_id");
+
+                    b.ToTable("service_order_items", (string)null);
+                });
+
+            modelBuilder.Entity("DotCruz.Garage.Domain.Entities.Vehicles.MaintenancePlanTemplate", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<Guid>("BlueprintId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("blueprint_id");
+
+                    b.Property<int>("Category")
+                        .HasColumnType("integer")
+                        .HasColumnName("category");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("created_at");
+
+                    b.Property<DateTimeOffset?>("DeletedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("deleted_at");
+
+                    b.Property<string>("Description")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)")
+                        .HasColumnName("description");
+
+                    b.Property<int?>("IntervalOdometer")
+                        .HasColumnType("integer")
+                        .HasColumnName("interval_odometer");
+
+                    b.Property<int?>("IntervalTimeMonths")
+                        .HasColumnType("integer")
+                        .HasColumnName("interval_time_months");
+
+                    b.Property<bool>("IsRequired")
+                        .HasColumnType("boolean")
+                        .HasColumnName("is_required");
+
+                    b.Property<DateTimeOffset>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("updated_at");
+
+                    b.HasKey("Id")
+                        .HasName("pk_maintenance_plan_templates");
+
+                    b.HasIndex("BlueprintId")
+                        .HasDatabaseName("ix_maintenance_plan_templates_blueprint_id");
+
+                    b.ToTable("maintenance_plan_templates", (string)null);
+                });
+
             modelBuilder.Entity("DotCruz.Garage.Domain.Entities.Vehicles.OdometerHistory", b =>
                 {
                     b.Property<Guid>("Id")
@@ -318,6 +453,12 @@ namespace DotCruz.Garage.Infrastructure.Migrations
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("deleted_at");
 
+                    b.Property<string>("Engine")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)")
+                        .HasColumnName("engine");
+
                     b.Property<string>("Model")
                         .IsRequired()
                         .HasMaxLength(100)
@@ -338,6 +479,10 @@ namespace DotCruz.Garage.Infrastructure.Migrations
                         .HasMaxLength(20)
                         .HasColumnType("character varying(20)")
                         .HasColumnName("plate");
+
+                    b.Property<int>("Type")
+                        .HasColumnType("integer")
+                        .HasColumnName("type");
 
                     b.Property<DateTimeOffset>("UpdatedAt")
                         .HasColumnType("timestamp with time zone")
@@ -364,14 +509,189 @@ namespace DotCruz.Garage.Infrastructure.Migrations
                     b.ToTable("vehicles", (string)null);
                 });
 
-            modelBuilder.Entity("DotCruz.Garage.Domain.Entities.Maintenance.MaintenanceAttachment", b =>
+            modelBuilder.Entity("DotCruz.Garage.Domain.Entities.Vehicles.VehicleBlueprint", b =>
                 {
-                    b.HasOne("DotCruz.Garage.Domain.Entities.Maintenance.MaintenanceLog", null)
-                        .WithMany("Attachments")
-                        .HasForeignKey("MaintenanceLogId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<string>("Brand")
                         .IsRequired()
-                        .HasConstraintName("fk_maintenance_attachments_maintenance_logs_maintenance_log_id");
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)")
+                        .HasColumnName("brand");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("created_at");
+
+                    b.Property<DateTimeOffset?>("DeletedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("deleted_at");
+
+                    b.Property<string>("Engine")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)")
+                        .HasColumnName("engine");
+
+                    b.Property<string>("ErrorMessage")
+                        .HasMaxLength(2000)
+                        .HasColumnType("character varying(2000)")
+                        .HasColumnName("error_message");
+
+                    b.Property<string>("Model")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)")
+                        .HasColumnName("model");
+
+                    b.Property<string>("SourceUrl")
+                        .HasMaxLength(1000)
+                        .HasColumnType("character varying(1000)")
+                        .HasColumnName("source_url");
+
+                    b.Property<int>("Status")
+                        .HasColumnType("integer")
+                        .HasColumnName("status");
+
+                    b.Property<int>("Type")
+                        .HasColumnType("integer")
+                        .HasColumnName("type");
+
+                    b.Property<DateTimeOffset>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("updated_at");
+
+                    b.Property<int>("YearFrom")
+                        .HasColumnType("integer")
+                        .HasColumnName("year_from");
+
+                    b.Property<int>("YearTo")
+                        .HasColumnType("integer")
+                        .HasColumnName("year_to");
+
+                    b.HasKey("Id")
+                        .HasName("pk_vehicle_blueprints");
+
+                    b.HasIndex("Brand", "Model", "Engine", "Type")
+                        .HasDatabaseName("ix_vehicle_blueprints_brand_model_engine_type");
+
+                    b.ToTable("vehicle_blueprints", (string)null);
+                });
+
+            modelBuilder.Entity("DotCruz.Garage.Domain.Entities.Vehicles.VehicleBrand", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("created_at");
+
+                    b.Property<DateTimeOffset?>("DeletedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("deleted_at");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)")
+                        .HasColumnName("name");
+
+                    b.Property<DateTimeOffset>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("updated_at");
+
+                    b.HasKey("Id")
+                        .HasName("pk_vehicle_brands");
+
+                    b.HasIndex("Name")
+                        .IsUnique()
+                        .HasDatabaseName("ix_vehicle_brands_name");
+
+                    b.ToTable("vehicle_brands", (string)null);
+                });
+
+            modelBuilder.Entity("DotCruz.Garage.Domain.Entities.Vehicles.VehicleEngine", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("created_at");
+
+                    b.Property<DateTimeOffset?>("DeletedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("deleted_at");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)")
+                        .HasColumnName("name");
+
+                    b.Property<int?>("Type")
+                        .HasColumnType("integer")
+                        .HasColumnName("type");
+
+                    b.Property<DateTimeOffset>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("updated_at");
+
+                    b.HasKey("Id")
+                        .HasName("pk_vehicle_engines");
+
+                    b.HasIndex("Name", "Type")
+                        .IsUnique()
+                        .HasDatabaseName("ix_vehicle_engines_name_type");
+
+                    b.ToTable("vehicle_engines", (string)null);
+                });
+
+            modelBuilder.Entity("DotCruz.Garage.Domain.Entities.Vehicles.VehicleModel", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<Guid>("BrandId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("brand_id");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("created_at");
+
+                    b.Property<DateTimeOffset?>("DeletedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("deleted_at");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)")
+                        .HasColumnName("name");
+
+                    b.Property<int>("Type")
+                        .HasColumnType("integer")
+                        .HasColumnName("type");
+
+                    b.Property<DateTimeOffset>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("updated_at");
+
+                    b.HasKey("Id")
+                        .HasName("pk_vehicle_models");
+
+                    b.HasIndex("BrandId", "Type", "Name")
+                        .IsUnique()
+                        .HasDatabaseName("ix_vehicle_models_brand_id_type_name");
+
+                    b.ToTable("vehicle_models", (string)null);
                 });
 
             modelBuilder.Entity("DotCruz.Garage.Domain.Entities.Maintenance.MaintenanceSchedule", b =>
@@ -386,6 +706,62 @@ namespace DotCruz.Garage.Infrastructure.Migrations
                     b.Navigation("Vehicle");
                 });
 
+            modelBuilder.Entity("DotCruz.Garage.Domain.Entities.ServiceOrders.ServiceOrder", b =>
+                {
+                    b.HasOne("DotCruz.Garage.Domain.Entities.Vehicles.Vehicle", "Vehicle")
+                        .WithMany()
+                        .HasForeignKey("VehicleId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired()
+                        .HasConstraintName("fk_service_orders_vehicles_vehicle_id");
+
+                    b.Navigation("Vehicle");
+                });
+
+            modelBuilder.Entity("DotCruz.Garage.Domain.Entities.ServiceOrders.ServiceOrderAttachment", b =>
+                {
+                    b.HasOne("DotCruz.Garage.Domain.Entities.ServiceOrders.ServiceOrder", "ServiceOrder")
+                        .WithMany("Attachments")
+                        .HasForeignKey("ServiceOrderId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("fk_service_order_attachments_service_orders_service_order_id");
+
+                    b.Navigation("ServiceOrder");
+                });
+
+            modelBuilder.Entity("DotCruz.Garage.Domain.Entities.ServiceOrders.ServiceOrderItem", b =>
+                {
+                    b.HasOne("DotCruz.Garage.Domain.Entities.Maintenance.MaintenanceSchedule", "MaintenanceSchedule")
+                        .WithMany()
+                        .HasForeignKey("MaintenanceScheduleId")
+                        .OnDelete(DeleteBehavior.SetNull)
+                        .HasConstraintName("fk_service_order_items_maintenance_schedules_maintenance_sched");
+
+                    b.HasOne("DotCruz.Garage.Domain.Entities.ServiceOrders.ServiceOrder", "ServiceOrder")
+                        .WithMany("Items")
+                        .HasForeignKey("ServiceOrderId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("fk_service_order_items_service_orders_service_order_id");
+
+                    b.Navigation("MaintenanceSchedule");
+
+                    b.Navigation("ServiceOrder");
+                });
+
+            modelBuilder.Entity("DotCruz.Garage.Domain.Entities.Vehicles.MaintenancePlanTemplate", b =>
+                {
+                    b.HasOne("DotCruz.Garage.Domain.Entities.Vehicles.VehicleBlueprint", "Blueprint")
+                        .WithMany("Templates")
+                        .HasForeignKey("BlueprintId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("fk_maintenance_plan_templates_vehicle_blueprints_blueprint_id");
+
+                    b.Navigation("Blueprint");
+                });
+
             modelBuilder.Entity("DotCruz.Garage.Domain.Entities.Vehicles.OdometerHistory", b =>
                 {
                     b.HasOne("DotCruz.Garage.Domain.Entities.Vehicles.Vehicle", null)
@@ -396,14 +772,38 @@ namespace DotCruz.Garage.Infrastructure.Migrations
                         .HasConstraintName("fk_odometer_histories_vehicles_vehicle_id");
                 });
 
-            modelBuilder.Entity("DotCruz.Garage.Domain.Entities.Maintenance.MaintenanceLog", b =>
+            modelBuilder.Entity("DotCruz.Garage.Domain.Entities.Vehicles.VehicleModel", b =>
+                {
+                    b.HasOne("DotCruz.Garage.Domain.Entities.Vehicles.VehicleBrand", "Brand")
+                        .WithMany("Models")
+                        .HasForeignKey("BrandId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("fk_vehicle_models_vehicle_brands_brand_id");
+
+                    b.Navigation("Brand");
+                });
+
+            modelBuilder.Entity("DotCruz.Garage.Domain.Entities.ServiceOrders.ServiceOrder", b =>
                 {
                     b.Navigation("Attachments");
+
+                    b.Navigation("Items");
                 });
 
             modelBuilder.Entity("DotCruz.Garage.Domain.Entities.Vehicles.Vehicle", b =>
                 {
                     b.Navigation("OdometerHistories");
+                });
+
+            modelBuilder.Entity("DotCruz.Garage.Domain.Entities.Vehicles.VehicleBlueprint", b =>
+                {
+                    b.Navigation("Templates");
+                });
+
+            modelBuilder.Entity("DotCruz.Garage.Domain.Entities.Vehicles.VehicleBrand", b =>
+                {
+                    b.Navigation("Models");
                 });
 #pragma warning restore 612, 618
         }

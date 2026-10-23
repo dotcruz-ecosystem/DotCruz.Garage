@@ -1,19 +1,21 @@
 using DotCruz.Garage.Api.Controllers.Base;
 using DotCruz.Garage.Application.DTOs.Base;
 using DotCruz.Garage.Application.DTOs.Maintenance;
-using DotCruz.Garage.Application.UseCases.Maintenance.Commands.CreateMaintenanceSchedule;
+using DotCruz.Garage.Application.DTOs.ServiceOrders;
+using DotCruz.Garage.Application.DTOs.Storage;
 using DotCruz.Garage.Application.UseCases.Maintenance.Commands.CompleteMaintenanceSchedule;
+using DotCruz.Garage.Application.UseCases.Maintenance.Commands.CreateMaintenanceSchedule;
 using DotCruz.Garage.Application.UseCases.Maintenance.Commands.DeleteMaintenanceSchedule;
-using DotCruz.Garage.Application.UseCases.Maintenance.Commands.LogMaintenance;
 using DotCruz.Garage.Application.UseCases.Maintenance.Commands.UpdateMaintenanceSchedule;
 using DotCruz.Garage.Application.UseCases.Maintenance.Queries.GetMaintenanceScheduleById;
-using DotCruz.Garage.Application.UseCases.Maintenance.Queries.GetVehicleMaintenanceOverview;
-using DotCruz.Garage.Application.UseCases.Maintenance.Queries.SearchMaintenanceLogs;
-using DotCruz.Garage.Application.UseCases.Maintenance.Queries.SearchMaintenanceSchedules;
-using DotCruz.Garage.Application.DTOs.Storage;
-using DotCruz.Garage.Application.UseCases.Maintenance.Commands.AddMaintenanceAttachment;
-using DotCruz.Garage.Application.UseCases.Maintenance.Commands.RemoveMaintenanceAttachment;
 using DotCruz.Garage.Application.UseCases.Maintenance.Queries.GetUploadUrl;
+using DotCruz.Garage.Application.UseCases.Maintenance.Queries.GetVehicleMaintenanceOverview;
+using DotCruz.Garage.Application.UseCases.Maintenance.Queries.SearchMaintenanceSchedules;
+using DotCruz.Garage.Application.UseCases.ServiceOrders.Commands.AddServiceOrderAttachment;
+using DotCruz.Garage.Application.UseCases.ServiceOrders.Commands.CreateServiceOrder;
+using DotCruz.Garage.Application.UseCases.ServiceOrders.Commands.RemoveServiceOrderAttachment;
+using DotCruz.Garage.Application.UseCases.ServiceOrders.Queries.GetServiceOrderById;
+using DotCruz.Garage.Application.UseCases.ServiceOrders.Queries.GetServiceOrdersByVehicle;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
 
@@ -111,7 +113,7 @@ public class MaintenanceController(IMediator mediator) : GarageBaseController
 
     [HttpPost]
     [Route("~/api/vehicles/{vehicleId:guid}/maintenance-schedules/{scheduleId:guid}/complete")]
-    [ProducesResponseType(typeof(MaintenanceLogDto), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ServiceOrderDto), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ErrorResponseDto), StatusCodes.Status400BadRequest)]
     [ProducesResponseType(typeof(ErrorResponseDto), StatusCodes.Status404NotFound)]
     public async Task<IActionResult> CompleteSchedule(
@@ -126,34 +128,84 @@ public class MaintenanceController(IMediator mediator) : GarageBaseController
     }
 
     [HttpGet]
-    [Route("~/api/vehicles/{vehicleId:guid}/maintenance-logs")]
-    [ProducesResponseType(typeof(SearchMaintenanceLogsResponseDto), StatusCodes.Status200OK)]
+    [Route("~/api/vehicles/{vehicleId:guid}/service-orders")]
+    [ProducesResponseType(typeof(SearchServiceOrdersResponseDto), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ErrorResponseDto), StatusCodes.Status400BadRequest)]
     [ProducesResponseType(typeof(ErrorResponseDto), StatusCodes.Status404NotFound)]
-    public async Task<IActionResult> GetLogs(
+    public async Task<IActionResult> GetServiceOrders(
         [FromRoute] Guid vehicleId,
         [FromQuery] int pageNumber = 1,
-        [FromQuery] int pageSize = 10,
+        [FromQuery] int pageSize = 20,
         CancellationToken cancellationToken = default)
     {
-        var query = new SearchMaintenanceLogsQuery(vehicleId, pageNumber, pageSize);
+        var query = new GetServiceOrdersByVehicleQuery(vehicleId, pageNumber, pageSize);
+        var result = await mediator.Send(query, cancellationToken);
+        return Ok(result);
+    }
+
+    [HttpGet]
+    [Route("~/api/vehicles/{vehicleId:guid}/service-orders/{serviceOrderId:guid}")]
+    [ProducesResponseType(typeof(ServiceOrderDto), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ErrorResponseDto), StatusCodes.Status404NotFound)]
+    public async Task<IActionResult> GetServiceOrderById(
+        [FromRoute] Guid vehicleId,
+        [FromRoute] Guid serviceOrderId,
+        CancellationToken cancellationToken = default)
+    {
+        var query = new GetServiceOrderByIdQuery(serviceOrderId);
         var result = await mediator.Send(query, cancellationToken);
         return Ok(result);
     }
 
     [HttpPost]
-    [Route("~/api/vehicles/{vehicleId:guid}/maintenance-logs")]
-    [ProducesResponseType(typeof(Guid), StatusCodes.Status200OK)]
+    [Route("~/api/vehicles/{vehicleId:guid}/service-orders")]
+    [ProducesResponseType(typeof(ServiceOrderDto), StatusCodes.Status201Created)]
     [ProducesResponseType(typeof(ErrorResponseDto), StatusCodes.Status400BadRequest)]
     [ProducesResponseType(typeof(ErrorResponseDto), StatusCodes.Status404NotFound)]
-    public async Task<IActionResult> LogMaintenance(
+    public async Task<IActionResult> CreateServiceOrder(
         [FromRoute] Guid vehicleId,
-        [FromBody] CreateLogMaintenanceRequestDto request, 
+        [FromBody] CreateServiceOrderRequestDto request,
         CancellationToken cancellationToken)
     {
-        var command = new LogMaintenanceCommand(vehicleId, request);
+        var command = new CreateServiceOrderCommand(vehicleId, request);
         var result = await mediator.Send(command, cancellationToken);
-        return Ok(result);
+        return CreatedAtAction(nameof(GetServiceOrderById), new { vehicleId, serviceOrderId = result.Id }, result);
+    }
+
+    [HttpPost]
+    [Route("~/api/vehicles/{vehicleId:guid}/service-orders/{serviceOrderId:guid}/attachments")]
+    [ProducesResponseType(typeof(ServiceOrderAttachmentDto), StatusCodes.Status201Created)]
+    [ProducesResponseType(typeof(ErrorResponseDto), StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(typeof(ErrorResponseDto), StatusCodes.Status404NotFound)]
+    public async Task<IActionResult> AddServiceOrderAttachment(
+        [FromRoute] Guid vehicleId,
+        [FromRoute] Guid serviceOrderId,
+        [FromBody] CreateServiceOrderAttachmentRequestDto request,
+        CancellationToken cancellationToken)
+    {
+        var command = new AddServiceOrderAttachmentCommand(
+            serviceOrderId,
+            request.FileName,
+            request.FileUrl,
+            request.ContentType,
+            request.FileSize);
+        var result = await mediator.Send(command, cancellationToken);
+        return StatusCode(StatusCodes.Status201Created, result);
+    }
+
+    [HttpDelete]
+    [Route("~/api/vehicles/{vehicleId:guid}/service-orders/{serviceOrderId:guid}/attachments/{attachmentId:guid}")]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [ProducesResponseType(typeof(ErrorResponseDto), StatusCodes.Status404NotFound)]
+    public async Task<IActionResult> RemoveServiceOrderAttachment(
+        [FromRoute] Guid vehicleId,
+        [FromRoute] Guid serviceOrderId,
+        [FromRoute] Guid attachmentId,
+        CancellationToken cancellationToken)
+    {
+        var command = new RemoveServiceOrderAttachmentCommand(serviceOrderId, attachmentId);
+        await mediator.Send(command, cancellationToken);
+        return NoContent();
     }
 
     [HttpPost]
@@ -169,36 +221,5 @@ public class MaintenanceController(IMediator mediator) : GarageBaseController
         var query = new GetUploadUrlQuery(vehicleId, request.FileName, request.ContentType, request.FileSize);
         var result = await mediator.Send(query, cancellationToken);
         return Ok(result);
-    }
-
-    [HttpPost]
-    [Route("~/api/vehicles/{vehicleId:guid}/maintenance-logs/{logId:guid}/attachments")]
-    [ProducesResponseType(typeof(MaintenanceAttachmentDto), StatusCodes.Status201Created)]
-    [ProducesResponseType(typeof(ErrorResponseDto), StatusCodes.Status400BadRequest)]
-    [ProducesResponseType(typeof(ErrorResponseDto), StatusCodes.Status404NotFound)]
-    public async Task<IActionResult> AddAttachment(
-        [FromRoute] Guid vehicleId,
-        [FromRoute] Guid logId,
-        [FromBody] CreateMaintenanceAttachmentDto request,
-        CancellationToken cancellationToken)
-    {
-        var command = new AddMaintenanceAttachmentCommand(vehicleId, logId, request);
-        var result = await mediator.Send(command, cancellationToken);
-        return StatusCode(StatusCodes.Status201Created, result);
-    }
-
-    [HttpDelete]
-    [Route("~/api/vehicles/{vehicleId:guid}/maintenance-logs/{logId:guid}/attachments/{attachmentId:guid}")]
-    [ProducesResponseType(StatusCodes.Status204NoContent)]
-    [ProducesResponseType(typeof(ErrorResponseDto), StatusCodes.Status404NotFound)]
-    public async Task<IActionResult> RemoveAttachment(
-        [FromRoute] Guid vehicleId,
-        [FromRoute] Guid logId,
-        [FromRoute] Guid attachmentId,
-        CancellationToken cancellationToken)
-    {
-        var command = new RemoveMaintenanceAttachmentCommand(vehicleId, logId, attachmentId);
-        await mediator.Send(command, cancellationToken);
-        return NoContent();
     }
 }

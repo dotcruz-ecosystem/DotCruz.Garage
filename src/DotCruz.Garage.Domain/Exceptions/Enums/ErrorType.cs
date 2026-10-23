@@ -7,5 +7,6 @@ public enum ErrorType
     Conflict,
     Infrastructure,
     Unauthorized,
-    Forbidden
+    Forbidden,
+    InvalidState
 }

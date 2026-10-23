@@ -1,4 +1,5 @@
 using DotCruz.Garage.Domain.Entities.Base;
+using DotCruz.Garage.Domain.Enums;
 
 namespace DotCruz.Garage.Domain.Entities.Vehicles;
 
@@ -7,8 +8,10 @@ public class Vehicle : BaseEntity, IWorkspaceEntity
     public Guid WorkspaceId { get; private set; }
     public Guid UserId { get; private set; }
     public string Name { get; private set; } = null!;
+    public VehicleType Type { get; private set; }
     public string Brand { get; private set; } = null!;
     public string Model { get; private set; } = null!;
+    public string Engine { get; private set; } = null!;
     public int Year { get; private set; }
     public string? Plate { get; private set; }
     public int CurrentOdometer { get; private set; }
@@ -23,8 +26,10 @@ public class Vehicle : BaseEntity, IWorkspaceEntity
         Guid workspaceId,
         Guid userId,
         string name,
+        VehicleType type,
         string brand,
         string model,
+        string engine,
         int year,
         string? plate,
         int initialOdometer,
@@ -35,8 +40,10 @@ public class Vehicle : BaseEntity, IWorkspaceEntity
             WorkspaceId = workspaceId,
             UserId = userId,
             Name = name,
+            Type = type,
             Brand = brand,
             Model = model,
+            Engine = engine,
             Year = year,
             Plate = plate,
             CurrentOdometer = initialOdometer,

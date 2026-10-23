@@ -1,12 +1,13 @@
 using DotCruz.Garage.Application.Abstractions.Data;
 using DotCruz.Garage.Application.Abstractions.Data.Repositories.Maintenance;
+using DotCruz.Garage.Application.Abstractions.Data.Repositories.ServiceOrders;
 using DotCruz.Garage.Application.Abstractions.Data.Repositories.Vehicles;
 using DotCruz.Garage.Application.Mappers.Maintenance;
-using DotCruz.Garage.Domain.Entities.Maintenance;
+using DotCruz.Garage.Domain.Entities.ServiceOrders;
 using DotCruz.Garage.Domain.Entities.Vehicles;
+using DotCruz.Garage.Domain.Enums;
 using DotCruz.Garage.Domain.Exceptions.BaseExceptions;
 using DotCruz.Garage.Domain.Exceptions.Resources;
-using DotCruz.Garage.Domain.Services;
 using DotCruz.Shared.Security.Context;
 using MediatR;
 
@@ -16,20 +17,20 @@ public class CreateMaintenanceScheduleCommandHandler : IRequestHandler<CreateMai
 {
     private readonly IVehicleWriteRepository _vehicleWriteRepository;
     private readonly IMaintenanceScheduleWriteRepository _maintenanceScheduleWriteRepository;
-    private readonly IMaintenanceLogWriteRepository _maintenanceLogWriteRepository;
+    private readonly IServiceOrderWriteRepository _serviceOrderWriteRepository;
     private readonly IWorkspaceProvider _workspaceProvider;
     private readonly IUnitOfWork _unitOfWork;
 
     public CreateMaintenanceScheduleCommandHandler(
         IVehicleWriteRepository vehicleWriteRepository,
         IMaintenanceScheduleWriteRepository maintenanceScheduleWriteRepository,
-        IMaintenanceLogWriteRepository maintenanceLogWriteRepository,
+        IServiceOrderWriteRepository serviceOrderWriteRepository,
         IWorkspaceProvider workspaceProvider,
         IUnitOfWork unitOfWork)
     {
         _vehicleWriteRepository = vehicleWriteRepository;
         _maintenanceScheduleWriteRepository = maintenanceScheduleWriteRepository;
-        _maintenanceLogWriteRepository = maintenanceLogWriteRepository;
+        _serviceOrderWriteRepository = serviceOrderWriteRepository;
         _workspaceProvider = workspaceProvider;
         _unitOfWork = unitOfWork;
     }
@@ -50,20 +51,29 @@ public class CreateMaintenanceScheduleCommandHandler : IRequestHandler<CreateMai
             request.RequestDto.LastPerformedDate.HasValue && 
             request.RequestDto.LastPerformedOdometer.HasValue)
         {
-            var initialLog = MaintenanceLog.Create(
+            var serviceOrder = ServiceOrder.Create(
                 workspaceId!.Value,
                 userId!.Value,
                 vehicle.Id,
-                schedule.Id,
-                schedule.Description,
-                request.RequestDto.LastPerformedDate.Value,
-                request.RequestDto.LastPerformedOdometer.Value,
-                request.RequestDto.InitialCost ?? 0m,
-                request.RequestDto.InitialReceiptUrl,
-                request.RequestDto.InitialNotes
-            );
+                orderNumber: null,
+                workshopName: null,
+                performedAt: request.RequestDto.LastPerformedDate.Value,
+                odometerAtService: request.RequestDto.LastPerformedOdometer.Value,
+                totalCost: request.RequestDto.InitialCost ?? 0m,
+                discount: 0,
+                notes: request.RequestDto.InitialNotes);
 
-            await _maintenanceLogWriteRepository.AddAsync(initialLog, cancellationToken);
+            serviceOrder.AddItem(
+                schedule.Description,
+                ServiceOrderItemType.Labor,
+                schedule.Category,
+                quantity: 1,
+                unitPrice: request.RequestDto.InitialCost ?? 0m,
+                totalCost: request.RequestDto.InitialCost ?? 0m,
+                maintenanceScheduleId: schedule.Id,
+                notes: request.RequestDto.InitialNotes);
+
+            await _serviceOrderWriteRepository.AddAsync(serviceOrder, cancellationToken);
 
             vehicle.RecordOdometerReading(request.RequestDto.LastPerformedOdometer.Value, request.RequestDto.LastPerformedDate.Value);
             schedule.RecalculateNextDue(vehicle.CurrentOdometer, vehicle.DailyMileageAverage);

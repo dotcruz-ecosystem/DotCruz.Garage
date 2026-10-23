@@ -5,6 +5,7 @@
     <Project Path="src/DotCruz.Garage.CrossCutting/DotCruz.Garage.CrossCutting.csproj" />
     <Project Path="src/DotCruz.Garage.Domain/DotCruz.Garage.Domain.csproj" />
     <Project Path="src/DotCruz.Garage.Infrastructure/DotCruz.Garage.Infrastructure.csproj" />
+    <Project Path="src/DotCruz.Garage.Worker/DotCruz.Garage.Worker.csproj" />
   </Folder>
   <Folder Name="/tests/">
     <Project Path="tests/CommonTestUtilities/CommonTestUtilities.csproj" />

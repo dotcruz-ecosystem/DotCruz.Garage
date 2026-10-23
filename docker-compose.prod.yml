@@ -17,6 +17,8 @@ services:
       - Settings__Jwt__Issuer=${JWT_ISSUER}
       - Settings__Jwt__Audience=${JWT_AUDIENCE}
       - Settings__Jwt__JwksUrl=${JWT_JWKS_URL}
+      - Settings__GeminiApi__ApiKey=${GEMINI_API_KEY}
+      - Settings__GeminiApi__BaseUrl=${GEMINI_BASE_URL:-https://generativelanguage.googleapis.com/v1beta/}
       - CloudflareR2__AccountId=${CLOUDFLARE_R2_ACCOUNT_ID}
       - CloudflareR2__AccessKey=${CLOUDFLARE_R2_ACCESS_KEY}
       - CloudflareR2__SecretKey=${CLOUDFLARE_R2_SECRET_KEY}
@@ -28,6 +30,34 @@ services:
       resources:
         limits:
           memory: 256M
+
+  garage-worker:
+    image: ${GARAGE_WORKER_IMAGE_TAG:-dotcruz-garage-worker:local}
+    container_name: dotcruz-garage-worker
+    restart: unless-stopped
+    environment:
+      - DOTNET_ENVIRONMENT=Production
+      - ConnectionStrings__DefaultConnection=${GARAGE_CONNECTION_STRING}
+      - Settings__NotificationApiUrl=${NOTIFICATION_BASE_URL}
+      - Settings__AuthApiUrl=${CORE_AUTH_BASE_ADDRESS}
+      - Settings__ServiceAuth__Self__Name=GarageWorker
+      - Settings__ServiceAuth__Self__Key=${GARAGE_SERVICE_KEY}
+      - Settings__Jwt__Issuer=${JWT_ISSUER}
+      - Settings__Jwt__Audience=${JWT_AUDIENCE}
+      - Settings__Jwt__JwksUrl=${JWT_JWKS_URL}
+      - Settings__GeminiApi__ApiKey=${GEMINI_API_KEY}
+      - Settings__GeminiApi__BaseUrl=${GEMINI_BASE_URL:-https://generativelanguage.googleapis.com/v1beta/}
+      - CloudflareR2__AccountId=${CLOUDFLARE_R2_ACCOUNT_ID}
+      - CloudflareR2__AccessKey=${CLOUDFLARE_R2_ACCESS_KEY}
+      - CloudflareR2__SecretKey=${CLOUDFLARE_R2_SECRET_KEY}
+      - CloudflareR2__BucketName=${CLOUDFLARE_R2_BUCKET_NAME}
+      - CloudflareR2__PublicBaseUrl=${CLOUDFLARE_R2_PUBLIC_BASE_URL}
+    networks:
+      - dotcruz_net
+    deploy:
+      resources:
+        limits:
+          memory: 128M
 
 networks:
   dotcruz_net:

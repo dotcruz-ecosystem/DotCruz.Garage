@@ -1,4 +1,5 @@
-﻿using DotCruz.Garage.Application.Abstractions.Data.Repositories.Maintenance;
+using DotCruz.Garage.Application.Abstractions.Data.Repositories.Maintenance;
+using DotCruz.Garage.Application.Abstractions.Data.Repositories.ServiceOrders;
 using DotCruz.Garage.Application.Abstractions.Data.Repositories.Vehicles;
 using DotCruz.Garage.Application.DTOs.Maintenance;
 using DotCruz.Garage.Domain.Enums;
@@ -12,16 +13,16 @@ public class GetVehicleMaintenanceOverviewQueryHandler : IRequestHandler<GetVehi
 {
     private readonly IVehicleReadRepository _vehicleReadRepository;
     private readonly IMaintenanceScheduleReadRepository _scheduleReadRepository;
-    private readonly IMaintenanceLogReadRepository _logReadRepository;
+    private readonly IServiceOrderReadRepository _serviceOrderReadRepository;
 
     public GetVehicleMaintenanceOverviewQueryHandler(
         IVehicleReadRepository vehicleReadRepository,
         IMaintenanceScheduleReadRepository scheduleReadRepository,
-        IMaintenanceLogReadRepository logReadRepository)
+        IServiceOrderReadRepository serviceOrderReadRepository)
     {
         _vehicleReadRepository = vehicleReadRepository;
         _scheduleReadRepository = scheduleReadRepository;
-        _logReadRepository = logReadRepository;
+        _serviceOrderReadRepository = serviceOrderReadRepository;
     }
 
     public async Task<MaintenanceOverviewDto> Handle(GetVehicleMaintenanceOverviewQuery request, CancellationToken cancellationToken)
@@ -30,7 +31,7 @@ public class GetVehicleMaintenanceOverviewQueryHandler : IRequestHandler<GetVehi
             ?? throw new NotFoundException(ResourceMessagesException.VEHICLE_NOT_FOUND);
 
         var schedules = await _scheduleReadRepository.GetByVehicleIdAsync(vehicle.Id, cancellationToken);
-        var (logs, totalLogs) = await _logReadRepository.GetByVehicleIdPaginatedAsync(vehicle.Id, 1, 1000, cancellationToken);
+        var serviceOrders = await _serviceOrderReadRepository.GetByVehicleIdAsync(vehicle.Id, cancellationToken);
 
         int totalSchedules = schedules.Count;
         int activeSchedules = schedules.Count(s => s.Status == ScheduleStatus.Active);
@@ -39,9 +40,11 @@ public class GetVehicleMaintenanceOverviewQueryHandler : IRequestHandler<GetVehi
         int inactiveSchedules = schedules.Count(s => s.Status == ScheduleStatus.Inactive);
 
         var twelveMonthsAgo = DateTimeOffset.UtcNow.AddMonths(-12);
-        decimal totalCostLast12Months = logs
-            .Where(l => l.PerformedAt >= twelveMonthsAgo)
-            .Sum(l => l.Cost);
+        decimal totalCostLast12Months = serviceOrders
+            .Where(so => so.PerformedAt >= twelveMonthsAgo)
+            .Sum(so => so.TotalCost);
+
+        int totalServicesPerformed = serviceOrders.Count;
 
         return new MaintenanceOverviewDto(
             vehicle.Id,
@@ -51,6 +54,6 @@ public class GetVehicleMaintenanceOverviewQueryHandler : IRequestHandler<GetVehi
             overdueSchedules,
             inactiveSchedules,
             totalCostLast12Months,
-            totalLogs);
+            totalServicesPerformed);
     }
 }

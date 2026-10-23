@@ -9,15 +9,17 @@ public static class VehicleMapper
     public static Vehicle ToDomain(this CreateVehicleCommand command, Guid workspaceId, Guid userId)
     {
         var resolvedName = string.IsNullOrWhiteSpace(command.Name)
-            ? $"{command.Model.Trim()} - {command.Brand.Trim()} - {command.Year}"
+            ? $"{command.Model.Trim()} {command.Engine.Trim()} - {command.Brand.Trim()} - {command.Year}"
             : command.Name.Trim();
 
         return Vehicle.Create(
             workspaceId,
             userId,
             resolvedName,
+            command.Type,
             command.Brand.Trim(),
             command.Model.Trim(),
+            command.Engine.Trim(),
             command.Year,
             command.Plate?.Trim().ToUpper(),
             command.InitialOdometer,
@@ -30,8 +32,10 @@ public static class VehicleMapper
         return new VehicleDto(
             vehicle.Id,
             vehicle.Name,
+            vehicle.Type,
             vehicle.Brand,
             vehicle.Model,
+            vehicle.Engine,
             vehicle.Year,
             vehicle.Plate,
             vehicle.CurrentOdometer,

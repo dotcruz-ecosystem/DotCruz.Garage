@@ -25,21 +25,21 @@ public class GetVehicleMaintenanceOverviewQueryHandlerTest
             workspaceId, Guid.NewGuid(), vehicle.Id, "Revisão", MaintenanceCategory.General,
             10_000, null, 50_000, null, 1_000, null, 59_500, 20);
 
-        var log1 = MaintenanceLogBuilder.Build(workspaceId: workspaceId, vehicleId: vehicle.Id, cost: 500m, performedAt: DateTimeOffset.UtcNow.AddMonths(-2));
-        var log2 = MaintenanceLogBuilder.Build(workspaceId: workspaceId, vehicleId: vehicle.Id, cost: 300m, performedAt: DateTimeOffset.UtcNow.AddMonths(-1));
+        var so1 = ServiceOrderBuilder.Build(workspaceId: workspaceId, vehicleId: vehicle.Id, totalCost: 500m, performedAt: DateTimeOffset.UtcNow.AddMonths(-2));
+        var so2 = ServiceOrderBuilder.Build(workspaceId: workspaceId, vehicleId: vehicle.Id, totalCost: 300m, performedAt: DateTimeOffset.UtcNow.AddMonths(-1));
 
         var (vehicleRead, _) = new VehicleRepositoryBuilder().SetupGetById(vehicle).Build();
         var (scheduleRead, _) = new MaintenanceScheduleRepositoryBuilder()
             .SetupGetByVehicleId(new[] { scheduleActive, scheduleDueSoon })
             .Build();
-        var (logRead, _) = new MaintenanceLogRepositoryBuilder()
-            .SetupGetByVehicleIdPaginated(new[] { log1, log2 }, 2)
+        var (soRead, _) = new ServiceOrderRepositoryBuilder()
+            .SetupGetByVehicleId(new[] { so1, so2 })
             .Build();
 
         var handler = new GetVehicleMaintenanceOverviewQueryHandler(
             vehicleRead,
             scheduleRead,
-            logRead);
+            soRead);
 
         var query = new GetVehicleMaintenanceOverviewQuery(vehicle.Id);
         var result = await handler.Handle(query, TestContext.Current.CancellationToken);

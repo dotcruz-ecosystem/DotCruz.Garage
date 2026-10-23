@@ -1,41 +1,42 @@
 using DotCruz.Garage.Application.Abstractions.Data;
 using DotCruz.Garage.Application.Abstractions.Data.Repositories.Maintenance;
+using DotCruz.Garage.Application.Abstractions.Data.Repositories.ServiceOrders;
 using DotCruz.Garage.Application.Abstractions.Data.Repositories.Vehicles;
 using DotCruz.Garage.Application.DTOs.Maintenance;
-using DotCruz.Garage.Application.Mappers.Maintenance;
-using DotCruz.Garage.Domain.Entities.Maintenance;
-using DotCruz.Garage.Domain.Entities.Vehicles;
+using DotCruz.Garage.Application.DTOs.ServiceOrders;
+using DotCruz.Garage.Application.Mappers.ServiceOrders;
+using DotCruz.Garage.Domain.Entities.ServiceOrders;
+using DotCruz.Garage.Domain.Enums;
 using DotCruz.Garage.Domain.Exceptions.BaseExceptions;
 using DotCruz.Garage.Domain.Exceptions.Resources;
-using DotCruz.Garage.Domain.Services;
 using DotCruz.Shared.Security.Context;
 using MediatR;
 
 namespace DotCruz.Garage.Application.UseCases.Maintenance.Commands.CompleteMaintenanceSchedule;
 
-public class CompleteMaintenanceScheduleCommandHandler : IRequestHandler<CompleteMaintenanceScheduleCommand, MaintenanceLogDto>
+public class CompleteMaintenanceScheduleCommandHandler : IRequestHandler<CompleteMaintenanceScheduleCommand, ServiceOrderDto>
 {
     private readonly IVehicleWriteRepository _vehicleWriteRepository;
     private readonly IMaintenanceScheduleWriteRepository _maintenanceScheduleWriteRepository;
-    private readonly IMaintenanceLogWriteRepository _maintenanceLogWriteRepository;
+    private readonly IServiceOrderWriteRepository _serviceOrderWriteRepository;
     private readonly IWorkspaceProvider _workspaceProvider;
     private readonly IUnitOfWork _unitOfWork;
 
     public CompleteMaintenanceScheduleCommandHandler(
         IVehicleWriteRepository vehicleWriteRepository,
         IMaintenanceScheduleWriteRepository maintenanceScheduleWriteRepository,
-        IMaintenanceLogWriteRepository maintenanceLogWriteRepository,
+        IServiceOrderWriteRepository serviceOrderWriteRepository,
         IWorkspaceProvider workspaceProvider,
         IUnitOfWork unitOfWork)
     {
         _vehicleWriteRepository = vehicleWriteRepository;
         _maintenanceScheduleWriteRepository = maintenanceScheduleWriteRepository;
-        _maintenanceLogWriteRepository = maintenanceLogWriteRepository;
+        _serviceOrderWriteRepository = serviceOrderWriteRepository;
         _workspaceProvider = workspaceProvider;
         _unitOfWork = unitOfWork;
     }
 
-    public async Task<MaintenanceLogDto> Handle(CompleteMaintenanceScheduleCommand request, CancellationToken cancellationToken)
+    public async Task<ServiceOrderDto> Handle(CompleteMaintenanceScheduleCommand request, CancellationToken cancellationToken)
     {
         var vehicle = await _vehicleWriteRepository.GetByIdWithHistoriesToUpdateAsync(request.VehicleId, cancellationToken)
             ?? throw new NotFoundException(ResourceMessagesException.VEHICLE_NOT_FOUND);
@@ -63,29 +64,39 @@ public class CompleteMaintenanceScheduleCommandHandler : IRequestHandler<Complet
             }
         }
 
-        var log = MaintenanceLog.Create(
+        var serviceOrder = ServiceOrder.Create(
             workspaceId,
             userId,
             vehicle.Id,
-            schedule.Id,
+            orderNumber: null,
+            workshopName: null,
+            performedAt: request.RequestDto.PerformedAt,
+            odometerAtService: request.RequestDto.OdometerAtService,
+            totalCost: request.RequestDto.Cost,
+            discount: 0,
+            notes: request.RequestDto.Notes);
+
+        serviceOrder.AddItem(
             schedule.Description,
-            request.RequestDto.PerformedAt,
-            request.RequestDto.OdometerAtService,
-            request.RequestDto.Cost,
-            request.RequestDto.ReceiptUrl,
-            request.RequestDto.Notes);
+            ServiceOrderItemType.Labor,
+            schedule.Category,
+            quantity: 1,
+            unitPrice: request.RequestDto.Cost,
+            totalCost: request.RequestDto.Cost,
+            maintenanceScheduleId: schedule.Id,
+            notes: request.RequestDto.Notes);
 
         if (request.RequestDto.Attachments != null)
         {
             foreach (var att in request.RequestDto.Attachments)
             {
-                log.AddAttachment(att.FileName, att.FileUrl, att.ContentType, att.FileSize);
+                serviceOrder.AddAttachment(att.FileName, att.FileUrl, att.ContentType, att.FileSize);
             }
         }
 
-        await _maintenanceLogWriteRepository.AddAsync(log, cancellationToken);
+        await _serviceOrderWriteRepository.AddAsync(serviceOrder, cancellationToken);
         await _unitOfWork.CommitAsync(cancellationToken);
 
-        return log.ToDto();
+        return serviceOrder.ToDto();
     }
 }

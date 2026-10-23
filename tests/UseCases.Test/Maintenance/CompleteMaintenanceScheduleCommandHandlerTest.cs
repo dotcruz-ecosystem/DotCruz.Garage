@@ -4,17 +4,14 @@ using CommonTestUtilities.Repositories;
 using CommonTestUtilities.Services;
 using DotCruz.Garage.Application.DTOs.Maintenance;
 using DotCruz.Garage.Application.UseCases.Maintenance.Commands.CompleteMaintenanceSchedule;
-using DotCruz.Garage.Domain.Entities.Maintenance;
-using DotCruz.Garage.Domain.Enums;
 using DotCruz.Garage.Domain.Exceptions.BaseExceptions;
-using DotCruz.Garage.Domain.Exceptions.Resources;
 
 namespace UseCases.Test.Maintenance;
 
 public class CompleteMaintenanceScheduleCommandHandlerTest
 {
     [Fact]
-    public async Task Successfully_Completes_Schedule_And_Creates_Maintenance_Log()
+    public async Task Successfully_Completes_Schedule_And_Creates_Service_Order()
     {
         var workspaceId = Guid.NewGuid();
         var userId = Guid.NewGuid();
@@ -36,15 +33,15 @@ public class CompleteMaintenanceScheduleCommandHandlerTest
             .SetupGetByVehicleIdToUpdate(new[] { schedule });
         var (_, scheduleWrite) = scheduleRepo.Build();
 
-        var logRepo = new MaintenanceLogRepositoryBuilder();
-        var (_, logWrite) = logRepo.Build();
+        var soRepo = new ServiceOrderRepositoryBuilder();
+        var (_, soWrite) = soRepo.Build();
 
         var workspaceProvider = new WorkspaceProviderBuilder().AsUser(workspaceId, userId).Build();
 
         var handler = new CompleteMaintenanceScheduleCommandHandler(
             vehicleWrite,
             scheduleWrite,
-            logWrite,
+            soWrite,
             workspaceProvider,
             UnitOfWorkBuilder.Build());
 
@@ -60,9 +57,10 @@ public class CompleteMaintenanceScheduleCommandHandlerTest
 
         Assert.NotNull(result);
         Assert.Equal(vehicle.Id, result.VehicleId);
-        Assert.Equal(schedule.Id, result.MaintenanceScheduleId);
-        Assert.Equal(450.00m, result.Cost);
+        Assert.Equal(450.00m, result.TotalCost);
         Assert.Equal(60_000, result.OdometerAtService);
+        Assert.Single(result.Items);
+        Assert.Equal(schedule.Id, result.Items.First().MaintenanceScheduleId);
         Assert.Equal(60_000, schedule.LastPerformedOdometer);
         Assert.Equal(70_000, schedule.NextDueOdometer);
         Assert.Equal(60_000, vehicle.CurrentOdometer);
@@ -73,13 +71,13 @@ public class CompleteMaintenanceScheduleCommandHandlerTest
     {
         var (_, vehicleWrite) = new VehicleRepositoryBuilder().Build();
         var (_, scheduleWrite) = new MaintenanceScheduleRepositoryBuilder().Build();
-        var (_, logWrite) = new MaintenanceLogRepositoryBuilder().Build();
+        var (_, soWrite) = new ServiceOrderRepositoryBuilder().Build();
         var workspaceProvider = new WorkspaceProviderBuilder().Build();
 
         var handler = new CompleteMaintenanceScheduleCommandHandler(
             vehicleWrite,
             scheduleWrite,
-            logWrite,
+            soWrite,
             workspaceProvider,
             UnitOfWorkBuilder.Build());
 
@@ -106,13 +104,13 @@ public class CompleteMaintenanceScheduleCommandHandlerTest
             .SetupGetByVehicleIdToUpdate(new[] { schedule })
             .Build();
 
-        var (_, logWrite) = new MaintenanceLogRepositoryBuilder().Build();
+        var (_, soWrite) = new ServiceOrderRepositoryBuilder().Build();
         var workspaceProvider = new WorkspaceProviderBuilder().Build();
 
         var handler = new CompleteMaintenanceScheduleCommandHandler(
             vehicleWrite,
             scheduleWrite,
-            logWrite,
+            soWrite,
             workspaceProvider,
             UnitOfWorkBuilder.Build());
 

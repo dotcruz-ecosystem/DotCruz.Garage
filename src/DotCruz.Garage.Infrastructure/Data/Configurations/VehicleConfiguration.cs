@@ -17,6 +17,9 @@ public class VehicleConfiguration : IEntityTypeConfiguration<Vehicle>
             .IsRequired()
             .HasMaxLength(100);
 
+        builder.Property(v => v.Type)
+            .IsRequired();
+
         builder.Property(v => v.Brand)
             .IsRequired()
             .HasMaxLength(50);
@@ -24,6 +27,10 @@ public class VehicleConfiguration : IEntityTypeConfiguration<Vehicle>
         builder.Property(v => v.Model)
             .IsRequired()
             .HasMaxLength(100);
+
+        builder.Property(v => v.Engine)
+            .IsRequired()
+            .HasMaxLength(50);
 
         builder.Property(v => v.Year)
             .IsRequired();

@@ -3,6 +3,7 @@ using DotCruz.Shared.Security.Context;
 using DotCruz.Garage.Domain.Entities.Base;
 using DotCruz.Garage.Domain.Entities.Vehicles;
 using DotCruz.Garage.Domain.Entities.Maintenance;
+using DotCruz.Garage.Domain.Entities.ServiceOrders;
 using Microsoft.EntityFrameworkCore;
 
 namespace DotCruz.Garage.Infrastructure.Data;
@@ -18,10 +19,16 @@ public class GarageDbContext : DbContext
     }
 
     public DbSet<Vehicle> Vehicles { get; set; }
+    public DbSet<VehicleBrand> VehicleBrands { get; set; }
+    public DbSet<VehicleModel> VehicleModels { get; set; }
+    public DbSet<VehicleEngine> VehicleEngines { get; set; }
+    public DbSet<VehicleBlueprint> VehicleBlueprints { get; set; }
+    public DbSet<MaintenancePlanTemplate> MaintenancePlanTemplates { get; set; }
     public DbSet<OdometerHistory> OdometerHistories { get; set; }
     public DbSet<MaintenanceSchedule> MaintenanceSchedules { get; set; }
-    public DbSet<MaintenanceLog> MaintenanceLogs { get; set; }
-    public DbSet<MaintenanceAttachment> MaintenanceAttachments { get; set; }
+    public DbSet<ServiceOrder> ServiceOrders { get; set; }
+    public DbSet<ServiceOrderItem> ServiceOrderItems { get; set; }
+    public DbSet<ServiceOrderAttachment> ServiceOrderAttachments { get; set; }
 
     public Guid CurrentWorkspaceId => _workspaceProvider.WorkspaceId ?? Guid.Empty;
     public Guid CurrentUserId => _workspaceProvider.UserId ?? Guid.Empty;
