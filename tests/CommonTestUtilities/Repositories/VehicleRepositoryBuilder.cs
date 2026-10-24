@@ -21,6 +21,20 @@ public class VehicleRepositoryBuilder
         return this;
     }
 
+    public VehicleRepositoryBuilder SetupGetVehiclesByAttributes(IReadOnlyCollection<Vehicle> vehicles)
+    {
+        _readMock.Setup(r => r.GetVehiclesByAttributesAsync(
+            It.IsAny<string>(),
+            It.IsAny<string>(),
+            It.IsAny<string>(),
+            It.IsAny<int?>(),
+            It.IsAny<int?>(),
+            It.IsAny<CancellationToken>()))
+            .ReturnsAsync(vehicles);
+
+        return this;
+    }
+
     public VehicleRepositoryBuilder SetupGetById(Vehicle? vehicle)
     {
         _readMock.Setup(r => r.GetByIdAsync(

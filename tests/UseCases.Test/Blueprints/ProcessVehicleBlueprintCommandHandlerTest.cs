@@ -26,12 +26,18 @@ public class ProcessVehicleBlueprintCommandHandlerTest
             .WithBlueprint(blueprint)
             .Build();
 
+        var (vehicleReadRepository, _) = new VehicleRepositoryBuilder().Build();
+        var authServiceClient = new AuthServiceClientBuilder().Build();
+        var notificationService = new NotificationServiceBuilder().Build();
         var aiService = new AiManualExtractionServiceBuilder().Build();
         var unitOfWork = UnitOfWorkBuilder.Build();
         var logger = LoggerBuilder.Build<ProcessVehicleBlueprintCommandHandler>();
 
         var handler = new ProcessVehicleBlueprintCommandHandler(
             blueprintRepository,
+            vehicleReadRepository,
+            authServiceClient,
+            notificationService,
             aiService,
             unitOfWork,
             logger);
@@ -60,6 +66,9 @@ public class ProcessVehicleBlueprintCommandHandlerTest
             .WithBlueprint(blueprint)
             .Build();
 
+        var (vehicleReadRepository, _) = new VehicleRepositoryBuilder().Build();
+        var authServiceClient = new AuthServiceClientBuilder().Build();
+        var notificationService = new NotificationServiceBuilder().Build();
         var aiServiceBuilder = new AiManualExtractionServiceBuilder();
         aiServiceBuilder.SetupThrows(new HttpRequestException("API timeout"));
 
@@ -68,6 +77,9 @@ public class ProcessVehicleBlueprintCommandHandlerTest
 
         var handler = new ProcessVehicleBlueprintCommandHandler(
             blueprintRepository,
+            vehicleReadRepository,
+            authServiceClient,
+            notificationService,
             aiServiceBuilder.Build(),
             unitOfWork,
             logger);
@@ -79,4 +91,63 @@ public class ProcessVehicleBlueprintCommandHandlerTest
         Assert.Equal(BlueprintStatus.Failed, blueprint.Status);
         Assert.Contains("API timeout", blueprint.ErrorMessage);
     }
+
+    [Fact]
+    public async Task Dispatches_Notifications_To_Owners_Of_Matching_Vehicles_When_Ready()
+    {
+        var blueprint = VehicleBlueprintBuilder.Build(
+            brand: "Honda",
+            model: "Civic",
+            engine: "2.0 Touring",
+            type: VehicleType.Car,
+            yearFrom: 2022,
+            yearTo: 2026,
+            withTemplates: false);
+
+        var blueprintRepository = new VehicleBlueprintRepositoryBuilder()
+            .WithBlueprint(blueprint)
+            .Build();
+
+        var vehicle = VehicleBuilder.Build(
+            brand: "Honda",
+            model: "Civic",
+            engine: "2.0 Touring");
+
+        var vehicleRepoBuilder = new VehicleRepositoryBuilder()
+            .SetupGetVehiclesByAttributes(new[] { vehicle });
+        var (vehicleReadRepository, _) = vehicleRepoBuilder.Build();
+
+        var user = new DotCruz.Garage.Application.Abstractions.Services.Auth.DTOs.UserResponseDto(
+            vehicle.UserId,
+            "Matheus Cruz",
+            "matheus@dotcruz.com");
+
+        var authServiceClient = new AuthServiceClientBuilder()
+            .SetupGetUserById(vehicle.UserId, vehicle.WorkspaceId, user)
+            .Build();
+
+        var notificationServiceBuilder = new NotificationServiceBuilder();
+        var aiService = new AiManualExtractionServiceBuilder().Build();
+        var unitOfWork = UnitOfWorkBuilder.Build();
+        var logger = LoggerBuilder.Build<ProcessVehicleBlueprintCommandHandler>();
+
+        var handler = new ProcessVehicleBlueprintCommandHandler(
+            blueprintRepository,
+            vehicleReadRepository,
+            authServiceClient,
+            notificationServiceBuilder.Build(),
+            aiService,
+            unitOfWork,
+            logger);
+
+        var command = new ProcessVehicleBlueprintCommand(blueprint.Id);
+
+        await handler.Handle(command, TestContext.Current.CancellationToken);
+
+        notificationServiceBuilder.VerifyBlueprintReadyNotificationSent(
+            vehicle.UserId,
+            vehicle.Id,
+            Moq.Times.Once());
+    }
 }
+

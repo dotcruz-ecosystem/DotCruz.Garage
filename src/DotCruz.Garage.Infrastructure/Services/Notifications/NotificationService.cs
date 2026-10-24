@@ -1,6 +1,4 @@
 using DotCruz.Garage.Application.Abstractions.Services.Notifications;
-using DotCruz.Notifications.Contracts.Enums.Notifications;
-using DotCruz.Notifications.Contracts.Messages.Notifications.CreateNotification;
 using System.Globalization;
 using System.Net.Http.Json;
 using System.Text.Json;
@@ -28,8 +26,8 @@ public class NotificationService(HttpClient httpClient) : INotificationService
         DateTimeOffset? dueDate,
         CancellationToken cancellationToken)
     {
-        var message = new CreateNotificationMessage(
-            Type: IntegrationNotificationType.Email,
+        var message = new CreateNotificationPayload(
+            Type: "Email",
             Recipient: userEmail,
             Culture: CultureInfo.CurrentUICulture.Name,
             TemplateCode: "VehicleMaintenanceAlert",
@@ -40,13 +38,57 @@ public class NotificationService(HttpClient httpClient) : INotificationService
                 { "description", maintenanceDescription },
                 { "due_odometer", dueOdometer ?? 0 },
                 { "due_date", dueDate?.ToString("yyyy-MM-dd") ?? string.Empty }
-            }
+            },
+            WorkspaceId: workspaceId
         );
 
         await SendAsync(message, workspaceId, cancellationToken);
     }
 
-    private async Task SendAsync(CreateNotificationMessage message, Guid workspaceId, CancellationToken cancellationToken)
+    public async Task SendBlueprintReadyNotificationAsync(
+        Guid userId,
+        Guid workspaceId,
+        string userName,
+        string userEmail,
+        Guid vehicleId,
+        string vehicleName,
+        int templatesCount,
+        CancellationToken cancellationToken)
+    {
+        // 1. In-App Notification (Sininho no TopBar do ecossistema)
+        var inAppMessage = new CreateNotificationPayload(
+            Type: "InApp",
+            Recipient: userId.ToString(),
+            Title: "Plano de Manutenção Disponível 🛠️",
+            Body: $"Identificamos o manual da sua {vehicleName} e montamos {templatesCount} recomendações preventivas sob medida!",
+            SourceApp: "garage",
+            ActionUrl: $"http://localhost:3004/vehicles/{vehicleId}?openBlueprint=true",
+            WorkspaceId: workspaceId
+        );
+
+        // 2. Email Notification (Template Oficial VehicleBlueprintReady)
+        var emailMessage = new CreateNotificationPayload(
+            Type: "Email",
+            Recipient: userEmail,
+            Culture: CultureInfo.CurrentUICulture.Name,
+            TemplateCode: "VehicleBlueprintReady",
+            TemplateData: new Dictionary<string, object>
+            {
+                { "name", userName },
+                { "vehicle_name", vehicleName },
+                { "items_count", templatesCount },
+                { "vehicle_url", $"http://localhost:3004/vehicles/{vehicleId}?openBlueprint=true" }
+            },
+            WorkspaceId: workspaceId
+        );
+
+        await Task.WhenAll(
+            SendAsync(inAppMessage, workspaceId, cancellationToken),
+            SendAsync(emailMessage, workspaceId, cancellationToken)
+        );
+    }
+
+    private async Task SendAsync(CreateNotificationPayload message, Guid workspaceId, CancellationToken cancellationToken)
     {
         using var request = new HttpRequestMessage(HttpMethod.Post, "api/Notification")
         {
@@ -59,4 +101,18 @@ public class NotificationService(HttpClient httpClient) : INotificationService
         var response = await httpClient.SendAsync(request, cancellationToken);
         response.EnsureSuccessStatusCode();
     }
+
+    private record CreateNotificationPayload(
+        string Type,
+        string Recipient,
+        string? Title = null,
+        string? Body = null,
+        string? Culture = null,
+        string? TemplateCode = null,
+        Dictionary<string, object>? TemplateData = null,
+        DateTimeOffset? ScheduledFor = null,
+        Guid? WorkspaceId = null,
+        string? SourceApp = null,
+        string? ActionUrl = null
+    );
 }

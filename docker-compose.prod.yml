@@ -40,8 +40,10 @@ services:
       - ConnectionStrings__DefaultConnection=${GARAGE_CONNECTION_STRING}
       - Settings__NotificationApiUrl=${NOTIFICATION_BASE_URL}
       - Settings__AuthApiUrl=${CORE_AUTH_BASE_ADDRESS}
-      - Settings__ServiceAuth__Self__Name=GarageWorker
+      - Settings__ServiceAuth__Self__Name=Garage
       - Settings__ServiceAuth__Self__Key=${GARAGE_SERVICE_KEY}
+      - Settings__ServiceAuth__Keys__CoreAuth=${COREAUTH_SERVICE_KEY}
+      - Settings__ServiceAuth__Keys__Notifications=${NOTIFICATIONS_SERVICE_KEY}
       - Settings__Jwt__Issuer=${JWT_ISSUER}
       - Settings__Jwt__Audience=${JWT_AUDIENCE}
       - Settings__Jwt__JwksUrl=${JWT_JWKS_URL}

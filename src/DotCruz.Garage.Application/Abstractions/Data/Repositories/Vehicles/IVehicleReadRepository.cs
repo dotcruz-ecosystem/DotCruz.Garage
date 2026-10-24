@@ -11,4 +11,11 @@ public interface IVehicleReadRepository : IBaseReadRepository<Vehicle>
         int pageSize,
         string? searchTerm,
         CancellationToken cancellationToken);
+    Task<IReadOnlyCollection<Vehicle>> GetVehiclesByAttributesAsync(
+        string brand,
+        string model,
+        string engine,
+        int? yearFrom,
+        int? yearTo,
+        CancellationToken cancellationToken);
 }

@@ -41,4 +41,36 @@ public class VehicleReadRepository(GarageDbContext context)
 
         return (items, totalCount);
     }
+
+    public async Task<IReadOnlyCollection<Vehicle>> GetVehiclesByAttributesAsync(
+        string brand,
+        string model,
+        string engine,
+        int? yearFrom,
+        int? yearTo,
+        CancellationToken cancellationToken)
+    {
+        var brandLower = brand.ToLower();
+        var modelLower = model.ToLower();
+        var engineLower = engine.ToLower();
+
+        var query = _dbSet.AsNoTracking()
+            .IgnoreQueryFilters()
+            .Where(v => v.DeletedAt == null &&
+                        v.Brand.ToLower() == brandLower &&
+                        v.Model.ToLower() == modelLower &&
+                        v.Engine.ToLower() == engineLower);
+
+        if (yearFrom.HasValue && yearFrom.Value > 0)
+        {
+            query = query.Where(v => v.Year >= yearFrom.Value);
+        }
+
+        if (yearTo.HasValue && yearTo.Value > 0)
+        {
+            query = query.Where(v => v.Year <= yearTo.Value);
+        }
+
+        return await query.ToListAsync(cancellationToken);
+    }
 }
