@@ -22,27 +22,24 @@ public class VehiclesController(IMediator mediator) : GarageBaseController
 {
     [HttpGet("catalog/brands")]
     [ProducesResponseType(typeof(IReadOnlyCollection<string>), StatusCodes.Status200OK)]
-    public async Task<IActionResult> GetCatalogBrands([FromQuery] VehicleType? type, CancellationToken cancellationToken)
+    public async Task<IActionResult> GetCatalogBrands([FromQuery] GetCatalogBrandsQuery query, CancellationToken cancellationToken)
     {
-        var query = new GetCatalogBrandsQuery(type);
         var result = await mediator.Send(query, cancellationToken);
         return Ok(result);
     }
 
     [HttpGet("catalog/models")]
     [ProducesResponseType(typeof(IReadOnlyCollection<string>), StatusCodes.Status200OK)]
-    public async Task<IActionResult> GetCatalogModels([FromQuery] string brand, [FromQuery] VehicleType? type, CancellationToken cancellationToken)
+    public async Task<IActionResult> GetCatalogModels([FromQuery] GetCatalogModelsQuery query, CancellationToken cancellationToken)
     {
-        var query = new GetCatalogModelsQuery(brand, type);
         var result = await mediator.Send(query, cancellationToken);
         return Ok(result);
     }
 
     [HttpGet("catalog/engines")]
     [ProducesResponseType(typeof(IReadOnlyCollection<string>), StatusCodes.Status200OK)]
-    public async Task<IActionResult> GetCatalogEngines([FromQuery] VehicleType? type, CancellationToken cancellationToken)
+    public async Task<IActionResult> GetCatalogEngines([FromQuery] GetCatalogEnginesQuery query, CancellationToken cancellationToken)
     {
-        var query = new GetCatalogEnginesQuery(type);
         var result = await mediator.Send(query, cancellationToken);
         return Ok(result);
     }

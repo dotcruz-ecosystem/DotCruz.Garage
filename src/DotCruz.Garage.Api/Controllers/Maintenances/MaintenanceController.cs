@@ -30,11 +30,10 @@ public class MaintenanceController(IMediator mediator) : GarageBaseController
     [ProducesResponseType(typeof(ErrorResponseDto), StatusCodes.Status404NotFound)]
     public async Task<IActionResult> GetSchedules(
         [FromRoute] Guid vehicleId,
-        [FromQuery] int pageNumber = 1,
-        [FromQuery] int pageSize = 10,
+        [FromQuery] PaginationQueryDto pagination,
         CancellationToken cancellationToken = default)
     {
-        var query = new SearchMaintenanceSchedulesQuery(vehicleId, pageNumber, pageSize);
+        var query = new SearchMaintenanceSchedulesQuery(vehicleId, pagination.PageNumber, pagination.PageSize);
         var result = await mediator.Send(query, cancellationToken);
         return Ok(result);
     }
@@ -134,11 +133,10 @@ public class MaintenanceController(IMediator mediator) : GarageBaseController
     [ProducesResponseType(typeof(ErrorResponseDto), StatusCodes.Status404NotFound)]
     public async Task<IActionResult> GetServiceOrders(
         [FromRoute] Guid vehicleId,
-        [FromQuery] int pageNumber = 1,
-        [FromQuery] int pageSize = 20,
+        [FromQuery] PaginationQueryDto pagination,
         CancellationToken cancellationToken = default)
     {
-        var query = new GetServiceOrdersByVehicleQuery(vehicleId, pageNumber, pageSize);
+        var query = new GetServiceOrdersByVehicleQuery(vehicleId, pagination.PageNumber, pagination.PageSize);
         var result = await mediator.Send(query, cancellationToken);
         return Ok(result);
     }
