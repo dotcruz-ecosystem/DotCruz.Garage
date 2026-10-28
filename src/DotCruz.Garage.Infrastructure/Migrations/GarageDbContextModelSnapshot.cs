@@ -81,6 +81,10 @@ namespace DotCruz.Garage.Infrastructure.Migrations
                         .HasColumnType("integer")
                         .HasColumnName("next_due_odometer");
 
+                    b.Property<Guid?>("OriginWorkspaceId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("origin_workspace_id");
+
                     b.Property<string>("Status")
                         .IsRequired()
                         .HasMaxLength(30)
@@ -107,20 +111,74 @@ namespace DotCruz.Garage.Infrastructure.Migrations
                         .HasColumnType("integer")
                         .HasColumnName("warning_threshold_odometer");
 
-                    b.Property<Guid>("WorkspaceId")
-                        .HasColumnType("uuid")
-                        .HasColumnName("workspace_id");
-
                     b.HasKey("Id")
                         .HasName("pk_maintenance_schedules");
+
+                    b.HasIndex("OriginWorkspaceId")
+                        .HasDatabaseName("ix_maintenance_schedules_origin_workspace_id");
+
+                    b.HasIndex("UserId")
+                        .HasDatabaseName("ix_maintenance_schedules_user_id");
 
                     b.HasIndex("VehicleId")
                         .HasDatabaseName("ix_maintenance_schedules_vehicle_id");
 
-                    b.HasIndex("WorkspaceId", "UserId")
-                        .HasDatabaseName("ix_maintenance_schedules_workspace_id_user_id");
-
                     b.ToTable("maintenance_schedules", (string)null);
+                });
+
+            modelBuilder.Entity("DotCruz.Garage.Domain.Entities.Maintenance.MaintenanceScheduleCheckpoint", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<DateTimeOffset?>("CompletedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("completed_at");
+
+                    b.Property<int?>("CompletedOdometer")
+                        .HasColumnType("integer")
+                        .HasColumnName("completed_odometer");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("created_at");
+
+                    b.Property<DateTimeOffset?>("DeletedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("deleted_at");
+
+                    b.Property<bool>("IsCompleted")
+                        .HasColumnType("boolean")
+                        .HasColumnName("is_completed");
+
+                    b.Property<int>("Months")
+                        .HasColumnType("integer")
+                        .HasColumnName("months");
+
+                    b.Property<int>("Odometer")
+                        .HasColumnType("integer")
+                        .HasColumnName("odometer");
+
+                    b.Property<int>("Order")
+                        .HasColumnType("integer")
+                        .HasColumnName("order");
+
+                    b.Property<Guid>("ScheduleId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("schedule_id");
+
+                    b.Property<DateTimeOffset>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("updated_at");
+
+                    b.HasKey("Id")
+                        .HasName("pk_maintenance_schedule_checkpoints");
+
+                    b.HasIndex("ScheduleId")
+                        .HasDatabaseName("ix_maintenance_schedule_checkpoints_schedule_id");
+
+                    b.ToTable("maintenance_schedule_checkpoints", (string)null);
                 });
 
             modelBuilder.Entity("DotCruz.Garage.Domain.Entities.ServiceOrders.ServiceOrder", b =>
@@ -158,6 +216,10 @@ namespace DotCruz.Garage.Infrastructure.Migrations
                         .HasColumnType("character varying(50)")
                         .HasColumnName("order_number");
 
+                    b.Property<Guid?>("OriginWorkspaceId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("origin_workspace_id");
+
                     b.Property<DateTimeOffset>("PerformedAt")
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("performed_at");
@@ -184,21 +246,20 @@ namespace DotCruz.Garage.Infrastructure.Migrations
                         .HasColumnType("character varying(150)")
                         .HasColumnName("workshop_name");
 
-                    b.Property<Guid>("WorkspaceId")
-                        .HasColumnType("uuid")
-                        .HasColumnName("workspace_id");
-
                     b.HasKey("Id")
                         .HasName("pk_service_orders");
+
+                    b.HasIndex("OriginWorkspaceId")
+                        .HasDatabaseName("ix_service_orders_origin_workspace_id");
+
+                    b.HasIndex("UserId")
+                        .HasDatabaseName("ix_service_orders_user_id");
 
                     b.HasIndex("VehicleId")
                         .HasDatabaseName("ix_service_orders_vehicle_id");
 
                     b.HasIndex("VehicleId", "PerformedAt")
                         .HasDatabaseName("ix_service_orders_vehicle_id_performed_at");
-
-                    b.HasIndex("WorkspaceId", "UserId")
-                        .HasDatabaseName("ix_service_orders_workspace_id_user_id");
 
                     b.ToTable("service_orders", (string)null);
                 });
@@ -386,6 +447,49 @@ namespace DotCruz.Garage.Infrastructure.Migrations
                     b.ToTable("maintenance_plan_templates", (string)null);
                 });
 
+            modelBuilder.Entity("DotCruz.Garage.Domain.Entities.Vehicles.MaintenancePlanTemplateCheckpoint", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("created_at");
+
+                    b.Property<DateTimeOffset?>("DeletedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("deleted_at");
+
+                    b.Property<int>("Months")
+                        .HasColumnType("integer")
+                        .HasColumnName("months");
+
+                    b.Property<int>("Odometer")
+                        .HasColumnType("integer")
+                        .HasColumnName("odometer");
+
+                    b.Property<int>("Order")
+                        .HasColumnType("integer")
+                        .HasColumnName("order");
+
+                    b.Property<Guid>("TemplateId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("template_id");
+
+                    b.Property<DateTimeOffset>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("updated_at");
+
+                    b.HasKey("Id")
+                        .HasName("pk_maintenance_plan_template_checkpoints");
+
+                    b.HasIndex("TemplateId")
+                        .HasDatabaseName("ix_maintenance_plan_template_checkpoints_template_id");
+
+                    b.ToTable("maintenance_plan_template_checkpoints", (string)null);
+                });
+
             modelBuilder.Entity("DotCruz.Garage.Domain.Entities.Vehicles.OdometerHistory", b =>
                 {
                     b.Property<Guid>("Id")
@@ -492,10 +596,6 @@ namespace DotCruz.Garage.Infrastructure.Migrations
                         .HasColumnType("uuid")
                         .HasColumnName("user_id");
 
-                    b.Property<Guid>("WorkspaceId")
-                        .HasColumnType("uuid")
-                        .HasColumnName("workspace_id");
-
                     b.Property<int>("Year")
                         .HasColumnType("integer")
                         .HasColumnName("year");
@@ -503,8 +603,8 @@ namespace DotCruz.Garage.Infrastructure.Migrations
                     b.HasKey("Id")
                         .HasName("pk_vehicles");
 
-                    b.HasIndex("WorkspaceId", "UserId")
-                        .HasDatabaseName("ix_vehicles_workspace_id_user_id");
+                    b.HasIndex("UserId")
+                        .HasDatabaseName("ix_vehicles_user_id");
 
                     b.ToTable("vehicles", (string)null);
                 });
@@ -694,6 +794,58 @@ namespace DotCruz.Garage.Infrastructure.Migrations
                     b.ToTable("vehicle_models", (string)null);
                 });
 
+            modelBuilder.Entity("DotCruz.Garage.Domain.Entities.Vehicles.WorkspaceVehicle", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("created_at");
+
+                    b.Property<Guid>("CreatedByUserId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("created_by_user_id");
+
+                    b.Property<DateTimeOffset?>("DeletedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("deleted_at");
+
+                    b.Property<string>("Role")
+                        .IsRequired()
+                        .HasMaxLength(30)
+                        .HasColumnType("character varying(30)")
+                        .HasColumnName("role");
+
+                    b.Property<DateTimeOffset>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("updated_at");
+
+                    b.Property<Guid>("VehicleId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("vehicle_id");
+
+                    b.Property<Guid>("WorkspaceId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("workspace_id");
+
+                    b.HasKey("Id")
+                        .HasName("pk_workspace_vehicles");
+
+                    b.HasIndex("VehicleId")
+                        .HasDatabaseName("ix_workspace_vehicles_vehicle_id");
+
+                    b.HasIndex("WorkspaceId")
+                        .HasDatabaseName("ix_workspace_vehicles_workspace_id");
+
+                    b.HasIndex("WorkspaceId", "VehicleId")
+                        .IsUnique()
+                        .HasDatabaseName("ix_workspace_vehicles_workspace_id_vehicle_id");
+
+                    b.ToTable("workspace_vehicles", (string)null);
+                });
+
             modelBuilder.Entity("DotCruz.Garage.Domain.Entities.Maintenance.MaintenanceSchedule", b =>
                 {
                     b.HasOne("DotCruz.Garage.Domain.Entities.Vehicles.Vehicle", "Vehicle")
@@ -704,6 +856,18 @@ namespace DotCruz.Garage.Infrastructure.Migrations
                         .HasConstraintName("fk_maintenance_schedules_vehicles_vehicle_id");
 
                     b.Navigation("Vehicle");
+                });
+
+            modelBuilder.Entity("DotCruz.Garage.Domain.Entities.Maintenance.MaintenanceScheduleCheckpoint", b =>
+                {
+                    b.HasOne("DotCruz.Garage.Domain.Entities.Maintenance.MaintenanceSchedule", "Schedule")
+                        .WithMany("Checkpoints")
+                        .HasForeignKey("ScheduleId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("fk_maintenance_schedule_checkpoints_maintenance_schedules_sche");
+
+                    b.Navigation("Schedule");
                 });
 
             modelBuilder.Entity("DotCruz.Garage.Domain.Entities.ServiceOrders.ServiceOrder", b =>
@@ -762,6 +926,18 @@ namespace DotCruz.Garage.Infrastructure.Migrations
                     b.Navigation("Blueprint");
                 });
 
+            modelBuilder.Entity("DotCruz.Garage.Domain.Entities.Vehicles.MaintenancePlanTemplateCheckpoint", b =>
+                {
+                    b.HasOne("DotCruz.Garage.Domain.Entities.Vehicles.MaintenancePlanTemplate", "Template")
+                        .WithMany("Checkpoints")
+                        .HasForeignKey("TemplateId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("fk_maintenance_plan_template_checkpoints_maintenance_plan_temp");
+
+                    b.Navigation("Template");
+                });
+
             modelBuilder.Entity("DotCruz.Garage.Domain.Entities.Vehicles.OdometerHistory", b =>
                 {
                     b.HasOne("DotCruz.Garage.Domain.Entities.Vehicles.Vehicle", null)
@@ -784,6 +960,23 @@ namespace DotCruz.Garage.Infrastructure.Migrations
                     b.Navigation("Brand");
                 });
 
+            modelBuilder.Entity("DotCruz.Garage.Domain.Entities.Vehicles.WorkspaceVehicle", b =>
+                {
+                    b.HasOne("DotCruz.Garage.Domain.Entities.Vehicles.Vehicle", "Vehicle")
+                        .WithMany("Workspaces")
+                        .HasForeignKey("VehicleId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("fk_workspace_vehicles_vehicles_vehicle_id");
+
+                    b.Navigation("Vehicle");
+                });
+
+            modelBuilder.Entity("DotCruz.Garage.Domain.Entities.Maintenance.MaintenanceSchedule", b =>
+                {
+                    b.Navigation("Checkpoints");
+                });
+
             modelBuilder.Entity("DotCruz.Garage.Domain.Entities.ServiceOrders.ServiceOrder", b =>
                 {
                     b.Navigation("Attachments");
@@ -791,9 +984,16 @@ namespace DotCruz.Garage.Infrastructure.Migrations
                     b.Navigation("Items");
                 });
 
+            modelBuilder.Entity("DotCruz.Garage.Domain.Entities.Vehicles.MaintenancePlanTemplate", b =>
+                {
+                    b.Navigation("Checkpoints");
+                });
+
             modelBuilder.Entity("DotCruz.Garage.Domain.Entities.Vehicles.Vehicle", b =>
                 {
                     b.Navigation("OdometerHistories");
+
+                    b.Navigation("Workspaces");
                 });
 
             modelBuilder.Entity("DotCruz.Garage.Domain.Entities.Vehicles.VehicleBlueprint", b =>

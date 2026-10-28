@@ -2,6 +2,16 @@ using DotCruz.Garage.Domain.Enums;
 
 namespace DotCruz.Garage.Application.DTOs.Maintenance;
 
+public record MaintenanceScheduleCheckpointDto(
+    Guid Id,
+    int Odometer,
+    int Months,
+    int Order,
+    bool IsCompleted,
+    DateTimeOffset? CompletedAt,
+    int? CompletedOdometer
+);
+
 public record MaintenanceScheduleDto(
     Guid Id,
     Guid VehicleId,
@@ -15,5 +25,6 @@ public record MaintenanceScheduleDto(
     DateTimeOffset? NextDueDate,
     string Status,
     int? WarningThresholdOdometer,
-    int? WarningThresholdDays
+    int? WarningThresholdDays,
+    IReadOnlyCollection<MaintenanceScheduleCheckpointDto>? Checkpoints = null
 );

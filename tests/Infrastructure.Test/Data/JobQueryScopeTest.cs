@@ -24,8 +24,8 @@ public class JobQueryScopeTest
         var due = await repository.GetSchedulesWithVehicleDetailsToUpdateAsync(TestContext.Current.CancellationToken);
 
         Assert.Equal(2, due.Count);
-        Assert.Contains(due, s => s.WorkspaceId == workspaceA);
-        Assert.Contains(due, s => s.WorkspaceId == workspaceB);
+        Assert.Contains(due, s => s.OriginWorkspaceId == workspaceA);
+        Assert.Contains(due, s => s.OriginWorkspaceId == workspaceB);
     }
 
     [Fact]
@@ -48,7 +48,7 @@ public class JobQueryScopeTest
     }
 
     [Fact]
-    public async Task Workspace_Scope_Still_Applies_To_Regular_Queries()
+    public async Task Workspace_Scope_Still_Applies_To_Regular_Vehicle_Queries()
     {
         var workspaceId = Guid.NewGuid();
         var userId = Guid.NewGuid();
@@ -65,10 +65,11 @@ public class JobQueryScopeTest
             databaseName,
             new WorkspaceProviderBuilder().AsUser(workspaceId, userId).Build());
 
-        var visible = await scopedContext.MaintenanceSchedules.ToListAsync(TestContext.Current.CancellationToken);
+        var repository = new DotCruz.Garage.Infrastructure.Data.Repositories.Vehicles.VehicleReadRepository(scopedContext);
+        var (items, totalCount) = await repository.SearchAsync(1, 10, null, TestContext.Current.CancellationToken);
 
-        Assert.Single(visible);
-        Assert.Equal(workspaceId, visible.Single().WorkspaceId);
+        Assert.Single(items);
+        Assert.Equal(1, totalCount);
     }
 
     private static GarageDbContext BuildContextWithoutWorkspace() =>

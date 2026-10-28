@@ -21,7 +21,7 @@ public class GetUploadUrlQueryHandlerTest
             .Build();
 
         var workspaceProvider = new WorkspaceProviderBuilder()
-            .AsUser(vehicle.WorkspaceId, vehicle.UserId)
+            .AsUser(vehicle.Workspaces.First().WorkspaceId, vehicle.UserId)
             .Build();
 
         var handler = new GetUploadUrlQueryHandler(vehicleRead, storageService, workspaceProvider);

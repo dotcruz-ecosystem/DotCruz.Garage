@@ -14,7 +14,7 @@ public class ServiceOrderConfiguration : IEntityTypeConfiguration<ServiceOrder>
         builder.Property(o => o.Id).ValueGeneratedNever();
 
         builder.Property(o => o.VehicleId).IsRequired();
-        builder.Property(o => o.WorkspaceId).IsRequired();
+        builder.Property(o => o.OriginWorkspaceId).IsRequired(false);
         builder.Property(o => o.UserId).IsRequired();
 
         builder.Property(o => o.OrderNumber)
@@ -44,7 +44,8 @@ public class ServiceOrderConfiguration : IEntityTypeConfiguration<ServiceOrder>
             .IsRequired(false);
 
         builder.HasIndex(o => o.VehicleId);
-        builder.HasIndex(o => new { o.WorkspaceId, o.UserId });
+        builder.HasIndex(o => o.OriginWorkspaceId);
+        builder.HasIndex(o => o.UserId);
         builder.HasIndex(o => new { o.VehicleId, o.PerformedAt });
 
         builder.HasOne(o => o.Vehicle)

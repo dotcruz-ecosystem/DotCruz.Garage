@@ -66,7 +66,7 @@ public class AiManualExtractionServiceBuilder
                         brand,
                         model,
                         engine,
-                        year - 1,
+                        year,
                         year + 3,
                         "https://manuals.example.com/test",
                         items);

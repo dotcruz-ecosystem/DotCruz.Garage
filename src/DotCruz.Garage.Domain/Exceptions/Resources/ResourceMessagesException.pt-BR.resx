@@ -120,6 +120,21 @@
   <data name="VEHICLE_NOT_FOUND" xml:space="preserve">
     <value>Veículo não encontrado.</value>
   </data>
+  <data name="VEHICLE_ACCESS_DENIED" xml:space="preserve">
+    <value>Você não tem permissão para realizar esta ação neste veículo.</value>
+  </data>
+  <data name="VEHICLE_OWNER_REQUIRED" xml:space="preserve">
+    <value>Apenas o proprietário pode gerenciar compartilhamentos ou transferir a posse do veículo.</value>
+  </data>
+  <data name="VEHICLE_SHARE_NOT_FOUND" xml:space="preserve">
+    <value>Compartilhamento de veículo não encontrado para este workspace.</value>
+  </data>
+  <data name="VEHICLE_SHARE_ALREADY_EXISTS" xml:space="preserve">
+    <value>O veículo já está compartilhado com este workspace.</value>
+  </data>
+  <data name="CANNOT_TRANSFER_TO_SAME_WORKSPACE" xml:space="preserve">
+    <value>Não é possível transferir a posse para o mesmo workspace.</value>
+  </data>
   <data name="MAINTENANCE_SCHEDULE_NOT_FOUND" xml:space="preserve">
     <value>Agendamento de manutenção não encontrado.</value>
   </data>

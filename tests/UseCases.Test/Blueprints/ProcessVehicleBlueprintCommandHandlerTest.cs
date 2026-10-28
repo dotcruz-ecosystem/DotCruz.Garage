@@ -123,7 +123,7 @@ public class ProcessVehicleBlueprintCommandHandlerTest
             "matheus@dotcruz.com");
 
         var authServiceClient = new AuthServiceClientBuilder()
-            .SetupGetUserById(vehicle.UserId, vehicle.WorkspaceId, user)
+            .SetupGetUserById(vehicle.UserId, vehicle.Workspaces.First().WorkspaceId, user)
             .Build();
 
         var notificationServiceBuilder = new NotificationServiceBuilder();

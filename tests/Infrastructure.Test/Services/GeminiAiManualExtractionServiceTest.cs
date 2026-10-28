@@ -28,7 +28,8 @@ public class GeminiAiManualExtractionServiceTest
                     Category = "Engine",
                     IntervalOdometer = 10000,
                     IntervalTimeMonths = 12,
-                    IsRequired = true
+                    IsRequired = true,
+                    Checkpoints = [new() { Odometer = 1000, Months = 6 }]
                 }
             ]
         };
@@ -56,6 +57,10 @@ public class GeminiAiManualExtractionServiceTest
         Assert.Equal(MaintenanceCategory.Engine, item.Category);
         Assert.Equal(10000, item.IntervalOdometer);
         Assert.Equal(12, item.IntervalTimeMonths);
+        Assert.NotNull(item.Checkpoints);
+        Assert.Single(item.Checkpoints);
+        Assert.Equal(1000, item.Checkpoints.First().Odometer);
+        Assert.Equal(6, item.Checkpoints.First().Months);
     }
 
     [Fact]

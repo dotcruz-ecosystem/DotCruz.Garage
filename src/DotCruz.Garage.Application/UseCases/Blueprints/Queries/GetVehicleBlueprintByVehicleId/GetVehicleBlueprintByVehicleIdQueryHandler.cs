@@ -44,8 +44,8 @@ public class GetVehicleBlueprintByVehicleIdQueryHandler : IRequestHandler<GetVeh
 
         if (blueprint is null)
         {
-            var yearFrom = vehicle.Year - 1;
-            var yearTo = vehicle.Year + 3;
+            var yearFrom = vehicle.Year;
+            var yearTo = vehicle.Year;
 
             var newBlueprint = VehicleBlueprint.Create(
                 vehicle.Brand,
@@ -73,7 +73,13 @@ public class GetVehicleBlueprintByVehicleIdQueryHandler : IRequestHandler<GetVeh
             t.IntervalOdometer,
             t.IntervalTimeMonths,
             t.IsRequired,
-            existingDescriptions.Contains(t.Description.Trim().ToLower())
+            existingDescriptions.Contains(t.Description.Trim().ToLower()),
+            t.Checkpoints.OrderBy(c => c.Order).Select(c => new MaintenancePlanTemplateCheckpointDto(
+                c.Id,
+                c.Odometer,
+                c.Months,
+                c.Order
+            )).ToList()
         )).ToList();
 
         return new VehicleBlueprintDto(

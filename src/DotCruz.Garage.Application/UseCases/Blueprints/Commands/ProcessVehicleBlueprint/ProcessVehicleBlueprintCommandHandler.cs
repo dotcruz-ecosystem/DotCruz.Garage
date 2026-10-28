@@ -76,14 +76,17 @@ public class ProcessVehicleBlueprintCommandHandler : IRequestHandler<ProcessVehi
                     item.Category,
                     item.IntervalOdometer,
                     item.IntervalTimeMonths,
-                    item.IsRequired);
+                    item.IsRequired,
+                    item.Checkpoints?.Select(c => (c.Odometer, c.Months)));
             }
 
-            var finalYearFrom = blueprint.YearFrom > 0 && extracted.YearFrom > 0
-                ? Math.Min(blueprint.YearFrom, extracted.YearFrom)
-                : (extracted.YearFrom > 0 ? extracted.YearFrom : blueprint.YearFrom);
+            var finalYearFrom = extracted.YearFrom > 0 ? extracted.YearFrom : blueprint.YearFrom;
+            var finalYearTo = extracted.YearTo > 0 ? extracted.YearTo : (finalYearFrom > 0 ? finalYearFrom : blueprint.YearTo);
 
-            var finalYearTo = Math.Max(blueprint.YearTo, extracted.YearTo > 0 ? extracted.YearTo : blueprint.YearTo);
+            if (finalYearTo < finalYearFrom)
+            {
+                (finalYearFrom, finalYearTo) = (finalYearTo, finalYearFrom);
+            }
 
             blueprint.MarkAsReady(extracted.SourceUrl, finalYearFrom, finalYearTo);
             await _unitOfWork.CommitAsync(cancellationToken);
@@ -106,12 +109,16 @@ public class ProcessVehicleBlueprintCommandHandler : IRequestHandler<ProcessVehi
                 {
                     try
                     {
-                        var user = await _authServiceClient.GetUserByIdAsync(vehicle.UserId, vehicle.WorkspaceId, cancellationToken);
+                        var vehicleWorkspaceId = vehicle.Workspaces.FirstOrDefault(w => w.Role == Domain.Enums.VehicleWorkspaceRole.Owner && w.DeletedAt == null)?.WorkspaceId 
+                            ?? vehicle.Workspaces.FirstOrDefault(w => w.DeletedAt == null)?.WorkspaceId 
+                            ?? Guid.Empty;
+
+                        var user = await _authServiceClient.GetUserByIdAsync(vehicle.UserId, vehicleWorkspaceId, cancellationToken);
                         if (user != null && !string.IsNullOrWhiteSpace(user.Email))
                         {
                             await _notificationService.SendBlueprintReadyNotificationAsync(
                                 vehicle.UserId,
-                                vehicle.WorkspaceId,
+                                vehicleWorkspaceId,
                                 user.Name,
                                 user.Email,
                                 vehicle.Id,

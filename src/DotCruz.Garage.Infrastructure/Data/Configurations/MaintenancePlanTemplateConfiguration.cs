@@ -32,6 +32,11 @@ public class MaintenancePlanTemplateConfiguration : IEntityTypeConfiguration<Mai
         builder.Property(t => t.IsRequired)
             .IsRequired();
 
+        builder.HasMany(t => t.Checkpoints)
+            .WithOne(c => c.Template)
+            .HasForeignKey(c => c.TemplateId)
+            .OnDelete(DeleteBehavior.Cascade);
+
         builder.HasIndex(t => t.BlueprintId);
     }
 }

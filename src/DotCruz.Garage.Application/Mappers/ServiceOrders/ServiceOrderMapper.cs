@@ -10,7 +10,7 @@ public static class ServiceOrderMapper
         return new ServiceOrderDto(
             entity.Id,
             entity.VehicleId,
-            entity.WorkspaceId,
+            entity.OriginWorkspaceId,
             entity.UserId,
             entity.OrderNumber,
             entity.WorkshopName,

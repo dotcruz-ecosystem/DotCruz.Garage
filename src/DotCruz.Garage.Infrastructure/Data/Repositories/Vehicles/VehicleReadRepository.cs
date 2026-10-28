@@ -8,12 +8,28 @@ namespace DotCruz.Garage.Infrastructure.Data.Repositories.Vehicles;
 public class VehicleReadRepository(GarageDbContext context) 
     : BaseReadRepository<Vehicle>(context), IVehicleReadRepository
 {
+    public override async Task<bool> ExistsAsync(Guid id, CancellationToken cancellationToken)
+    {
+        return await _dbSet
+            .AsNoTracking()
+            .AnyAsync(v => v.Id == id && v.Workspaces.Any(w => w.WorkspaceId == _context.CurrentWorkspaceId && w.DeletedAt == null), cancellationToken);
+    }
+
+    public override async Task<Vehicle?> GetByIdAsync(Guid id, CancellationToken cancellationToken)
+    {
+        return await _dbSet
+            .AsNoTracking()
+            .Include(v => v.Workspaces)
+            .FirstOrDefaultAsync(v => v.Id == id && v.Workspaces.Any(w => w.WorkspaceId == _context.CurrentWorkspaceId && w.DeletedAt == null), cancellationToken);
+    }
+
     public async Task<Vehicle?> GetByIdWithHistoriesAsync(Guid id, CancellationToken cancellationToken)
     {
         return await _dbSet
             .AsNoTracking()
+            .Include(v => v.Workspaces)
             .Include(v => v.OdometerHistories)
-            .FirstOrDefaultAsync(v => v.Id == id, cancellationToken);
+            .FirstOrDefaultAsync(v => v.Id == id && v.Workspaces.Any(w => w.WorkspaceId == _context.CurrentWorkspaceId && w.DeletedAt == null), cancellationToken);
     }
 
     public async Task<(IReadOnlyCollection<Vehicle> Items, int TotalCount)> SearchAsync(
@@ -22,7 +38,10 @@ public class VehicleReadRepository(GarageDbContext context)
         string? searchTerm,
         CancellationToken cancellationToken)
     {
-        var query = _dbSet.AsNoTracking();
+        var query = _dbSet
+            .AsNoTracking()
+            .Include(v => v.Workspaces)
+            .Where(v => v.Workspaces.Any(w => w.WorkspaceId == _context.CurrentWorkspaceId && w.DeletedAt == null));
 
         if (!string.IsNullOrWhiteSpace(searchTerm))
         {
@@ -56,6 +75,7 @@ public class VehicleReadRepository(GarageDbContext context)
 
         var query = _dbSet.AsNoTracking()
             .IgnoreQueryFilters()
+            .Include(v => v.Workspaces)
             .Where(v => v.DeletedAt == null &&
                         v.Brand.ToLower() == brandLower &&
                         v.Model.ToLower() == modelLower &&

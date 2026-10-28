@@ -20,7 +20,7 @@ public class ServiceOrderBuilder
         var faker = new Faker();
 
         var serviceOrder = ServiceOrder.Create(
-            workspaceId: workspaceId ?? Guid.NewGuid(),
+            originWorkspaceId: workspaceId ?? Guid.NewGuid(),
             userId: userId ?? Guid.NewGuid(),
             vehicleId: vehicleId ?? Guid.NewGuid(),
             orderNumber: orderNumber,

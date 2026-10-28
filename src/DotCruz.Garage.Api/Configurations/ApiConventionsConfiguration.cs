@@ -17,6 +17,7 @@ public static class ApiConventionsConfiguration
         {
             options.SerializerOptions.PropertyNamingPolicy = JsonNamingPolicy.SnakeCaseLower;
             options.SerializerOptions.DictionaryKeyPolicy = JsonNamingPolicy.SnakeCaseLower;
+            options.SerializerOptions.PropertyNameCaseInsensitive = true;
             options.SerializerOptions.Converters.Add(new JsonStringEnumConverter());
         });
 
@@ -32,6 +33,7 @@ public static class ApiConventionsConfiguration
             {
                 options.JsonSerializerOptions.PropertyNamingPolicy = JsonNamingPolicy.SnakeCaseLower;
                 options.JsonSerializerOptions.DictionaryKeyPolicy = JsonNamingPolicy.SnakeCaseLower;
+                options.JsonSerializerOptions.PropertyNameCaseInsensitive = true;
                 options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter());
             });
     }

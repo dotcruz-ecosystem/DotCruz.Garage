@@ -37,7 +37,7 @@ public class GetVehicleBlueprintByVehicleIdQueryHandlerTest
             .Build();
 
         var existingSchedule = MaintenanceSchedule.Create(
-            vehicle.WorkspaceId,
+            vehicle.Workspaces.First().WorkspaceId,
             vehicle.UserId,
             vehicle.Id,
             firstTemplate.Description,

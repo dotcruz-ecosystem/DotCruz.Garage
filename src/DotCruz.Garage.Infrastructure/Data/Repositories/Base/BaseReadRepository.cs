@@ -6,19 +6,20 @@ namespace DotCruz.Garage.Infrastructure.Data.Repositories.Base;
 
 public class BaseReadRepository<TEntity>(GarageDbContext context) : IBaseReadRepository<TEntity> where TEntity : BaseEntity
 {
+    protected readonly GarageDbContext _context = context;
     protected readonly DbSet<TEntity> _dbSet = context.Set<TEntity>();
 
-    public async Task<bool> ExistsAsync(Guid id, CancellationToken cancellationToken)
+    public virtual async Task<bool> ExistsAsync(Guid id, CancellationToken cancellationToken)
     {
         return await _dbSet.AsNoTracking().AnyAsync(e => e.Id == id, cancellationToken);
     }
 
-    public async Task<TEntity?> GetByIdAsync(Guid id, CancellationToken cancellationToken)
+    public virtual async Task<TEntity?> GetByIdAsync(Guid id, CancellationToken cancellationToken)
     {
         return await _dbSet.AsNoTracking().FirstOrDefaultAsync(e => e.Id == id, cancellationToken);
     }
 
-    public async Task<IReadOnlyCollection<TEntity>> GetAllAsync(CancellationToken cancellationToken)
+    public virtual async Task<IReadOnlyCollection<TEntity>> GetAllAsync(CancellationToken cancellationToken)
     {
         return await _dbSet.AsNoTracking().ToListAsync(cancellationToken);
     }

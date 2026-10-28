@@ -65,7 +65,7 @@ public class CheckAlertsCommandHandlerTest
         var schedule = DueSchedule(Guid.NewGuid());
 
         var authClient = new AuthServiceClientBuilder()
-            .SetupGetUserById(schedule.UserId, schedule.WorkspaceId, null)
+            .SetupGetUserById(schedule.UserId, schedule.OriginWorkspaceId!.Value, null)
             .Build();
         var notifications = new NotificationServiceBuilder();
 

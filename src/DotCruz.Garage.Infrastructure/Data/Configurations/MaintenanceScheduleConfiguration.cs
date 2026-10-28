@@ -59,13 +59,19 @@ public class MaintenanceScheduleConfiguration : IEntityTypeConfiguration<Mainten
         builder.Property(s => s.WarningThresholdDays)
             .IsRequired(false);
 
-        builder.Property(s => s.WorkspaceId)
-            .IsRequired();
+        builder.Property(s => s.OriginWorkspaceId)
+            .IsRequired(false);
 
         builder.Property(s => s.UserId)
             .IsRequired();
 
+        builder.HasMany(s => s.Checkpoints)
+            .WithOne(c => c.Schedule)
+            .HasForeignKey(c => c.ScheduleId)
+            .OnDelete(DeleteBehavior.Cascade);
+
         builder.HasIndex(s => s.VehicleId);
-        builder.HasIndex(s => new { s.WorkspaceId, s.UserId });
+        builder.HasIndex(s => s.OriginWorkspaceId);
+        builder.HasIndex(s => s.UserId);
     }
 }

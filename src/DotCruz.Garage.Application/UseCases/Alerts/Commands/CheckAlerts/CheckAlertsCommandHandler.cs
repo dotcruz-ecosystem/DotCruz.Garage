@@ -55,13 +55,17 @@ public class CheckAlertsCommandHandler : IRequestHandler<CheckAlertsCommand>
 
     private async Task NotifyMaintenanceAsync(MaintenanceSchedule maintenance, ScheduleStatus status, CancellationToken cancellationToken)
     {
-        var user = await GetUserAsync(maintenance.UserId, maintenance.WorkspaceId, cancellationToken);
+        var workspaceId = maintenance.OriginWorkspaceId 
+            ?? maintenance.Vehicle.Workspaces.FirstOrDefault(w => w.Role == Domain.Enums.VehicleWorkspaceRole.Owner)?.WorkspaceId 
+            ?? Guid.Empty;
+
+        var user = await GetUserAsync(maintenance.UserId, workspaceId, cancellationToken);
         if (user == null)
             return;
 
         await _notificationService.SendMaintenanceAlertAsync(
             userId: maintenance.UserId,
-            workspaceId: maintenance.WorkspaceId,
+            workspaceId: workspaceId,
             userName: user.Name,
             userEmail: user.Email,
             vehicleName: maintenance.Vehicle.Name,

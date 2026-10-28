@@ -19,7 +19,7 @@ public class MaintenanceScheduleBuilder
         var faker = new Faker();
 
         return MaintenanceSchedule.Create(
-            workspaceId: workspaceId ?? Guid.NewGuid(),
+            originWorkspaceId: workspaceId ?? Guid.NewGuid(),
             userId: userId ?? Guid.NewGuid(),
             vehicleId: vehicleId ?? Guid.NewGuid(),
             description: description ?? faker.Lorem.Sentence(3),

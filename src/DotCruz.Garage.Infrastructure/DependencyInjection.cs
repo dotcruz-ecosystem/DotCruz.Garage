@@ -12,6 +12,7 @@ using DotCruz.Garage.Infrastructure.Data.Repositories.ServiceOrders;
 using DotCruz.Garage.Infrastructure.Data.Repositories.Vehicles;
 using DotCruz.Garage.Infrastructure.Services.Ai.Gemini.Client;
 using DotCruz.Garage.Infrastructure.Services.Ai.Gemini.Services.ManualExtraction;
+using DotCruz.Garage.Infrastructure.Services.Ai.Gemini.Services.ServiceOrderExtraction;
 using DotCruz.Garage.Infrastructure.Services.Auth;
 using DotCruz.Garage.Infrastructure.Services.Notifications;
 using DotCruz.Garage.Infrastructure.Services.Storage;
@@ -89,6 +90,7 @@ public static class DependencyInjection
         services.AddScoped<IStorageService, CloudflareR2StorageService>();
 
         services.AddScoped<IAiManualExtractionService, GeminiAiManualExtractionService>();
+        services.AddHttpClient<IAiServiceOrderExtractionService, GeminiAiServiceOrderExtractionService>();
 
         services.AddHttpClient<IGeminiClient, GeminiClient>(client =>
         {

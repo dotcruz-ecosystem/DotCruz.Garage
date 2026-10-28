@@ -22,10 +22,14 @@ public class GetUploadUrlQueryHandler(
             throw new NotFoundException(ResourceMessagesException.VEHICLE_NOT_FOUND);
         }
 
-        var workspaceId = workspaceProvider.WorkspaceId ?? vehicle.WorkspaceId;
+        var workspaceId = workspaceProvider.WorkspaceId;
+        if (!workspaceId.HasValue || !vehicle.CanWrite(workspaceId.Value))
+        {
+            throw new ForbiddenException(ResourceMessagesException.VEHICLE_ACCESS_DENIED);
+        }
 
         return await storageService.GeneratePresignedUploadUrlAsync(
-            workspaceId,
+            workspaceId.Value,
             request.VehicleId,
             request.FileName,
             request.ContentType,

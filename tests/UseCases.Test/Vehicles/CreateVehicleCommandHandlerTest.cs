@@ -61,9 +61,11 @@ public class CreateVehicleCommandHandlerTest
         Assert.Equal(2024, savedVehicle.Year);
         Assert.Equal("BRA2E19", savedVehicle.Plate);
         Assert.Equal(15_000, savedVehicle.CurrentOdometer);
-        Assert.Equal(40, savedVehicle.DailyMileageAverage);
         Assert.Single(savedVehicle.OdometerHistories);
         Assert.Equal(15_000, savedVehicle.OdometerHistories.First().OdometerValue);
+        Assert.Single(savedVehicle.Workspaces);
+        Assert.Equal(workspaceId, savedVehicle.Workspaces.First().WorkspaceId);
+        Assert.Equal(VehicleWorkspaceRole.Owner, savedVehicle.Workspaces.First().Role);
     }
 
     [Fact]

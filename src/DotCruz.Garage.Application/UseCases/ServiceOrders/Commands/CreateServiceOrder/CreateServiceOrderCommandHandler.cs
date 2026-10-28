@@ -39,7 +39,12 @@ public class CreateServiceOrderCommandHandler : IRequestHandler<CreateServiceOrd
         var vehicle = await _vehicleWriteRepository.GetByIdWithHistoriesToUpdateAsync(request.VehicleId, cancellationToken)
             ?? throw new NotFoundException(ResourceMessagesException.VEHICLE_NOT_FOUND);
 
-        var workspaceId = _workspaceProvider.WorkspaceId ?? vehicle.WorkspaceId;
+        var workspaceId = _workspaceProvider.WorkspaceId;
+        if (workspaceId.HasValue && !vehicle.CanWrite(workspaceId.Value))
+        {
+            throw new ForbiddenException(ResourceMessagesException.VEHICLE_ACCESS_DENIED);
+        }
+
         var userId = _workspaceProvider.UserId ?? vehicle.UserId;
 
         vehicle.RecordOdometerReading(request.RequestDto.OdometerAtService, request.RequestDto.PerformedAt);

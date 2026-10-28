@@ -13,6 +13,7 @@ public class MaintenanceScheduleReadRepository(GarageDbContext context)
     {
         return await _dbSet
             .AsNoTracking()
+            .Include(s => s.Checkpoints)
             .Where(s => s.VehicleId == vehicleId)
             .OrderBy(s => s.NextDueDate)
             .ToListAsync(cancellationToken);
@@ -43,6 +44,7 @@ public class MaintenanceScheduleReadRepository(GarageDbContext context)
         var totalCount = await query.CountAsync(cancellationToken);
 
         var items = await query
+            .Include(s => s.Checkpoints)
             .OrderBy(s => s.NextDueDate)
             .Skip((pageNumber - 1) * pageSize)
             .Take(pageSize)

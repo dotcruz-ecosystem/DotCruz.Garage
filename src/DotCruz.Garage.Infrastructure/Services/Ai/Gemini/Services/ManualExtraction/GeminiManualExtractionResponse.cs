@@ -18,4 +18,11 @@ public class GeminiManualExtractionItemResponse
     public int? IntervalOdometer { get; set; }
     public int? IntervalTimeMonths { get; set; }
     public bool? IsRequired { get; set; }
+    public List<GeminiManualExtractionCheckpointResponse>? Checkpoints { get; set; }
+}
+
+public class GeminiManualExtractionCheckpointResponse
+{
+    public int Odometer { get; set; }
+    public int Months { get; set; }
 }

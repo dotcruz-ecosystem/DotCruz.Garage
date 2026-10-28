@@ -16,6 +16,13 @@ public sealed record VehicleBlueprintDto(
     IReadOnlyCollection<MaintenancePlanTemplateDto> Templates
 );
 
+public sealed record MaintenancePlanTemplateCheckpointDto(
+    Guid Id,
+    int Odometer,
+    int Months,
+    int Order
+);
+
 public sealed record MaintenancePlanTemplateDto(
     Guid Id,
     string Description,
@@ -23,5 +30,6 @@ public sealed record MaintenancePlanTemplateDto(
     int? IntervalOdometer,
     int? IntervalTimeMonths,
     bool IsRequired,
-    bool AlreadyScheduled
+    bool AlreadyScheduled,
+    IReadOnlyCollection<MaintenancePlanTemplateCheckpointDto> Checkpoints
 );

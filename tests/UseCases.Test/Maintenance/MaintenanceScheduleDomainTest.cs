@@ -10,7 +10,7 @@ public class MaintenanceScheduleDomainTest
     public void Status_Is_Active_When_Within_Safe_Range()
     {
         var schedule = MaintenanceSchedule.Create(
-            workspaceId: Guid.NewGuid(),
+            originWorkspaceId: Guid.NewGuid(),
             userId: Guid.NewGuid(),
             vehicleId: Guid.NewGuid(),
             description: "Troca de Óleo",
@@ -32,7 +32,7 @@ public class MaintenanceScheduleDomainTest
     public void Status_Changes_To_DueSoon_When_Reaching_Warning_Threshold_Odometer()
     {
         var schedule = MaintenanceSchedule.Create(
-            workspaceId: Guid.NewGuid(),
+            originWorkspaceId: Guid.NewGuid(),
             userId: Guid.NewGuid(),
             vehicleId: Guid.NewGuid(),
             description: "Troca de Óleo",
@@ -53,7 +53,7 @@ public class MaintenanceScheduleDomainTest
     public void Status_Changes_To_Overdue_When_Odometer_Exceeds_NextDue()
     {
         var schedule = MaintenanceSchedule.Create(
-            workspaceId: Guid.NewGuid(),
+            originWorkspaceId: Guid.NewGuid(),
             userId: Guid.NewGuid(),
             vehicleId: Guid.NewGuid(),
             description: "Troca de Óleo",
@@ -74,7 +74,7 @@ public class MaintenanceScheduleDomainTest
     public void Perform_Advances_NextDue_To_Following_Cycle()
     {
         var schedule = MaintenanceSchedule.Create(
-            workspaceId: Guid.NewGuid(),
+            originWorkspaceId: Guid.NewGuid(),
             userId: Guid.NewGuid(),
             vehicleId: Guid.NewGuid(),
             description: "Revisão Geral",
@@ -103,7 +103,7 @@ public class MaintenanceScheduleDomainTest
     public void Status_Is_PendingFirstExecution_When_Created_Without_Previous_Performance()
     {
         var schedule = MaintenanceSchedule.Create(
-            workspaceId: Guid.NewGuid(),
+            originWorkspaceId: Guid.NewGuid(),
             userId: Guid.NewGuid(),
             vehicleId: Guid.NewGuid(),
             description: "Troca de Óleo",
@@ -131,7 +131,7 @@ public class MaintenanceScheduleDomainTest
     public void Schedule_With_Odometer_Only_Interval_Has_No_NextDueDate_And_Only_Overdues_By_Km()
     {
         var schedule = MaintenanceSchedule.Create(
-            workspaceId: Guid.NewGuid(),
+            originWorkspaceId: Guid.NewGuid(),
             userId: Guid.NewGuid(),
             vehicleId: Guid.NewGuid(),
             description: "Velas de Ignição da Moto",
@@ -158,7 +158,7 @@ public class MaintenanceScheduleDomainTest
     public void Schedule_With_Time_Only_Interval_Has_No_NextDueOdometer_And_Only_Overdues_By_Date()
     {
         var schedule = MaintenanceSchedule.Create(
-            workspaceId: Guid.NewGuid(),
+            originWorkspaceId: Guid.NewGuid(),
             userId: Guid.NewGuid(),
             vehicleId: Guid.NewGuid(),
             description: "Fluido de Freio",
@@ -175,5 +175,85 @@ public class MaintenanceScheduleDomainTest
         Assert.Null(schedule.NextDueOdometer); // No km due!
         Assert.NotNull(schedule.NextDueDate);
         Assert.Equal(ScheduleStatus.Overdue, schedule.Status);
+    }
+
+    [Fact]
+    public void Gradual_Checkpoints_Advance_Sequentially_Until_Steady_State()
+    {
+        // MT-03 2023 case: 1.000km (6m) -> 5.000km (12m) -> 10.000km (18m) -> steady-state +5.000km (6m)
+        var schedule = MaintenanceSchedule.Create(
+            originWorkspaceId: Guid.NewGuid(),
+            userId: Guid.NewGuid(),
+            vehicleId: Guid.NewGuid(),
+            description: "Troca do Óleo do Motor",
+            category: MaintenanceCategory.Engine,
+            intervalOdometer: 5_000,
+            intervalTimeMonths: 6,
+            lastPerformedOdometer: 0,
+            lastPerformedDate: DateTimeOffset.UtcNow,
+            warningThresholdOdometer: 500,
+            warningThresholdDays: 15,
+            currentOdometer: 0,
+            dailyMileageAverage: 20);
+
+        schedule.AddCheckpoint(1_000, 6, 1);
+        schedule.AddCheckpoint(5_000, 12, 2);
+        schedule.AddCheckpoint(10_000, 18, 3);
+
+        schedule.RecalculateNextDue(0, 20);
+
+        // 1st due: 1.000 km
+        Assert.Equal(1_000, schedule.NextDueOdometer);
+
+        // Perform 1st service at 1.000 km
+        schedule.Perform(1_000, DateTimeOffset.UtcNow, 20);
+        Assert.True(schedule.Checkpoints.First(c => c.Odometer == 1_000).IsCompleted);
+        // Next due should be 2nd checkpoint: 5.000 km
+        Assert.Equal(5_000, schedule.NextDueOdometer);
+
+        // Perform 2nd service at 5.000 km
+        schedule.Perform(5_000, DateTimeOffset.UtcNow, 20);
+        Assert.True(schedule.Checkpoints.First(c => c.Odometer == 5_000).IsCompleted);
+        // Next due should be 3rd checkpoint: 10.000 km
+        Assert.Equal(10_000, schedule.NextDueOdometer);
+
+        // Perform 3rd service at 10.000 km (end of ramp-up)
+        schedule.Perform(10_000, DateTimeOffset.UtcNow, 20);
+        Assert.True(schedule.Checkpoints.First(c => c.Odometer == 10_000).IsCompleted);
+        // All checkpoints completed! Enters steady-state (+5.000 km): 15.000 km
+        Assert.Equal(15_000, schedule.NextDueOdometer);
+
+        // Subsequent performance stays in steady-state (+5.000 km)
+        schedule.Perform(15_000, DateTimeOffset.UtcNow, 20);
+        Assert.Equal(20_000, schedule.NextDueOdometer);
+    }
+
+    [Fact]
+    public void Checkpoints_Superceded_When_Vehicle_Starts_Used()
+    {
+        // Vehicle enters at 8.000 km. Checkpoints 1.000 and 5.000 are completed/superceded.
+        var schedule = MaintenanceSchedule.Create(
+            originWorkspaceId: Guid.NewGuid(),
+            userId: Guid.NewGuid(),
+            vehicleId: Guid.NewGuid(),
+            description: "Troca do Óleo do Motor",
+            category: MaintenanceCategory.Engine,
+            intervalOdometer: 5_000,
+            intervalTimeMonths: 6,
+            lastPerformedOdometer: 0,
+            lastPerformedDate: DateTimeOffset.UtcNow,
+            warningThresholdOdometer: 500,
+            warningThresholdDays: 15,
+            currentOdometer: 8_000,
+            dailyMileageAverage: 20);
+
+        schedule.AddCheckpoint(1_000, 6, 1, isCompleted: true, completedAt: DateTimeOffset.UtcNow, completedOdometer: 1_000);
+        schedule.AddCheckpoint(5_000, 12, 2, isCompleted: true, completedAt: DateTimeOffset.UtcNow, completedOdometer: 5_000);
+        schedule.AddCheckpoint(10_000, 18, 3, isCompleted: false);
+
+        schedule.RecalculateNextDue(8_000, 20);
+
+        // Next due should target the uncompleted 10.000 km checkpoint!
+        Assert.Equal(10_000, schedule.NextDueOdometer);
     }
 }

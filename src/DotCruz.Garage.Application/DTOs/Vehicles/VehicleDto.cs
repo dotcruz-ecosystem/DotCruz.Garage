@@ -13,5 +13,7 @@ public record VehicleDto(
     string? Plate,
     int CurrentOdometer,
     double DailyMileageAverage,
-    DateTimeOffset? OdometerUpdatedAt
+    DateTimeOffset? OdometerUpdatedAt,
+    string? Role = null,
+    bool IsOwner = true
 );

@@ -4,9 +4,9 @@ using DotCruz.Garage.Domain.Enums;
 
 namespace DotCruz.Garage.Domain.Entities.ServiceOrders;
 
-public class ServiceOrder : BaseEntity, IWorkspaceEntity
+public class ServiceOrder : BaseEntity
 {
-    public Guid WorkspaceId { get; private set; }
+    public Guid? OriginWorkspaceId { get; private set; }
     public Guid UserId { get; private set; }
     public Guid VehicleId { get; private set; }
     public string? OrderNumber { get; private set; }
@@ -24,7 +24,7 @@ public class ServiceOrder : BaseEntity, IWorkspaceEntity
     private ServiceOrder() { }
 
     public static ServiceOrder Create(
-        Guid workspaceId,
+        Guid? originWorkspaceId,
         Guid userId,
         Guid vehicleId,
         string? orderNumber,
@@ -37,7 +37,7 @@ public class ServiceOrder : BaseEntity, IWorkspaceEntity
     {
         return new ServiceOrder
         {
-            WorkspaceId = workspaceId,
+            OriginWorkspaceId = originWorkspaceId,
             UserId = userId,
             VehicleId = vehicleId,
             OrderNumber = string.IsNullOrWhiteSpace(orderNumber) ? null : orderNumber.Trim(),

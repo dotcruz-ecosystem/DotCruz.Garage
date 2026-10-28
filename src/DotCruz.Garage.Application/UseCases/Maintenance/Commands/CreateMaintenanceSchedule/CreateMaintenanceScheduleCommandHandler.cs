@@ -41,6 +41,11 @@ public class CreateMaintenanceScheduleCommandHandler : IRequestHandler<CreateMai
             ?? throw new NotFoundException(ResourceMessagesException.VEHICLE_NOT_FOUND);
         
         var workspaceId = _workspaceProvider.WorkspaceId;
+        if (workspaceId.HasValue && !vehicle.CanWrite(workspaceId.Value))
+        {
+            throw new ForbiddenException(ResourceMessagesException.VEHICLE_ACCESS_DENIED);
+        }
+
         var userId = _workspaceProvider.UserId;
 
         var schedule = request.ToDomain(workspaceId!.Value, userId!.Value, vehicle.CurrentOdometer, vehicle.DailyMileageAverage);

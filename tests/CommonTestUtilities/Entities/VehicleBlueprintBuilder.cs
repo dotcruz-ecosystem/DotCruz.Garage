@@ -29,7 +29,8 @@ public class VehicleBlueprintBuilder
 
         if (withTemplates)
         {
-            blueprint.AddTemplate("Troca de Óleo do Motor e Filtro", MaintenanceCategory.Engine, 10_000, 12, true);
+            blueprint.AddTemplate("Troca do Óleo do Motor", MaintenanceCategory.Engine, 10_000, 12, true);
+            blueprint.AddTemplate("Troca do Filtro de Óleo", MaintenanceCategory.Engine, 10_000, 12, true);
             blueprint.AddTemplate("Troca de Filtro de Combustível", MaintenanceCategory.Engine, 10_000, 12, true);
             blueprint.AddTemplate("Troca do Fluido de Freio", MaintenanceCategory.Brakes, 40_000, 24, true);
             blueprint.MarkAsReady(sourceUrl, yearFrom, yearTo);

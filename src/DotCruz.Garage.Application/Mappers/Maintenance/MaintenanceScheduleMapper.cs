@@ -45,7 +45,16 @@ public static class MaintenanceScheduleMapper
             schedule.NextDueDate,
             schedule.Status.ToString(),
             schedule.WarningThresholdOdometer,
-            schedule.WarningThresholdDays
+            schedule.WarningThresholdDays,
+            schedule.Checkpoints.OrderBy(c => c.Order).Select(c => new MaintenanceScheduleCheckpointDto(
+                c.Id,
+                c.Odometer,
+                c.Months,
+                c.Order,
+                c.IsCompleted,
+                c.CompletedAt,
+                c.CompletedOdometer
+            )).ToList()
         );
     }
 }

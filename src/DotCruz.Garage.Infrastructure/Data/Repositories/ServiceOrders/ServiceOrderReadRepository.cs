@@ -63,7 +63,7 @@ public class ServiceOrderReadRepository(GarageDbContext context)
             .AsNoTracking()
             .Include(so => so.Items)
             .Include(so => so.Attachments)
-            .Where(so => so.VehicleId == vehicleId && so.WorkspaceId == workspaceId && so.DeletedAt == null)
+            .Where(so => so.VehicleId == vehicleId && (so.OriginWorkspaceId == workspaceId || workspaceId == Guid.Empty) && so.DeletedAt == null)
             .OrderByDescending(so => so.PerformedAt)
             .ToListAsync(cancellationToken);
     }

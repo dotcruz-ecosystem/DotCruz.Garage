@@ -20,7 +20,7 @@ public class BaseWriteRepository<TEntity> : IBaseWriteRepository<TEntity> where 
         await _dbSet.AddAsync(entity);
     }
 
-    public async Task<TEntity?> GetByIdToUpdateAsync(Guid id, CancellationToken cancellationToken)
+    public virtual async Task<TEntity?> GetByIdToUpdateAsync(Guid id, CancellationToken cancellationToken)
     {
         return await _dbSet.FirstOrDefaultAsync(e => e.Id == id, cancellationToken);
     }

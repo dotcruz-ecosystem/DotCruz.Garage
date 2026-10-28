@@ -3,7 +3,7 @@ namespace DotCruz.Garage.Application.DTOs.ServiceOrders;
 public record ServiceOrderDto(
     Guid Id,
     Guid VehicleId,
-    Guid WorkspaceId,
+    Guid? WorkspaceId,
     Guid UserId,
     string? OrderNumber,
     string? WorkshopName,

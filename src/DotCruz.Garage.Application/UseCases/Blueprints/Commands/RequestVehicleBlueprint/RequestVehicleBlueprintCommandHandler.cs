@@ -33,8 +33,8 @@ public class RequestVehicleBlueprintCommandHandler : IRequestHandler<RequestVehi
             return existing.Id;
         }
 
-        var yearFrom = request.Year - 1;
-        var yearTo = request.Year + 3;
+        var yearFrom = request.Year;
+        var yearTo = request.Year;
 
         var blueprint = VehicleBlueprint.Create(
             request.Brand,

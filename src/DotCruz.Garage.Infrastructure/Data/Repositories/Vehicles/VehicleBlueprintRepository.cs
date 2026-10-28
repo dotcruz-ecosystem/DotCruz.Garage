@@ -28,6 +28,7 @@ public class VehicleBlueprintRepository : IVehicleBlueprintRepository
 
         return await _context.VehicleBlueprints
             .Include(b => b.Templates)
+                .ThenInclude(t => t.Checkpoints)
             .Where(b => b.Type == type &&
                         b.Brand.ToLower() == normBrand &&
                         b.Model.ToLower() == normModel &&
@@ -42,6 +43,7 @@ public class VehicleBlueprintRepository : IVehicleBlueprintRepository
     {
         return await _context.VehicleBlueprints
             .Include(b => b.Templates)
+                .ThenInclude(t => t.Checkpoints)
             .FirstOrDefaultAsync(b => b.Id == id, cancellationToken);
     }
 

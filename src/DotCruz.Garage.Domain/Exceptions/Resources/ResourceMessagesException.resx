@@ -120,6 +120,21 @@
   <data name="VEHICLE_NOT_FOUND" xml:space="preserve">
     <value>Vehicle not found.</value>
   </data>
+  <data name="VEHICLE_ACCESS_DENIED" xml:space="preserve">
+    <value>You do not have permission to perform this action on this vehicle.</value>
+  </data>
+  <data name="VEHICLE_OWNER_REQUIRED" xml:space="preserve">
+    <value>Only the owner can manage vehicle shares or transfer ownership.</value>
+  </data>
+  <data name="VEHICLE_SHARE_NOT_FOUND" xml:space="preserve">
+    <value>Vehicle share not found for this workspace.</value>
+  </data>
+  <data name="VEHICLE_SHARE_ALREADY_EXISTS" xml:space="preserve">
+    <value>Vehicle is already shared with this workspace.</value>
+  </data>
+  <data name="CANNOT_TRANSFER_TO_SAME_WORKSPACE" xml:space="preserve">
+    <value>Cannot transfer ownership to the same workspace.</value>
+  </data>
   <data name="MAINTENANCE_SCHEDULE_NOT_FOUND" xml:space="preserve">
     <value>Maintenance schedule not found.</value>
   </data>

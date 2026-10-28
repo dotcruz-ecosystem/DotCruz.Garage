@@ -56,8 +56,8 @@ public class CreateVehicleCommandHandler : IRequestHandler<CreateVehicleCommand,
                 vehicle.Model,
                 vehicle.Engine,
                 vehicle.Type,
-                vehicle.Year - 1,
-                vehicle.Year + 3);
+                vehicle.Year,
+                vehicle.Year);
 
             await _blueprintRepository.AddAsync(blueprint, cancellationToken);
         }

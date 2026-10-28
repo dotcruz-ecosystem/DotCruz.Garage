@@ -18,10 +18,11 @@ public class VehicleBuilder
         int initialOdometer = 50_000)
     {
         var faker = new Faker();
+        var targetWorkspaceId = workspaceId ?? Guid.NewGuid();
+        var targetUserId = userId ?? Guid.NewGuid();
 
-        return Vehicle.Create(
-            workspaceId: workspaceId ?? Guid.NewGuid(),
-            userId: userId ?? Guid.NewGuid(),
+        var vehicle = Vehicle.Create(
+            userId: targetUserId,
             name: name ?? faker.Vehicle.Model(),
             type: type ?? VehicleType.Car,
             brand: brand ?? faker.Vehicle.Manufacturer(),
@@ -32,5 +33,9 @@ public class VehicleBuilder
             initialOdometer: initialOdometer,
             initialDailyMileageAverage: 30
         );
+
+        vehicle.AssignWorkspace(targetWorkspaceId, VehicleWorkspaceRole.Owner, targetUserId);
+
+        return vehicle;
     }
 }

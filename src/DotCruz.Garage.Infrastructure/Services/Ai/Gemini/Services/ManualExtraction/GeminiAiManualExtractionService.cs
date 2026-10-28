@@ -25,12 +25,20 @@ public class GeminiAiManualExtractionService(IGeminiClient client, ILogger<Gemin
 
         try
         {
+            var checkpointItemSchema = ResponseFormatPropertyRequest.CreateObject("Marco gradual de revisão.")
+                .AddProperty("odometer", ResponseFormatSchemaTypeEnum.Integer, "Quilometragem do marco inicial (ex: 1000, 5000, 10000)")
+                .AddProperty("months", ResponseFormatSchemaTypeEnum.Integer, "Tempo acumulado em meses desde o veículo 0km (ex: 6, 12, 18)")
+                .AddRequiredProperty(["odometer", "months"]);
+
+            var checkpointsArraySchema = ResponseFormatPropertyRequest.CreateArray(checkpointItemSchema, "Lista de marcos graduais preliminares antes do regime estável.");
+
             var itemSchema = ResponseFormatPropertyRequest.CreateObject("Item de manutenção preventiva periódica.")
-                .AddProperty("description", ResponseFormatSchemaTypeEnum.String, "Descrição clara da manutenção preventiva (ex: Troca de óleo do motor e filtro)")
+                .AddProperty("description", ResponseFormatSchemaTypeEnum.String, "Descrição atômica e individual do serviço (ex: Troca do óleo do motor; ou Troca do filtro de óleo; nunca agrupe itens)")
                 .AddProperty("category", ResponseFormatSchemaTypeEnum.String, "Categoria do item: Engine, Brakes, Suspension, Tires, Transmission, Electrical ou General")
-                .AddProperty("intervalOdometer", ResponseFormatSchemaTypeEnum.Integer, "Intervalo de quilometragem para execução (ex: 10000)")
-                .AddProperty("intervalTimeMonths", ResponseFormatSchemaTypeEnum.Integer, "Intervalo em meses para execução (ex: 12)")
+                .AddProperty("intervalOdometer", ResponseFormatSchemaTypeEnum.Integer, "Intervalo de quilometragem de regime contínuo estável (ex: 5000 ou 10000)")
+                .AddProperty("intervalTimeMonths", ResponseFormatSchemaTypeEnum.Integer, "Intervalo em meses de regime contínuo estável (ex: 6 ou 12)")
                 .AddProperty("isRequired", ResponseFormatSchemaTypeEnum.Boolean, "Indica se o item é obrigatório na revisão")
+                .AddProperty("checkpoints", checkpointsArraySchema)
                 .AddRequiredProperty(["description", "category", "intervalOdometer", "intervalTimeMonths"]);
 
             var result = await client.InitRequest("gemini-3.8-flash", prompt)
@@ -54,20 +62,27 @@ public class GeminiAiManualExtractionService(IGeminiClient client, ILogger<Gemin
             var items = result.Items.Select(i =>
             {
                 var cat = ParseCategory(i.Category);
+                var checkpoints = i.Checkpoints?
+                    .Where(c => c.Odometer > 0)
+                    .OrderBy(c => c.Odometer)
+                    .Select(c => new ExtractedCheckpointDto(c.Odometer, c.Months))
+                    .ToList() ?? new List<ExtractedCheckpointDto>();
+
                 return new ExtractedMaintenanceItemDto(
                     i.Description ?? "Revisão Periódica",
                     cat,
                     i.IntervalOdometer,
                     i.IntervalTimeMonths,
-                    i.IsRequired ?? true);
+                    i.IsRequired ?? true,
+                    checkpoints);
             }).ToList();
 
             return new ExtractedManualResultDto(
                 result.Brand ?? brand,
                 result.Model ?? model,
                 result.Engine ?? engine,
-                result.YearFrom > 0 ? result.YearFrom : year - 1,
-                result.YearTo > 0 ? result.YearTo : year + 3,
+                result.YearFrom > 0 ? result.YearFrom : year,
+                result.YearTo > 0 ? result.YearTo : year,
                 result.SourceUrl,
                 items);
         }
@@ -107,8 +122,10 @@ public class GeminiAiManualExtractionService(IGeminiClient client, ILogger<Gemin
 
         if (type == VehicleType.Motorcycle)
         {
-            items.Add(new ExtractedMaintenanceItemDto("Troca de Óleo do Motor", MaintenanceCategory.Engine, 3000, 6, true));
-            items.Add(new ExtractedMaintenanceItemDto("Troca do Filtro de Óleo", MaintenanceCategory.Engine, 6000, 6, true));
+            items.Add(new ExtractedMaintenanceItemDto("Troca do Óleo do Motor", MaintenanceCategory.Engine, 3000, 6, true,
+                new List<ExtractedCheckpointDto> { new(1000, 6) }));
+            items.Add(new ExtractedMaintenanceItemDto("Troca do Filtro de Óleo", MaintenanceCategory.Engine, 6000, 6, true,
+                new List<ExtractedCheckpointDto> { new(1000, 6) }));
             items.Add(new ExtractedMaintenanceItemDto("Ajuste e Lubrificação da Corrente/Transmissão", MaintenanceCategory.Transmission, 1000, 1, true));
             items.Add(new ExtractedMaintenanceItemDto("Inspeção e Troca de Pastilhas/Lonas de Freio", MaintenanceCategory.Brakes, 6000, 6, true));
             items.Add(new ExtractedMaintenanceItemDto("Troca do Fluido de Freio", MaintenanceCategory.Brakes, 12000, 24, true));
@@ -117,7 +134,8 @@ public class GeminiAiManualExtractionService(IGeminiClient client, ILogger<Gemin
         }
         else
         {
-            items.Add(new ExtractedMaintenanceItemDto("Troca de Óleo do Motor e Filtro de Óleo", MaintenanceCategory.Engine, 10000, 12, true));
+            items.Add(new ExtractedMaintenanceItemDto("Troca do Óleo do Motor", MaintenanceCategory.Engine, 10000, 12, true));
+            items.Add(new ExtractedMaintenanceItemDto("Troca do Filtro de Óleo", MaintenanceCategory.Engine, 10000, 12, true));
             items.Add(new ExtractedMaintenanceItemDto("Troca do Filtro de Combustível", MaintenanceCategory.Engine, 10000, 12, true));
             items.Add(new ExtractedMaintenanceItemDto("Troca do Filtro de Ar do Motor", MaintenanceCategory.Engine, 20000, 24, true));
             items.Add(new ExtractedMaintenanceItemDto("Troca do Filtro de Cabine (Ar Condicionado)", MaintenanceCategory.General, 10000, 12, true));
@@ -133,8 +151,8 @@ public class GeminiAiManualExtractionService(IGeminiClient client, ILogger<Gemin
             brand,
             model,
             engine,
-            year - 2,
-            year + 3,
+            year,
+            year,
             "https://www.google.com/search?q=manual+proprietario+" + Uri.EscapeDataString($"{brand} {model} {engine}"),
             items);
     }

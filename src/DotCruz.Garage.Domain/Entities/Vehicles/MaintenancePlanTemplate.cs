@@ -12,6 +12,7 @@ public class MaintenancePlanTemplate : BaseEntity
     public int? IntervalTimeMonths { get; private set; }
     public bool IsRequired { get; private set; }
 
+    public virtual ICollection<MaintenancePlanTemplateCheckpoint> Checkpoints { get; private init; } = new List<MaintenancePlanTemplateCheckpoint>();
     public virtual VehicleBlueprint Blueprint { get; private init; } = default!;
 
     private MaintenancePlanTemplate() { }
@@ -33,5 +34,11 @@ public class MaintenancePlanTemplate : BaseEntity
             IntervalTimeMonths = intervalTimeMonths,
             IsRequired = isRequired
         };
+    }
+
+    public void AddCheckpoint(int odometer, int months, int? order = null)
+    {
+        var nextOrder = order ?? (Checkpoints.Count + 1);
+        Checkpoints.Add(MaintenancePlanTemplateCheckpoint.Create(Id, odometer, months, nextOrder));
     }
 }

@@ -4,12 +4,12 @@ using DotCruz.Garage.Domain.Enums;
 
 namespace DotCruz.Garage.Domain.Entities.Maintenance;
 
-public class MaintenanceSchedule : BaseEntity, IWorkspaceEntity
+public class MaintenanceSchedule : BaseEntity
 {
     public const int DefaultWarningThresholdOdometer = 1000;
     public const int DefaultWarningThresholdDays = 30;
 
-    public Guid WorkspaceId { get; private set; }
+    public Guid? OriginWorkspaceId { get; private set; }
     public Guid UserId { get; private set; }
     public Guid VehicleId { get; private set; }
     public string Description { get; private set; } = null!;
@@ -26,12 +26,13 @@ public class MaintenanceSchedule : BaseEntity, IWorkspaceEntity
     public int? WarningThresholdOdometer { get; private set; }
     public int? WarningThresholdDays { get; private set; }
 
+    public virtual ICollection<MaintenanceScheduleCheckpoint> Checkpoints { get; private init; } = new List<MaintenanceScheduleCheckpoint>();
     public virtual Vehicle Vehicle { get; private init; } = default!;
 
     private MaintenanceSchedule() { }
 
     public static MaintenanceSchedule Create(
-        Guid workspaceId,
+        Guid? originWorkspaceId,
         Guid userId,
         Guid vehicleId,
         string description,
@@ -47,7 +48,7 @@ public class MaintenanceSchedule : BaseEntity, IWorkspaceEntity
     {
         var schedule = new MaintenanceSchedule
         {
-            WorkspaceId = workspaceId,
+            OriginWorkspaceId = originWorkspaceId,
             UserId = userId,
             VehicleId = vehicleId,
             Description = description,
@@ -74,6 +75,25 @@ public class MaintenanceSchedule : BaseEntity, IWorkspaceEntity
         return schedule;
     }
 
+    public void AddCheckpoint(
+        int odometer,
+        int months,
+        int? order = null,
+        bool isCompleted = false,
+        DateTimeOffset? completedAt = null,
+        int? completedOdometer = null)
+    {
+        var nextOrder = order ?? (Checkpoints.Count + 1);
+        Checkpoints.Add(MaintenanceScheduleCheckpoint.Create(
+            Id,
+            odometer,
+            months,
+            nextOrder,
+            isCompleted,
+            completedAt,
+            completedOdometer));
+    }
+
     public void RecalculateNextDue(int currentOdometer, double dailyMileageAverage)
     {
         if (!LastPerformedOdometer.HasValue && !LastPerformedDate.HasValue)
@@ -84,15 +104,33 @@ public class MaintenanceSchedule : BaseEntity, IWorkspaceEntity
             return;
         }
 
-        int baseOdometer = LastPerformedOdometer ?? currentOdometer;
         DateTimeOffset baseDate = LastPerformedDate ?? CreatedAt;
-
-        NextDueOdometer = IntervalOdometer.HasValue ? baseOdometer + IntervalOdometer.Value : null;
-
         DateTimeOffset? timeBasedDate = null;
 
-        if (IntervalTimeMonths.HasValue)
-            timeBasedDate = baseDate.AddMonths(IntervalTimeMonths.Value);
+        var nextCheckpoint = Checkpoints
+            .Where(c => !c.IsCompleted && c.Odometer > (LastPerformedOdometer ?? 0))
+            .OrderBy(c => c.Order)
+            .ThenBy(c => c.Odometer)
+            .FirstOrDefault();
+
+        if (nextCheckpoint != null)
+        {
+            NextDueOdometer = nextCheckpoint.Odometer;
+            var originDate = Vehicle?.CreatedAt ?? CreatedAt;
+            timeBasedDate = originDate.AddMonths(nextCheckpoint.Months);
+            if (timeBasedDate < baseDate && IntervalTimeMonths.HasValue)
+            {
+                timeBasedDate = baseDate.AddMonths(IntervalTimeMonths.Value);
+            }
+        }
+        else
+        {
+            int baseOdometer = LastPerformedOdometer ?? currentOdometer;
+            NextDueOdometer = IntervalOdometer.HasValue ? baseOdometer + IntervalOdometer.Value : null;
+
+            if (IntervalTimeMonths.HasValue)
+                timeBasedDate = baseDate.AddMonths(IntervalTimeMonths.Value);
+        }
 
         DateTimeOffset? mileageBasedDate = null;
 
@@ -161,6 +199,12 @@ public class MaintenanceSchedule : BaseEntity, IWorkspaceEntity
         LastPerformedDate = dateOfService;
         LastNotifiedAt = null;
         LastNotifiedStatus = null;
+
+        foreach (var cp in Checkpoints.Where(c => !c.IsCompleted && c.Odometer <= odometerAtService))
+        {
+            cp.Complete(odometerAtService, dateOfService);
+        }
+
         RecalculateNextDue(odometerAtService, dailyMileageAverage);
     }
 

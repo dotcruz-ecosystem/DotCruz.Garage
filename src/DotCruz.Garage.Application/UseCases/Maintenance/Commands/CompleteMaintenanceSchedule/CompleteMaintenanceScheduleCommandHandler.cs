@@ -47,7 +47,12 @@ public class CompleteMaintenanceScheduleCommandHandler : IRequestHandler<Complet
         if (schedule.VehicleId != vehicle.Id)
             throw new NotFoundException(ResourceMessagesException.MAINTENANCE_SCHEDULE_NOT_FOUND);
 
-        var workspaceId = _workspaceProvider.WorkspaceId ?? schedule.WorkspaceId;
+        var workspaceId = _workspaceProvider.WorkspaceId ?? schedule.OriginWorkspaceId;
+        if (workspaceId.HasValue && !vehicle.CanWrite(workspaceId.Value))
+        {
+            throw new ForbiddenException(ResourceMessagesException.VEHICLE_ACCESS_DENIED);
+        }
+
         var userId = _workspaceProvider.UserId ?? schedule.UserId;
 
         schedule.Perform(request.RequestDto.OdometerAtService, request.RequestDto.PerformedAt, vehicle.DailyMileageAverage);

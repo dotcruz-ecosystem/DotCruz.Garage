@@ -30,6 +30,23 @@ public class GeminiClient(HttpClient httpClient) : IGeminiClient
         return InitRequest("gemini-3.8-flash", input);
     }
 
+    public IGeminiClient InitMultimodalRequest(string model, string prompt, byte[] mediaBytes, string mimeType)
+    {
+        var parts = new List<GeminiContentPart>
+        {
+            GeminiContentPart.TextPart(prompt),
+            GeminiContentPart.MediaPart(mediaBytes, mimeType)
+        };
+
+        BaseRequest = new GeminiApiBaseRequest(model, parts);
+        return this;
+    }
+
+    public IGeminiClient InitMultimodalRequest(string prompt, byte[] mediaBytes, string mimeType)
+    {
+        return InitMultimodalRequest("gemini-3.8-flash", prompt, mediaBytes, mimeType);
+    }
+
     public IGeminiClient SetSearchTool()
     {
         MakeSureBaseRequestInit();

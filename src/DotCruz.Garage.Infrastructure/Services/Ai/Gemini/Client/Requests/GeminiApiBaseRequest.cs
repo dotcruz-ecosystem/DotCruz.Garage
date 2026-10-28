@@ -5,13 +5,25 @@ using System.Text.Json.Serialization;
 
 namespace DotCruz.Garage.Infrastructure.Services.Ai.Gemini.Client.Requests;
 
-public class GeminiApiBaseRequest(string model, string input)
+public class GeminiApiBaseRequest
 {
     [JsonPropertyName("model")]
-    public string Model { get; private set; } = model;
+    public string Model { get; private set; }
 
     [JsonPropertyName("input")]
-    public string Input { get; private set; } = input;
+    public object Input { get; private set; }
+
+    public GeminiApiBaseRequest(string model, string input)
+    {
+        Model = model;
+        Input = input;
+    }
+
+    public GeminiApiBaseRequest(string model, object input)
+    {
+        Model = model;
+        Input = input;
+    }
 
     [JsonPropertyName("tools")]
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]

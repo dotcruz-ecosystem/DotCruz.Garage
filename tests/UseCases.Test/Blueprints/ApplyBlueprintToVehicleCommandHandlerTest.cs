@@ -277,4 +277,83 @@ public class ApplyBlueprintToVehicleCommandHandlerTest
         await Assert.ThrowsAsync<ErrorOnValidationException>(() =>
             handler.Handle(command, TestContext.Current.CancellationToken));
     }
+
+    [Fact]
+    public async Task Successfully_Applies_Template_With_Checkpoints_To_Motorcycle()
+    {
+        var workspaceId = Guid.NewGuid();
+        var userId = Guid.NewGuid();
+
+        var vehicle = VehicleBuilder.Build(
+            workspaceId: workspaceId,
+            userId: userId,
+            brand: "Yamaha",
+            model: "MT-03",
+            engine: "321cc",
+            type: VehicleType.Motorcycle,
+            initialOdometer: 0);
+
+        var blueprint = VehicleBlueprintBuilder.Build(
+            brand: "Yamaha",
+            model: "MT-03",
+            engine: "321cc",
+            type: VehicleType.Motorcycle,
+            withTemplates: false);
+
+        var template = blueprint.AddTemplate(
+            "Troca do Óleo do Motor",
+            MaintenanceCategory.Engine,
+            5000,
+            6,
+            true,
+            new List<(int, int)> { (1000, 6), (5000, 12), (10000, 18) });
+        blueprint.MarkAsReady(null, 2020, 2026);
+
+        var (_, vehicleWrite) = new VehicleRepositoryBuilder()
+            .SetupGetByIdWithHistoriesToUpdate(vehicle)
+            .Build();
+
+        var blueprintRepository = new VehicleBlueprintRepositoryBuilder()
+            .WithBlueprint(blueprint)
+            .Build();
+
+        var addedSchedules = new List<MaintenanceSchedule>();
+        var scheduleRepoBuilder = new MaintenanceScheduleRepositoryBuilder()
+            .SetupGetByVehicleId(new List<MaintenanceSchedule>())
+            .SetupAdd(s => addedSchedules.Add(s));
+        var (scheduleRead, scheduleWrite) = scheduleRepoBuilder.Build();
+
+        var workspaceProvider = new WorkspaceProviderBuilder()
+            .AsUser(workspaceId, userId)
+            .Build();
+
+        var unitOfWork = UnitOfWorkBuilder.Build();
+
+        var handler = new ApplyBlueprintToVehicleCommandHandler(
+            vehicleWrite,
+            blueprintRepository,
+            scheduleRead,
+            scheduleWrite,
+            workspaceProvider,
+            unitOfWork);
+
+        var command = new ApplyBlueprintToVehicleCommand(
+            vehicle.Id,
+            new ApplyBlueprintRequestDto(new List<ApplyBlueprintItemDto>
+            {
+                new(template.Id, "NeverPerformed", null, null)
+            }));
+
+        var result = await handler.Handle(command, TestContext.Current.CancellationToken);
+
+        Assert.NotEmpty(result);
+        Assert.Single(addedSchedules);
+
+        var created = addedSchedules.First();
+        Assert.Equal(3, created.Checkpoints.Count);
+        // Next due should be the 1.000km break-in milestone
+        Assert.Equal(1000, created.NextDueOdometer);
+        // At 0 km, 1.000 km is exactly within DefaultWarningThresholdOdometer (1000 km), so status is DueSoon
+        Assert.Equal(ScheduleStatus.DueSoon, created.Status);
+    }
 }

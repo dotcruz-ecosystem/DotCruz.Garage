@@ -13,6 +13,8 @@ public class GeminiClientBuilder
     {
         _mock.Setup(c => c.InitRequest(It.IsAny<string>(), It.IsAny<string>())).Returns(_mock.Object);
         _mock.Setup(c => c.InitRequest(It.IsAny<string>())).Returns(_mock.Object);
+        _mock.Setup(c => c.InitMultimodalRequest(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<byte[]>(), It.IsAny<string>())).Returns(_mock.Object);
+        _mock.Setup(c => c.InitMultimodalRequest(It.IsAny<string>(), It.IsAny<byte[]>(), It.IsAny<string>())).Returns(_mock.Object);
         _mock.Setup(c => c.SetSearchTool()).Returns(_mock.Object);
         _mock.Setup(c => c.SetPropertyToResponseFormat(It.IsAny<string>(), It.IsAny<ResponseFormatSchemaTypeEnum>(), It.IsAny<string?>())).Returns(_mock.Object);
         _mock.Setup(c => c.SetArrayPropertyToResponseFormat(It.IsAny<string>(), It.IsAny<ResponseFormatPropertyRequest>(), It.IsAny<string?>())).Returns(_mock.Object);

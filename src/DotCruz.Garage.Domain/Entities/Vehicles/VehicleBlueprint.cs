@@ -65,8 +65,24 @@ public class VehicleBlueprint : BaseEntity
         Touch();
     }
 
-    public void AddTemplate(string description, MaintenanceCategory category, int? intervalOdometer, int? intervalTimeMonths, bool isRequired = true)
+    public MaintenancePlanTemplate AddTemplate(
+        string description,
+        MaintenanceCategory category,
+        int? intervalOdometer,
+        int? intervalTimeMonths,
+        bool isRequired = true,
+        IEnumerable<(int Odometer, int Months)>? checkpoints = null)
     {
-        Templates.Add(MaintenancePlanTemplate.Create(Id, description, category, intervalOdometer, intervalTimeMonths, isRequired));
+        var template = MaintenancePlanTemplate.Create(Id, description, category, intervalOdometer, intervalTimeMonths, isRequired);
+        if (checkpoints != null)
+        {
+            int order = 1;
+            foreach (var cp in checkpoints.OrderBy(c => c.Odometer))
+            {
+                template.AddCheckpoint(cp.Odometer, cp.Months, order++);
+            }
+        }
+        Templates.Add(template);
+        return template;
     }
 }

@@ -19,13 +19,16 @@ public class GarageDbContext : DbContext
     }
 
     public DbSet<Vehicle> Vehicles { get; set; }
+    public DbSet<WorkspaceVehicle> WorkspaceVehicles { get; set; }
     public DbSet<VehicleBrand> VehicleBrands { get; set; }
     public DbSet<VehicleModel> VehicleModels { get; set; }
     public DbSet<VehicleEngine> VehicleEngines { get; set; }
     public DbSet<VehicleBlueprint> VehicleBlueprints { get; set; }
     public DbSet<MaintenancePlanTemplate> MaintenancePlanTemplates { get; set; }
+    public DbSet<MaintenancePlanTemplateCheckpoint> MaintenancePlanTemplateCheckpoints { get; set; }
     public DbSet<OdometerHistory> OdometerHistories { get; set; }
     public DbSet<MaintenanceSchedule> MaintenanceSchedules { get; set; }
+    public DbSet<MaintenanceScheduleCheckpoint> MaintenanceScheduleCheckpoints { get; set; }
     public DbSet<ServiceOrder> ServiceOrders { get; set; }
     public DbSet<ServiceOrderItem> ServiceOrderItems { get; set; }
     public DbSet<ServiceOrderAttachment> ServiceOrderAttachments { get; set; }

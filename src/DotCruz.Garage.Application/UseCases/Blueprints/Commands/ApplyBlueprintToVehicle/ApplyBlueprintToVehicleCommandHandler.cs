@@ -110,6 +110,31 @@ public class ApplyBlueprintToVehicleCommandHandler : IRequestHandler<ApplyBluepr
                 vehicle.DailyMileageAverage
             );
 
+            if (template.Checkpoints.Any())
+            {
+                foreach (var cp in template.Checkpoints.OrderBy(c => c.Order))
+                {
+                    bool isAlreadyCompleted = (lastOdo.HasValue && lastOdo.Value >= cp.Odometer) ||
+                                              (item.CalculationMode == "NeverPerformed" && vehicle.CurrentOdometer >= cp.Odometer);
+
+                    DateTimeOffset? completedAt = isAlreadyCompleted ? (lastDate ?? vehicle.CreatedAt) : null;
+                    int? completedOdo = isAlreadyCompleted ? Math.Min(vehicle.CurrentOdometer, cp.Odometer) : null;
+
+                    schedule.AddCheckpoint(
+                        cp.Odometer,
+                        cp.Months,
+                        cp.Order,
+                        isCompleted: isAlreadyCompleted,
+                        completedAt: completedAt,
+                        completedOdometer: completedOdo);
+                }
+
+                if (lastOdo.HasValue || lastDate.HasValue)
+                {
+                    schedule.RecalculateNextDue(vehicle.CurrentOdometer, vehicle.DailyMileageAverage);
+                }
+            }
+
             await _scheduleWriteRepository.AddAsync(schedule, cancellationToken);
             createdScheduleIds.Add(schedule.Id);
             existingDescriptions.Add(template.Description.Trim().ToLower());
